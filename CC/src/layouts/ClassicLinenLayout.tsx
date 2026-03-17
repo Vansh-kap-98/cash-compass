@@ -7,9 +7,8 @@ import { FinancialCharts } from "@/components/FinancialCharts";
 export const ClassicLinenLayout = () => (
   <div className="min-h-screen bg-background flex justify-center py-12 px-6">
     <div className="max-w-4xl w-full bg-card shadow-lg p-10 md:p-16 relative border border-border">
-      {}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https:
-      
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(circle,_currentColor_1px,_transparent_1px)] [background-size:10px_10px]" />
+
       <header className="text-center mb-16 space-y-4">
         <h1 className="font-heading text-5xl md:text-6xl text-primary border-b border-primary/20 pb-6 inline-block">
           The Ledger
