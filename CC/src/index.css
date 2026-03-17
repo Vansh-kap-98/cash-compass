@@ -1,0 +1,356 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Newsreader:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Fraunces:wght@400;500;600;700&family=Geist+Mono:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  
+  :root,
+  [data-theme="soft-bloom"] {
+    --background: 10 80% 99%;
+    --foreground: 340 30% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 340 30% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 340 30% 15%;
+    --primary: 340 60% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 20 60% 95%;
+    --secondary-foreground: 340 30% 25%;
+    --muted: 10 30% 95%;
+    --muted-foreground: 340 15% 45%;
+    --accent: 20 80% 90%;
+    --accent-foreground: 340 40% 25%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 340 20% 92%;
+    --input: 340 20% 90%;
+    --ring: 340 60% 65%;
+    --radius: 1.5rem;
+
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --shadow-card: 0 0 0 1px hsla(340, 20%, 40%, 0.03), 0 2px 4px hsla(340, 20%, 40%, 0.02), 0 12px 24px hsla(340, 20%, 40%, 0.04);
+    --shadow-hover: 0 10px 30px -10px hsla(340, 20%, 40%, 0.08);
+
+    --sidebar-background: 340 30% 97%;
+    --sidebar-foreground: 340 30% 15%;
+    --sidebar-primary: 340 60% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 20 60% 95%;
+    --sidebar-accent-foreground: 340 30% 25%;
+    --sidebar-border: 340 20% 92%;
+    --sidebar-ring: 340 60% 65%;
+  }
+
+  [data-theme="noir"] {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 10%;
+    --input: 0 0% 85%;
+    --ring: 0 0% 0%;
+    --radius: 0rem;
+
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --shadow-card: none;
+    --shadow-hover: none;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 5%;
+    --sidebar-primary: 0 0% 0%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 10%;
+    --sidebar-ring: 0 0% 0%;
+  }
+
+  [data-theme="cottage-sage"] {
+    --background: 85 25% 96%;
+    --foreground: 140 25% 12%;
+    --card: 40 30% 98%;
+    --card-foreground: 140 25% 12%;
+    --popover: 40 30% 98%;
+    --popover-foreground: 140 25% 12%;
+    --primary: 140 20% 30%;
+    --primary-foreground: 85 25% 96%;
+    --secondary: 85 20% 90%;
+    --secondary-foreground: 140 25% 18%;
+    --muted: 85 15% 92%;
+    --muted-foreground: 140 10% 42%;
+    --accent: 40 40% 92%;
+    --accent-foreground: 140 25% 18%;
+    --destructive: 0 55% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 85 15% 85%;
+    --input: 85 15% 88%;
+    --ring: 140 20% 30%;
+    --radius: 2.5rem;
+
+    --font-heading: 'Fraunces', serif;
+    --font-body: 'Newsreader', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --shadow-card: 0 0 0 1px hsla(140, 20%, 30%, 0.04), 0 4px 12px hsla(140, 20%, 30%, 0.03);
+    --shadow-hover: 0 8px 24px -8px hsla(140, 20%, 30%, 0.08);
+
+    --sidebar-background: 85 25% 96%;
+    --sidebar-foreground: 140 25% 12%;
+    --sidebar-primary: 140 20% 30%;
+    --sidebar-primary-foreground: 85 25% 96%;
+    --sidebar-accent: 85 20% 90%;
+    --sidebar-accent-foreground: 140 25% 18%;
+    --sidebar-border: 85 15% 85%;
+    --sidebar-ring: 140 20% 30%;
+  }
+
+  [data-theme="modern-academic"] {
+    --background: 220 15% 10%;
+    --foreground: 210 20% 90%;
+    --card: 220 15% 15%;
+    --card-foreground: 210 20% 90%;
+    --popover: 220 15% 15%;
+    --popover-foreground: 210 20% 90%;
+    --primary: 190 100% 50%;
+    --primary-foreground: 220 15% 5%;
+    --secondary: 220 15% 20%;
+    --secondary-foreground: 210 20% 85%;
+    --muted: 220 15% 18%;
+    --muted-foreground: 210 10% 55%;
+    --accent: 220 15% 20%;
+    --accent-foreground: 190 100% 50%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 25%;
+    --input: 220 15% 22%;
+    --ring: 190 100% 50%;
+    --radius: 0.25rem;
+
+    --font-heading: 'Geist Mono', monospace;
+    --font-body: 'Geist Mono', monospace;
+    --font-mono: 'Geist Mono', monospace;
+
+    --shadow-card: 0 0 0 1px hsla(190, 100%, 50%, 0.05);
+    --shadow-hover: 0 0 20px -5px hsla(190, 100%, 50%, 0.15);
+
+    --sidebar-background: 220 15% 8%;
+    --sidebar-foreground: 210 20% 90%;
+    --sidebar-primary: 190 100% 50%;
+    --sidebar-primary-foreground: 220 15% 5%;
+    --sidebar-accent: 220 15% 18%;
+    --sidebar-accent-foreground: 190 100% 50%;
+    --sidebar-border: 220 15% 25%;
+    --sidebar-ring: 190 100% 50%;
+  }
+
+  [data-theme="kawaii-pastel"] {
+    --background: 300 100% 98%;
+    --foreground: 300 20% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 300 20% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 300 20% 20%;
+    --primary: 325 100% 75%;
+    --primary-foreground: 300 100% 98%;
+    --secondary: 190 100% 95%;
+    --secondary-foreground: 190 60% 30%;
+    --muted: 60 100% 95%;
+    --muted-foreground: 60 30% 40%;
+    --accent: 33 100% 90%;
+    --accent-foreground: 33 60% 40%;
+    --destructive: 0 100% 70%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 300 100% 90%;
+    --input: 300 100% 92%;
+    --ring: 325 100% 75%;
+    --radius: 2rem;
+
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --shadow-card: 0 10px 0 0 hsla(300, 100%, 90%, 1);
+    --shadow-hover: 0 15px 0 0 hsla(300, 100%, 85%, 1);
+
+    --sidebar-background: 300 100% 96%;
+    --sidebar-foreground: 300 20% 20%;
+    --sidebar-primary: 325 100% 75%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 190 100% 95%;
+    --sidebar-accent-foreground: 190 60% 30%;
+    --sidebar-border: 300 100% 90%;
+    --sidebar-ring: 325 100% 75%;
+  }
+
+  [data-theme="cyber-terminal"] {
+    --background: 140 100% 2%;
+    --foreground: 140 100% 60%;
+    --card: 140 100% 4%;
+    --card-foreground: 140 100% 60%;
+    --popover: 140 100% 4%;
+    --popover-foreground: 140 100% 60%;
+    --primary: 140 100% 60%;
+    --primary-foreground: 140 100% 2%;
+    --secondary: 140 100% 10%;
+    --secondary-foreground: 140 100% 70%;
+    --muted: 140 100% 8%;
+    --muted-foreground: 140 50% 40%;
+    --accent: 140 100% 15%;
+    --accent-foreground: 140 100% 80%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 140 100% 20%;
+    --input: 140 100% 15%;
+    --ring: 140 100% 60%;
+    --radius: 0rem;
+
+    --font-heading: 'JetBrains Mono', monospace;
+    --font-body: 'JetBrains Mono', monospace;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --shadow-card: 0 0 10px hsla(140, 100%, 60%, 0.2);
+    --shadow-hover: 0 0 20px hsla(140, 100%, 60%, 0.4);
+
+    --sidebar-background: 140 100% 3%;
+    --sidebar-foreground: 140 100% 60%;
+    --sidebar-primary: 140 100% 60%;
+    --sidebar-primary-foreground: 140 100% 2%;
+    --sidebar-accent: 140 100% 10%;
+    --sidebar-accent-foreground: 140 100% 70%;
+    --sidebar-border: 140 100% 20%;
+    --sidebar-ring: 140 100% 60%;
+  }
+
+  [data-theme="classic-linen"] {
+    --background: 35 30% 96%;
+    --foreground: 220 30% 20%;
+    --card: 35 30% 98%;
+    --card-foreground: 220 30% 20%;
+    --popover: 35 30% 98%;
+    --popover-foreground: 220 30% 20%;
+    --primary: 220 40% 30%;
+    --primary-foreground: 35 30% 96%;
+    --secondary: 35 20% 90%;
+    --secondary-foreground: 220 30% 25%;
+    --muted: 35 15% 92%;
+    --muted-foreground: 220 10% 45%;
+    --accent: 45 40% 85%;
+    --accent-foreground: 220 40% 20%;
+    --destructive: 15 50% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 35 20% 85%;
+    --input: 35 20% 88%;
+    --ring: 220 40% 30%;
+    --radius: 0.5rem;
+
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Newsreader', serif;
+    --font-mono: 'Geist Mono', monospace;
+
+    --shadow-card: 0 4px 12px hsla(220, 30%, 10%, 0.05);
+    --shadow-hover: 0 8px 24px hsla(220, 30%, 10%, 0.1);
+
+    --sidebar-background: 35 30% 96%;
+    --sidebar-foreground: 220 30% 20%;
+    --sidebar-primary: 220 40% 30%;
+    --sidebar-primary-foreground: 35 30% 96%;
+    --sidebar-accent: 35 20% 90%;
+    --sidebar-accent-foreground: 220 30% 25%;
+    --sidebar-border: 35 20% 85%;
+    --sidebar-ring: 220 40% 30%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+
+  .bg-card,
+  .bg-secondary,
+  .bg-primary,
+  .bg-accent,
+  .bg-muted {
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.2);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.4);
+  }
+}
+
+@layer utilities {
+  .liquid-fill {
+    transition: width 1.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-card-hover {
+    box-shadow: var(--shadow-hover);
+  }
+
+  [data-theme="cottage-sage"] .organic-radius {
+    border-radius: 40px 25px 35px 20px;
+  }
+
+  [data-theme="cottage-sage"] .paper-texture::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  [data-theme="noir"] .noir-border {
+    border: 1px solid hsl(0 0% 10%);
+  }
+}
