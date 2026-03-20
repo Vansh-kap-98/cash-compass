@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 
-export type ThemeName = "soft-bloom" | "noir" | "cottage-sage" | "modern-academic" | "kawaii-pastel" | "cyber-terminal" | "classic-linen";
+export type ThemeName = "soft-bloom" | "retro-pixel" | "cottage-sage" | "modern-academic" | "kawaii-pastel" | "cyber-terminal";
 
 interface ThemeContextType {
   theme: ThemeName;
@@ -11,17 +11,22 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const themeLabels: Record<ThemeName, string> = {
   "soft-bloom": "Soft Bloom",
-  "noir": "Noir Monochrome",
+  "retro-pixel": "Retro Pixel",
   "cottage-sage": "Cottage Sage",
   "modern-academic": "Modern Academic",
   "kawaii-pastel": "Kawaii Pastel",
   "cyber-terminal": "Cyber Terminal",
-  "classic-linen": "Classic Linen",
+};
+
+const isThemeName = (value: string | null): value is ThemeName => {
+  if (!value) return false;
+  return value in themeLabels;
 };
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<ThemeName>(() => {
-    return (localStorage.getItem("dashboard-theme") as ThemeName) || "soft-bloom";
+    const storedTheme = localStorage.getItem("dashboard-theme");
+    return isThemeName(storedTheme) ? storedTheme : "soft-bloom";
   });
 
   const setTheme = useCallback((t: ThemeName) => {

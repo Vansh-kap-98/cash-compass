@@ -4,7 +4,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 export const TransactionFeed = () => {
   const { theme } = useTheme();
-  const isNoir = theme === "noir";
 
   const formatAmount = (n: number) => {
     const formatted = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Math.abs(n));
@@ -17,9 +16,7 @@ export const TransactionFeed = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className={`bg-card text-card-foreground rounded-lg p-6 shadow-card ${
-        isNoir ? "noir-border" : ""
-      } ${theme === "cottage-sage" ? "organic-radius paper-texture relative overflow-hidden" : ""}`}
+      className={`bg-card text-card-foreground rounded-lg p-6 shadow-card ${theme === "cottage-sage" ? "organic-radius paper-texture relative overflow-hidden" : ""}`}
     >
       <h2 className="font-heading text-sm font-medium text-muted-foreground uppercase tracking-wider mb-5">
         Recent Transactions
@@ -34,9 +31,7 @@ export const TransactionFeed = () => {
             transition={{ delay: 0.25 + i * 0.05 }}
             className={`flex items-center justify-between py-3 ${
               i < transactions.length - 1
-                ? isNoir
-                  ? "border-b border-foreground/10"
-                  : "border-b border-border"
+                ? "border-b border-border"
                 : ""
             }`}
           >

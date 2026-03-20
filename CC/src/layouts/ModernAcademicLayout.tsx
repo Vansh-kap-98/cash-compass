@@ -3,7 +3,14 @@ import { SavingsProgress } from "@/components/SavingsProgress";
 import { TransactionFeed } from "@/components/TransactionFeed";
 import { InsightBox } from "@/components/InsightBox";
 import { FinancialCharts } from "@/components/FinancialCharts";
-import { Cpu, ChevronRight } from "lucide-react";
+import { Cpu, ChevronRight, BellDot, ScanText, Binary } from "lucide-react";
+
+const NeoPanel = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <section className="border border-border bg-card p-4">
+    <p className="mb-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">{title}</p>
+    {children}
+  </section>
+);
 
 export const ModernAcademicLayout = () => (
   <div className="min-h-screen">
@@ -23,20 +30,36 @@ export const ModernAcademicLayout = () => (
 
     {}
     <main className="p-4 grid grid-cols-12 gap-4">
-      <div className="col-span-5">
+      <div className="col-span-12 lg:col-span-5 space-y-4">
+        <NeoPanel title="Live Widgets">
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="border border-border p-2">
+              <p className="flex items-center gap-1.5 text-muted-foreground"><BellDot className="h-3.5 w-3.5 text-primary" /> Alerts</p>
+              <p className="mt-1 font-mono">03</p>
+            </div>
+            <div className="border border-border p-2">
+              <p className="flex items-center gap-1.5 text-muted-foreground"><ScanText className="h-3.5 w-3.5 text-primary" /> OCR Queue</p>
+              <p className="mt-1 font-mono">07</p>
+            </div>
+          </div>
+        </NeoPanel>
         <BalanceOverview />
-        <div className="mt-4">
-          <FinancialCharts />
-        </div>
+        <FinancialCharts />
       </div>
-      <div className="col-span-7">
+      <div className="col-span-12 lg:col-span-7">
         <SavingsProgress />
       </div>
-      <div className="col-span-7">
+      <div className="col-span-12 lg:col-span-7">
         <TransactionFeed />
       </div>
-      <div className="col-span-5">
+      <div className="col-span-12 lg:col-span-5 space-y-4">
         <InsightBox />
+        <NeoPanel title="Compile Notes">
+          <div className="space-y-2 text-xs">
+            <p className="flex items-center gap-1.5 text-muted-foreground"><Binary className="h-3.5 w-3.5 text-primary" /> Target savings hit-rate: 83%</p>
+            <p className="text-muted-foreground">Spending anomaly at dining category, +11% WoW.</p>
+          </div>
+        </NeoPanel>
       </div>
     </main>
   </div>

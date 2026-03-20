@@ -3,7 +3,14 @@ import { SavingsProgress } from "@/components/SavingsProgress";
 import { TransactionFeed } from "@/components/TransactionFeed";
 import { InsightBox } from "@/components/InsightBox";
 import { FinancialCharts } from "@/components/FinancialCharts";
-import { Leaf } from "lucide-react";
+import { Leaf, BookHeart, BellRing } from "lucide-react";
+
+const SageWidget = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <article className="organic-radius paper-texture relative overflow-hidden border border-border bg-card p-4 shadow-card">
+    <p className="mb-2 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{title}</p>
+    {children}
+  </article>
+);
 
 export const CottageSageLayout = () => (
   <div className="min-h-screen p-6 md:p-10">
@@ -15,28 +22,41 @@ export const CottageSageLayout = () => (
       </div>
     </header>
 
+    <section className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+      <SageWidget title="Garden Note">
+        <p className="text-sm text-muted-foreground">Slow and steady deposits are compounding beautifully.</p>
+      </SageWidget>
+      <SageWidget title="Upcoming">
+        <div className="flex items-center justify-between text-sm">
+          <span className="flex items-center gap-2 text-muted-foreground"><BellRing className="h-4 w-4 text-primary" /> Mortgage due</span>
+          <span>3d</span>
+        </div>
+      </SageWidget>
+      <SageWidget title="Reading">
+        <p className="flex items-center gap-2 text-sm text-muted-foreground"><BookHeart className="h-4 w-4 text-primary" /> Weekly money journal</p>
+      </SageWidget>
+    </section>
+
     {}
     <div
       className="grid gap-6"
       style={{
-        gridTemplateColumns: "1fr 1fr 1fr",
-        gridTemplateRows: "auto auto",
-        gridTemplateAreas: `"bal bal goal" "feed insight insight"`,
+        gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
       }}
     >
-      <div style={{ gridArea: "bal" }}>
+      <div className="md:col-span-2">
         <BalanceOverview />
         <div className="mt-6">
           <FinancialCharts />
         </div>
       </div>
-      <div style={{ gridArea: "goal" }}>
+      <div>
         <SavingsProgress />
       </div>
-      <div style={{ gridArea: "feed" }}>
+      <div>
         <TransactionFeed />
       </div>
-      <div style={{ gridArea: "insight" }}>
+      <div className="md:col-span-2">
         <InsightBox />
       </div>
     </div>

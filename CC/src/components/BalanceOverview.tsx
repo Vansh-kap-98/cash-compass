@@ -5,7 +5,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 export const BalanceOverview = () => {
   const { theme } = useTheme();
-  const isNoir = theme === "noir";
 
   const formatCurrency = (n: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
@@ -16,9 +15,7 @@ export const BalanceOverview = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className={`bg-card text-card-foreground rounded-lg p-6 shadow-card ${
-        isNoir ? "noir-border" : ""
-      } ${theme === "cottage-sage" ? "organic-radius paper-texture relative overflow-hidden" : ""}`}
+      className={`bg-card text-card-foreground rounded-lg p-6 shadow-card ${theme === "cottage-sage" ? "organic-radius paper-texture relative overflow-hidden" : ""}`}
     >
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-heading text-sm font-medium text-muted-foreground uppercase tracking-wider">

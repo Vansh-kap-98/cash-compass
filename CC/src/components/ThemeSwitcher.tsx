@@ -1,15 +1,17 @@
 import { motion } from "framer-motion";
 import { useTheme, ThemeName, themeLabels } from "@/contexts/ThemeContext";
-import { Flower2, Moon, Leaf, Cpu } from "lucide-react";
+import { Flower2, Gamepad2, Leaf, Cpu, Heart, Terminal } from "lucide-react";
 
 const themeIcons: Record<ThemeName, React.ReactNode> = {
   "soft-bloom": <Flower2 className="w-4 h-4" />,
-  "noir": <Moon className="w-4 h-4" />,
+  "retro-pixel": <Gamepad2 className="w-4 h-4" />,
   "cottage-sage": <Leaf className="w-4 h-4" />,
   "modern-academic": <Cpu className="w-4 h-4" />,
+  "kawaii-pastel": <Heart className="w-4 h-4" />,
+  "cyber-terminal": <Terminal className="w-4 h-4" />,
 };
 
-const themes: ThemeName[] = ["soft-bloom", "noir", "cottage-sage", "modern-academic"];
+const themes: ThemeName[] = ["soft-bloom", "retro-pixel", "cottage-sage", "modern-academic", "kawaii-pastel", "cyber-terminal"];
 
 export const ThemeSwitcher = () => {
   const { theme, setTheme } = useTheme();

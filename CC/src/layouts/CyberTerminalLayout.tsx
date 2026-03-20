@@ -3,7 +3,14 @@ import { SavingsProgress } from "@/components/SavingsProgress";
 import { TransactionFeed } from "@/components/TransactionFeed";
 import { InsightBox } from "@/components/InsightBox";
 import { FinancialCharts } from "@/components/FinancialCharts";
-import { Terminal, Database, Activity, ShieldCheck } from "lucide-react";
+import { Terminal, Database, Activity, ShieldCheck, BellRing, ScanLine, Radar } from "lucide-react";
+
+const TerminalWidget = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div className="border border-primary/20 p-4 rounded bg-black/40">
+    <h3 className="mb-3 text-xs font-bold tracking-wide text-primary">{title}</h3>
+    {children}
+  </div>
+);
 
 export const CyberTerminalLayout = () => (
   <div className="min-h-screen bg-background font-mono p-4 md:p-8">
@@ -33,6 +40,24 @@ export const CyberTerminalLayout = () => (
               <div className="flex justify-between"><span>LATENCY</span><span className="text-primary">12ms</span></div>
             </div>
           </div>
+
+          <TerminalWidget title="WIDGET_STACK">
+            <div className="space-y-2 text-[10px]">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1"><BellRing className="w-3 h-3 text-primary" /> ALERT_BUS</span>
+                <span className="text-primary">03</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1"><ScanLine className="w-3 h-3 text-primary" /> OCR_QUEUE</span>
+                <span className="text-primary">07</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1"><Radar className="w-3 h-3 text-primary" /> THREAT_SCAN</span>
+                <span className="text-primary">CLEAN</span>
+              </div>
+            </div>
+          </TerminalWidget>
+
           <nav className="space-y-2">
             {["SYSTEM_CORE", "LEDGER_V1", "TARGET_SYS", "SCAN_INTEL"].map(item => (
               <div key={item} className="p-2 border border-primary/10 hover:border-primary/50 cursor-pointer text-xs transition-all">
@@ -61,6 +86,22 @@ export const CyberTerminalLayout = () => (
           <div className="border border-primary/20 p-6 rounded bg-black/40">
             <h2 className="text-sm font-bold mb-4 border-b border-primary/10 pb-2">TRANSACTION_HISTORY_SCAN</h2>
             <TransactionFeed />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="border border-primary/20 p-6 rounded bg-black/40">
+              <h2 className="text-sm font-bold mb-4 border-b border-primary/10 pb-2">INTELLIGENCE_HINTS</h2>
+              <InsightBox />
+            </div>
+            <div className="border border-primary/20 p-6 rounded bg-black/40">
+              <h2 className="text-sm font-bold mb-4 border-b border-primary/10 pb-2">SYSTEM_LOG</h2>
+              <div className="space-y-2 text-xs text-muted-foreground">
+                <p>&gt; savings_autopilot synced</p>
+                <p>&gt; anomaly detector flag: dining</p>
+                <p>&gt; forecast model recalculated</p>
+                <p>&gt; weekly digest dispatched</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

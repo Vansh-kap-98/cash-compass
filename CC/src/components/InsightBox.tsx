@@ -5,7 +5,6 @@ import { Lightbulb } from "lucide-react";
 
 export const InsightBox = () => {
   const { theme } = useTheme();
-  const isNoir = theme === "noir";
 
   return (
     <motion.div
@@ -13,9 +12,7 @@ export const InsightBox = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.15, ease: [0.4, 0, 0.2, 1] }}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className={`bg-card text-card-foreground rounded-lg p-6 shadow-card ${
-        isNoir ? "noir-border" : ""
-      } ${theme === "cottage-sage" ? "organic-radius paper-texture relative overflow-hidden" : ""}`}
+      className={`bg-card text-card-foreground rounded-lg p-6 shadow-card ${theme === "cottage-sage" ? "organic-radius paper-texture relative overflow-hidden" : ""}`}
     >
       <div className="flex items-center gap-2 mb-5">
         <Lightbulb className="w-4 h-4 text-primary" />
