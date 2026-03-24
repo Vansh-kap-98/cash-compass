@@ -8,42 +8,42 @@
   
   :root,
   [data-theme="soft-bloom"] {
-    --background: 10 80% 99%;
-    --foreground: 340 30% 15%;
+    --background: 46 45% 94%;
+    --foreground: 268 18% 24%;
     --card: 0 0% 100%;
-    --card-foreground: 340 30% 15%;
+    --card-foreground: 268 18% 24%;
     --popover: 0 0% 100%;
-    --popover-foreground: 340 30% 15%;
-    --primary: 340 60% 65%;
+    --popover-foreground: 268 18% 24%;
+    --primary: 270 20% 72%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 20 60% 95%;
-    --secondary-foreground: 340 30% 25%;
-    --muted: 10 30% 95%;
-    --muted-foreground: 340 15% 45%;
-    --accent: 20 80% 90%;
-    --accent-foreground: 340 40% 25%;
+    --secondary: 270 16% 87%;
+    --secondary-foreground: 268 18% 28%;
+    --muted: 46 20% 96%;
+    --muted-foreground: 268 12% 42%;
+    --accent: 0 0% 100%;
+    --accent-foreground: 268 18% 28%;
     --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 340 20% 92%;
-    --input: 340 20% 90%;
-    --ring: 340 60% 65%;
+    --border: 270 14% 84%;
+    --input: 270 14% 88%;
+    --ring: 270 20% 72%;
     --radius: 1.5rem;
 
     --font-heading: 'Outfit', sans-serif;
     --font-body: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
-    --shadow-card: 0 0 0 1px hsla(340, 20%, 40%, 0.03), 0 2px 4px hsla(340, 20%, 40%, 0.02), 0 12px 24px hsla(340, 20%, 40%, 0.04);
-    --shadow-hover: 0 10px 30px -10px hsla(340, 20%, 40%, 0.08);
+    --shadow-card: 0 0 0 1px hsla(270, 14%, 40%, 0.04), 0 2px 4px hsla(270, 14%, 40%, 0.03), 0 12px 24px hsla(270, 14%, 40%, 0.05);
+    --shadow-hover: 0 10px 30px -10px hsla(270, 14%, 40%, 0.1);
 
-    --sidebar-background: 340 30% 97%;
-    --sidebar-foreground: 340 30% 15%;
-    --sidebar-primary: 340 60% 65%;
+    --sidebar-background: 46 45% 94%;
+    --sidebar-foreground: 268 18% 24%;
+    --sidebar-primary: 270 20% 72%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 20 60% 95%;
-    --sidebar-accent-foreground: 340 30% 25%;
-    --sidebar-border: 340 20% 92%;
-    --sidebar-ring: 340 60% 65%;
+    --sidebar-accent: 270 16% 87%;
+    --sidebar-accent-foreground: 268 18% 28%;
+    --sidebar-border: 270 14% 84%;
+    --sidebar-ring: 270 20% 72%;
   }
 
   [data-theme="retro-pixel"] {

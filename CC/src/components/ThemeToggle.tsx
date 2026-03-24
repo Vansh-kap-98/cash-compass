@@ -29,7 +29,7 @@ export const ThemeToggle = () => {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         className="relative w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow group overflow-hidden"
-        title={`Current: ${themeLabels[theme]}. Click to cycle.`}
+        title={`Current: ${themeLabels[theme]}. Click to cycle or press Right Alt.`}
       >
         <AnimatePresence mode="wait">
           <motion.div

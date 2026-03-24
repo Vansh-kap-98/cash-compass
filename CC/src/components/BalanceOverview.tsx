@@ -1,13 +1,12 @@
 import { motion } from "framer-motion";
 import { balanceData } from "@/data/mockData";
 import { TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export const BalanceOverview = () => {
   const { theme } = useTheme();
-
-  const formatCurrency = (n: number) =>
-    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
+  const { formatFromUSD } = useCurrency();
 
   return (
     <motion.div
@@ -28,7 +27,7 @@ export const BalanceOverview = () => {
       </div>
 
       <p className="font-heading text-3xl font-bold tabular-nums mb-6">
-        {formatCurrency(balanceData.totalBalance)}
+        {formatFromUSD(balanceData.totalBalance)}
       </p>
 
       <div className="grid grid-cols-2 gap-4">
@@ -38,7 +37,7 @@ export const BalanceOverview = () => {
             Savings
           </div>
           <p className="text-lg font-semibold tabular-nums font-heading">
-            {formatCurrency(balanceData.savings)}
+            {formatFromUSD(balanceData.savings)}
           </p>
         </div>
         <div className="space-y-1">
@@ -47,7 +46,7 @@ export const BalanceOverview = () => {
             Spending
           </div>
           <p className="text-lg font-semibold tabular-nums font-heading">
-            {formatCurrency(balanceData.spending)}
+            {formatFromUSD(balanceData.spending)}
           </p>
         </div>
       </div>

@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
 import { savingsGoals } from "@/data/mockData";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export const SavingsProgress = () => {
   const { theme } = useTheme();
+  const { formatFromUSD } = useCurrency();
 
   return (
     <motion.div
@@ -33,7 +35,7 @@ export const SavingsProgress = () => {
                   <span className="text-sm font-medium font-heading">{goal.name}</span>
                 </div>
                 <span className="text-xs tabular-nums text-muted-foreground">
-                  ${goal.current.toLocaleString()} / ${goal.target.toLocaleString()}
+                  {formatFromUSD(goal.current, { maximumFractionDigits: 0 })} / {formatFromUSD(goal.target, { maximumFractionDigits: 0 })}
                 </span>
               </div>
 

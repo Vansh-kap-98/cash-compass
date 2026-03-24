@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 
 export type ThemeName = "soft-bloom" | "retro-pixel" | "cottage-sage" | "modern-academic" | "kawaii-pastel" | "cyber-terminal";
 
+const themeOrder: ThemeName[] = ["soft-bloom", "retro-pixel", "cottage-sage", "modern-academic", "kawaii-pastel", "cyber-terminal"];
+
 interface ThemeContextType {
   theme: ThemeName;
   setTheme: (theme: ThemeName) => void;
@@ -36,6 +38,26 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.code !== "AltRight" || event.repeat) return;
+      if (event.ctrlKey || event.metaKey || event.shiftKey) return;
+
+      const target = event.target as HTMLElement | null;
+      if (target?.isContentEditable) return;
+      const tagName = target?.tagName;
+      if (tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT") return;
+
+      const currentIndex = themeOrder.indexOf(theme);
+      const nextTheme = themeOrder[(currentIndex + 1) % themeOrder.length];
+      setThemeState(nextTheme);
+      localStorage.setItem("dashboard-theme", nextTheme);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [theme]);
 
   return (

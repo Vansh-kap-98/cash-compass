@@ -6,6 +6,7 @@ import { ModernAcademicLayout } from "@/layouts/ModernAcademicLayout";
 import { KawaiiPastelLayout } from "@/layouts/KawaiiPastelLayout";
 import { CyberTerminalLayout } from "@/layouts/CyberTerminalLayout";
 import { QuickActions } from "@/components/QuickActions";
+import { CurrencyToggle } from "@/components/CurrencyToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Index = () => {
@@ -22,6 +23,7 @@ const Index = () => {
 
   return (
     <div className="relative min-h-screen">
+      <CurrencyToggle />
       <ThemeToggle />
       <div key={theme}>
         {layouts[theme]}

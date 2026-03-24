@@ -1,12 +1,14 @@
 import { motion } from "framer-motion";
 import { transactions } from "@/data/mockData";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export const TransactionFeed = () => {
   const { theme } = useTheme();
+  const { formatFromUSD } = useCurrency();
 
   const formatAmount = (n: number) => {
-    const formatted = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Math.abs(n));
+    const formatted = formatFromUSD(Math.abs(n));
     return n < 0 ? `−${formatted}` : `+${formatted}`;
   };
 

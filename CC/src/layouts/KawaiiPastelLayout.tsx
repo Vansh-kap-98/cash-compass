@@ -3,6 +3,7 @@ import { SavingsProgress } from "@/components/SavingsProgress";
 import { TransactionFeed } from "@/components/TransactionFeed";
 import { InsightBox } from "@/components/InsightBox";
 import { FinancialCharts } from "@/components/FinancialCharts";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { Heart, Star, Sparkles, Cloud, Bell, CalendarDays, PiggyBank } from "lucide-react";
 
 const KawaiiWidget = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -12,7 +13,10 @@ const KawaiiWidget = ({ title, children }: { title: string; children: React.Reac
   </div>
 );
 
-export const KawaiiPastelLayout = () => (
+export const KawaiiPastelLayout = () => {
+  const { formatFromUSD } = useCurrency();
+
+  return (
   <div className="min-h-screen bg-background relative overflow-hidden">
     {}
     <div className="absolute top-10 left-10 text-primary/20 animate-bounce"><Cloud className="w-16 h-16 fill-current" /></div>
@@ -36,7 +40,7 @@ export const KawaiiPastelLayout = () => (
           <p className="flex items-center gap-2 text-sm text-muted-foreground"><Bell className="h-4 w-4 text-primary" /> Card payment in 2 days</p>
         </KawaiiWidget>
         <KawaiiWidget title="Mini Goal">
-          <p className="flex items-center gap-2 text-sm text-muted-foreground"><PiggyBank className="h-4 w-4 text-primary" /> Save $40 this weekend</p>
+          <p className="flex items-center gap-2 text-sm text-muted-foreground"><PiggyBank className="h-4 w-4 text-primary" /> Save {formatFromUSD(40, { maximumFractionDigits: 0 })} this weekend</p>
         </KawaiiWidget>
       </section>
 
@@ -79,4 +83,5 @@ export const KawaiiPastelLayout = () => (
       </section>
     </div>
   </div>
-);
+  );
+};

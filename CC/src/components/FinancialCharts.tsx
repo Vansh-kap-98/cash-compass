@@ -1,4 +1,6 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import { useMemo } from "react";
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 const data = [
   { name: "Rent", value: 1200, fill: "hsl(var(--primary))" },
@@ -15,6 +17,23 @@ const barData = [
 ];
 
 export const FinancialCharts = () => {
+  const { convertFromUSD, formatAmount } = useCurrency();
+
+  const pieData = useMemo(
+    () => data.map((item) => ({ ...item, value: convertFromUSD(item.value) })),
+    [convertFromUSD],
+  );
+
+  const monthlyBarData = useMemo(
+    () =>
+      barData.map((item) => ({
+        ...item,
+        income: convertFromUSD(item.income),
+        expense: convertFromUSD(item.expense),
+      })),
+    [convertFromUSD],
+  );
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
       <div className="bg-card p-6 rounded-3xl shadow-card border border-border">
@@ -23,7 +42,7 @@ export const FinancialCharts = () => {
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={data}
+                data={pieData}
                 cx="50%"
                 cy="50%"
                 innerRadius={60}
@@ -31,11 +50,15 @@ export const FinancialCharts = () => {
                 paddingAngle={5}
                 dataKey="value"
               >
-                {data.map((entry, index) => (
+                {pieData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.fill} stroke="none" />
                 ))}
               </Pie>
               <Tooltip 
+                formatter={(value) => {
+                  const numeric = Number(value) || 0;
+                  return [formatAmount(numeric), "Amount"];
+                }}
                 contentStyle={{ 
                   backgroundColor: "hsl(var(--card))", 
                   borderColor: "hsl(var(--border))",
@@ -52,10 +75,16 @@ export const FinancialCharts = () => {
         <h3 className="font-heading font-semibold mb-4 text-sm uppercase tracking-wider opacity-70">Cash Flow</h3>
         <div className="h-[200px] w-full text-xs">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={barData}>
+            <BarChart data={monthlyBarData}>
               <XAxis dataKey="month" axisLine={false} tickLine={false} />
               <YAxis hide />
-              <Tooltip />
+              <Tooltip
+                formatter={(value, name) => {
+                  const numeric = Number(value) || 0;
+                  const label = name === "income" ? "Income" : "Expense";
+                  return [formatAmount(numeric), label];
+                }}
+              />
               <Bar dataKey="income" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               <Bar dataKey="expense" fill="hsl(var(--secondary))" radius={[4, 4, 0, 0]} />
             </BarChart>

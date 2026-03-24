@@ -3,6 +3,7 @@ import { SavingsProgress } from "@/components/SavingsProgress";
 import { TransactionFeed } from "@/components/TransactionFeed";
 import { InsightBox } from "@/components/InsightBox";
 import { FinancialCharts } from "@/components/FinancialCharts";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { Wallet, Bell, CalendarClock, PiggyBank } from "lucide-react";
 
 const SoftWidget = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -12,7 +13,10 @@ const SoftWidget = ({ title, children }: { title: string; children: React.ReactN
   </div>
 );
 
-export const SoftBloomLayout = () => (
+export const SoftBloomLayout = () => {
+  const { formatFromUSD } = useCurrency();
+
+  return (
   <div className="flex min-h-screen">
     {}
     <aside className="w-[280px] shrink-0 border-r border-border bg-secondary/30 p-6 flex flex-col gap-6 sticky top-0 h-screen overflow-y-auto">
@@ -57,7 +61,7 @@ export const SoftBloomLayout = () => (
           <div className="space-y-2 text-xs">
             <div className="flex items-center justify-between text-muted-foreground">
               <span className="flex items-center gap-1.5"><PiggyBank className="h-3.5 w-3.5 text-primary" /> Weekly target</span>
-              <span>$220</span>
+              <span>{formatFromUSD(220, { maximumFractionDigits: 0 })}</span>
             </div>
             <div className="h-2 rounded-full bg-secondary">
               <div className="h-full w-[68%] rounded-full bg-primary" />
@@ -92,4 +96,5 @@ export const SoftBloomLayout = () => (
       <TransactionFeed />
     </main>
   </div>
-);
+  );
+};

@@ -1,10 +1,19 @@
 import { motion } from "framer-motion";
 import { insights } from "@/data/mockData";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Lightbulb } from "lucide-react";
 
 export const InsightBox = () => {
   const { theme } = useTheme();
+  const { formatFromUSD } = useCurrency();
+
+  const replaceDollarAmounts = (text: string) =>
+    text.replace(/(~?)\$(\d+(?:\.\d+)?)/g, (_, approx: string, amountText: string) => {
+      const amount = Number(amountText);
+      const decimals = amountText.includes(".") ? 2 : 0;
+      return `${approx}${formatFromUSD(amount, { maximumFractionDigits: decimals, minimumFractionDigits: decimals })}`;
+    });
 
   return (
     <motion.div
@@ -34,10 +43,10 @@ export const InsightBox = () => {
             <div className="space-y-1">
               <p className="text-sm font-semibold font-heading">{insight.title}</p>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                {insight.description}
+                {replaceDollarAmounts(insight.description)}
               </p>
               <p className="text-xs font-medium text-primary tabular-nums">
-                Save ~${insight.savings}/mo
+                Save ~{formatFromUSD(insight.savings, { maximumFractionDigits: 0 })}/mo
               </p>
             </div>
           </motion.div>
