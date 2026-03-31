@@ -3,6 +3,7 @@ import { SavingsProgress } from "@/components/SavingsProgress";
 import { TransactionFeed } from "@/components/TransactionFeed";
 import { InsightBox } from "@/components/InsightBox";
 import { FinancialCharts } from "@/components/FinancialCharts";
+import { FeatureShowcase } from "@/components/FeatureShowcase";
 import { Terminal, Database, Activity, ShieldCheck, BellRing, ScanLine, Radar } from "lucide-react";
 
 const TerminalWidget = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -103,6 +104,8 @@ export const CyberTerminalLayout = () => (
               </div>
             </div>
           </div>
+
+          <FeatureShowcase theme="cyber-terminal" />
         </div>
       </div>
 

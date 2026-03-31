@@ -3,6 +3,7 @@ import { SavingsProgress } from "@/components/SavingsProgress";
 import { TransactionFeed } from "@/components/TransactionFeed";
 import { InsightBox } from "@/components/InsightBox";
 import { FinancialCharts } from "@/components/FinancialCharts";
+import { FeatureShowcase } from "@/components/FeatureShowcase";
 import { Cpu, ChevronRight, BellDot, ScanText, Binary } from "lucide-react";
 
 const NeoPanel = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -60,6 +61,10 @@ export const ModernAcademicLayout = () => (
             <p className="text-muted-foreground">Spending anomaly at dining category, +11% WoW.</p>
           </div>
         </NeoPanel>
+      </div>
+
+      <div className="col-span-12">
+        <FeatureShowcase theme="modern-academic" />
       </div>
     </main>
   </div>

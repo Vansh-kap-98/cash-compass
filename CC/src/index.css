@@ -85,45 +85,6 @@
     --sidebar-ring: 180 40% 50%;
   }
 
-  [data-theme="cottage-sage"] {
-    --background: 85 25% 96%;
-    --foreground: 140 25% 12%;
-    --card: 40 30% 98%;
-    --card-foreground: 140 25% 12%;
-    --popover: 40 30% 98%;
-    --popover-foreground: 140 25% 12%;
-    --primary: 140 20% 30%;
-    --primary-foreground: 85 25% 96%;
-    --secondary: 85 20% 90%;
-    --secondary-foreground: 140 25% 18%;
-    --muted: 85 15% 92%;
-    --muted-foreground: 140 10% 42%;
-    --accent: 40 40% 92%;
-    --accent-foreground: 140 25% 18%;
-    --destructive: 0 55% 45%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 85 15% 85%;
-    --input: 85 15% 88%;
-    --ring: 140 20% 30%;
-    --radius: 2.5rem;
-
-    --font-heading: 'Fraunces', serif;
-    --font-body: 'Newsreader', serif;
-    --font-mono: 'JetBrains Mono', monospace;
-
-    --shadow-card: 0 0 0 1px hsla(140, 20%, 30%, 0.04), 0 4px 12px hsla(140, 20%, 30%, 0.03);
-    --shadow-hover: 0 8px 24px -8px hsla(140, 20%, 30%, 0.08);
-
-    --sidebar-background: 85 25% 96%;
-    --sidebar-foreground: 140 25% 12%;
-    --sidebar-primary: 140 20% 30%;
-    --sidebar-primary-foreground: 85 25% 96%;
-    --sidebar-accent: 85 20% 90%;
-    --sidebar-accent-foreground: 140 25% 18%;
-    --sidebar-border: 85 15% 85%;
-    --sidebar-ring: 140 20% 30%;
-  }
-
   [data-theme="modern-academic"] {
     --background: 220 15% 10%;
     --foreground: 210 20% 90%;
@@ -297,19 +258,6 @@
 
   .shadow-card-hover {
     box-shadow: var(--shadow-hover);
-  }
-
-  [data-theme="cottage-sage"] .organic-radius {
-    border-radius: 40px 25px 35px 20px;
-  }
-
-  [data-theme="cottage-sage"] .paper-texture::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    border-radius: inherit;
   }
 
   [data-theme="retro-pixel"] .retro-grid {

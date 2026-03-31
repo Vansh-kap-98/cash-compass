@@ -1,17 +1,16 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme, ThemeName, themeLabels } from "@/contexts/ThemeContext";
-import { Flower2, Gamepad2, Leaf, Cpu, Heart, Terminal } from "lucide-react";
+import { Flower2, Gamepad2, Cpu, Heart, Terminal } from "lucide-react";
 
 const themeIcons: Record<ThemeName, React.ReactNode> = {
   "soft-bloom": <Flower2 className="w-5 h-5" />,
   "retro-pixel": <Gamepad2 className="w-5 h-5" />,
-  "cottage-sage": <Leaf className="w-5 h-5" />,
   "modern-academic": <Cpu className="w-5 h-5" />,
   "kawaii-pastel": <Heart className="w-5 h-5" />,
   "cyber-terminal": <Terminal className="w-5 h-5" />,
 };
 
-const themes: ThemeName[] = ["soft-bloom", "retro-pixel", "cottage-sage", "modern-academic", "kawaii-pastel", "cyber-terminal"];
+const themes: ThemeName[] = ["soft-bloom", "retro-pixel", "modern-academic", "kawaii-pastel", "cyber-terminal"];
 
 export const ThemeToggle = () => {
   const { theme, setTheme } = useTheme();

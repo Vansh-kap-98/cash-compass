@@ -3,6 +3,7 @@ import { SavingsProgress } from "@/components/SavingsProgress";
 import { TransactionFeed } from "@/components/TransactionFeed";
 import { InsightBox } from "@/components/InsightBox";
 import { FinancialCharts } from "@/components/FinancialCharts";
+import { FeatureShowcase } from "@/components/FeatureShowcase";
 import { Search, Play, Mail, Music2, TriangleAlert, Sparkles, Heart, Wallet, ScanLine, Gamepad2 } from "lucide-react";
 
 const PixelBadge = ({ children }: { children: React.ReactNode }) => (
@@ -186,6 +187,8 @@ export const RetroPixelLayout = () => (
           </div>
         </PixelWindow>
       </section>
+
+      <FeatureShowcase theme="retro-pixel" />
 
       <footer className="retro-pixel-border bg-card px-4 py-3">
         <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">

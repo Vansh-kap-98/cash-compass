@@ -1,7 +1,6 @@
 import { useTheme } from "@/contexts/ThemeContext";
 import { SoftBloomLayout } from "@/layouts/SoftBloomLayout";
 import { RetroPixelLayout } from "@/layouts/RetroPixelLayout";
-import { CottageSageLayout } from "@/layouts/CottageSageLayout";
 import { ModernAcademicLayout } from "@/layouts/ModernAcademicLayout";
 import { KawaiiPastelLayout } from "@/layouts/KawaiiPastelLayout";
 import { CyberTerminalLayout } from "@/layouts/CyberTerminalLayout";
@@ -15,7 +14,6 @@ const Index = () => {
   const layouts = {
     "soft-bloom": <SoftBloomLayout />,
     "retro-pixel": <RetroPixelLayout />,
-    "cottage-sage": <CottageSageLayout />,
     "modern-academic": <ModernAcademicLayout />,
     "kawaii-pastel": <KawaiiPastelLayout />,
     "cyber-terminal": <CyberTerminalLayout />,

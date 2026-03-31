@@ -3,6 +3,7 @@ import { SavingsProgress } from "@/components/SavingsProgress";
 import { TransactionFeed } from "@/components/TransactionFeed";
 import { InsightBox } from "@/components/InsightBox";
 import { FinancialCharts } from "@/components/FinancialCharts";
+import { FeatureShowcase } from "@/components/FeatureShowcase";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { Heart, Star, Sparkles, Cloud, Bell, CalendarDays, PiggyBank } from "lucide-react";
 
@@ -81,6 +82,10 @@ export const KawaiiPastelLayout = () => {
           </div>
         ))}
       </section>
+
+      <div className="mt-8">
+        <FeatureShowcase theme="kawaii-pastel" />
+      </div>
     </div>
   </div>
   );

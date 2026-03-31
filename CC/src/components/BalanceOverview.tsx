@@ -2,10 +2,8 @@ import { motion } from "framer-motion";
 import { balanceData } from "@/data/mockData";
 import { TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useCurrency } from "@/contexts/CurrencyContext";
-import { useTheme } from "@/contexts/ThemeContext";
 
 export const BalanceOverview = () => {
-  const { theme } = useTheme();
   const { formatFromUSD } = useCurrency();
 
   return (
@@ -14,7 +12,7 @@ export const BalanceOverview = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className={`bg-card text-card-foreground rounded-lg p-6 shadow-card ${theme === "cottage-sage" ? "organic-radius paper-texture relative overflow-hidden" : ""}`}
+      className="bg-card text-card-foreground rounded-lg p-6 shadow-card"
     >
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-heading text-sm font-medium text-muted-foreground uppercase tracking-wider">

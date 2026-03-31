@@ -1,10 +1,8 @@
 import { motion } from "framer-motion";
 import { transactions } from "@/data/mockData";
 import { useCurrency } from "@/contexts/CurrencyContext";
-import { useTheme } from "@/contexts/ThemeContext";
 
 export const TransactionFeed = () => {
-  const { theme } = useTheme();
   const { formatFromUSD } = useCurrency();
 
   const formatAmount = (n: number) => {
@@ -18,7 +16,7 @@ export const TransactionFeed = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className={`bg-card text-card-foreground rounded-lg p-6 shadow-card ${theme === "cottage-sage" ? "organic-radius paper-texture relative overflow-hidden" : ""}`}
+      className="bg-card text-card-foreground rounded-lg p-6 shadow-card"
     >
       <h2 className="font-heading text-sm font-medium text-muted-foreground uppercase tracking-wider mb-5">
         Recent Transactions

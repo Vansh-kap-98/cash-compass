@@ -3,6 +3,7 @@ import { SavingsProgress } from "@/components/SavingsProgress";
 import { TransactionFeed } from "@/components/TransactionFeed";
 import { InsightBox } from "@/components/InsightBox";
 import { FinancialCharts } from "@/components/FinancialCharts";
+import { FeatureShowcase } from "@/components/FeatureShowcase";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { Wallet, Bell, CalendarClock, PiggyBank } from "lucide-react";
 
@@ -94,6 +95,7 @@ export const SoftBloomLayout = () => {
       <SavingsProgress />
       <InsightBox />
       <TransactionFeed />
+      <FeatureShowcase theme="soft-bloom" />
     </main>
   </div>
   );
