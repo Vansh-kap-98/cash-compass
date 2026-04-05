@@ -7,6 +7,7 @@ interface CurrencyContextType {
   setCurrency: (currency: CurrencyCode) => void;
   cycleCurrency: () => void;
   convertFromUSD: (amount: number) => number;
+  convertToUSD: (amount: number) => number;
   formatAmount: (amount: number, options?: Intl.NumberFormatOptions) => string;
   formatFromUSD: (amount: number, options?: Intl.NumberFormatOptions) => string;
 }
@@ -57,6 +58,11 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     [currency],
   );
 
+  const convertToUSD = useCallback(
+    (amount: number) => amount / conversionRatesFromUSD[currency],
+    [currency],
+  );
+
   const formatAmount = useCallback(
     (amount: number, options?: Intl.NumberFormatOptions) =>
       new Intl.NumberFormat(localeByCurrency[currency], {
@@ -99,10 +105,11 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setCurrency,
       cycleCurrency,
       convertFromUSD,
+      convertToUSD,
       formatAmount,
       formatFromUSD,
     }),
-    [currency, setCurrency, cycleCurrency, convertFromUSD, formatAmount, formatFromUSD],
+    [currency, setCurrency, cycleCurrency, convertFromUSD, convertToUSD, formatAmount, formatFromUSD],
   );
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;

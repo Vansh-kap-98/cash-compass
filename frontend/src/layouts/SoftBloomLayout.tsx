@@ -4,8 +4,13 @@ import { TransactionFeed } from "@/components/TransactionFeed";
 import { InsightBox } from "@/components/InsightBox";
 import { FinancialCharts } from "@/components/FinancialCharts";
 import { FeatureShowcase } from "@/components/FeatureShowcase";
+import { StudentPlannerHub } from "@/components/StudentPlannerHub";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { useFinance } from "@/contexts/FinanceContext";
 import { Wallet, Bell, CalendarClock, PiggyBank } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 const SoftWidget = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="rounded-2xl border border-border bg-card/80 p-3 shadow-card">
@@ -15,7 +20,16 @@ const SoftWidget = ({ title, children }: { title: string; children: React.ReactN
 );
 
 export const SoftBloomLayout = () => {
-  const { formatFromUSD } = useCurrency();
+  const { formatFromUSD, convertToUSD, convertFromUSD } = useCurrency();
+  const { manualBalance, manualIncomeToDate, manualSpentToday, setManualSnapshot } = useFinance();
+
+  const updateSnapshot = (field: "balance" | "incomeToDate" | "spentToday", value: number) => {
+    setManualSnapshot({
+      balance: field === "balance" ? convertToUSD(value) : manualBalance,
+      incomeToDate: field === "incomeToDate" ? convertToUSD(value) : manualIncomeToDate,
+      spentToday: field === "spentToday" ? convertToUSD(value) : manualSpentToday,
+    });
+  };
 
   return (
   <div className="flex min-h-screen">
@@ -80,16 +94,68 @@ export const SoftBloomLayout = () => {
     {}
     <main className="flex-1 px-8 py-8 max-w-4xl space-y-6">
       <h1 className="font-heading text-2xl font-bold">Good morning ✨</h1>
+      <section className="grid grid-cols-1 gap-4 rounded-3xl border border-border bg-card/90 p-4 shadow-card md:grid-cols-3">
+        <div className="space-y-2">
+          <Label className="text-xs uppercase tracking-wide text-muted-foreground">Total balance</Label>
+          <Input
+            type="number"
+            min="0"
+            step="0.01"
+            value={manualBalance === null ? "" : convertFromUSD(manualBalance)}
+            onChange={(e) => (e.target.value === "" ? setManualSnapshot({ balance: null, incomeToDate: manualIncomeToDate, spentToday: manualSpentToday }) : updateSnapshot("balance", Math.max(0, Number(e.target.value) || 0)))}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-xs uppercase tracking-wide text-muted-foreground">Income to date</Label>
+          <Input
+            type="number"
+            min="0"
+            step="0.01"
+            value={manualIncomeToDate === null ? "" : convertFromUSD(manualIncomeToDate)}
+            onChange={(e) => (e.target.value === "" ? setManualSnapshot({ balance: manualBalance, incomeToDate: null, spentToday: manualSpentToday }) : updateSnapshot("incomeToDate", Math.max(0, Number(e.target.value) || 0)))}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-xs uppercase tracking-wide text-muted-foreground">Spent today</Label>
+          <Input
+            type="number"
+            min="0"
+            step="0.01"
+            value={manualSpentToday === null ? "" : convertFromUSD(manualSpentToday)}
+            onChange={(e) => (e.target.value === "" ? setManualSnapshot({ balance: manualBalance, incomeToDate: manualIncomeToDate, spentToday: null }) : updateSnapshot("spentToday", Math.max(0, Number(e.target.value) || 0)))}
+          />
+        </div>
+        <div className="md:col-span-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-border bg-secondary/30 p-3">
+          <div className="space-y-1">
+            <p className="text-sm font-medium">Snapshot drives the whole page</p>
+            <p className="text-xs text-muted-foreground">Planner calculations, balance cards, and runway guidance update from these numbers.</p>
+          </div>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() =>
+              setManualSnapshot({
+                  balance: manualBalance,
+                  incomeToDate: manualIncomeToDate,
+                  spentToday: manualSpentToday,
+              })
+            }
+          >
+            Save snapshot
+          </Button>
+        </div>
+      </section>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Mini Planner</p>
-          <p className="mt-1 text-sm">Transfer to savings vault at 8:00 PM</p>
+          <p className="mt-1 text-sm">Your student-friendly planner is ready. Start with survival mode below.</p>
         </div>
         <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Focus Tip</p>
-          <p className="mt-1 text-sm">Pause one impulse purchase this week.</p>
+          <p className="mt-1 text-sm">Soft steps win. A tiny trim today can protect your week.</p>
         </div>
       </div>
+      <StudentPlannerHub />
       <BalanceOverview />
       <FinancialCharts />
       <SavingsProgress />

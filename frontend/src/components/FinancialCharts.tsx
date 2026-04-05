@@ -1,37 +1,76 @@
 import { useMemo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { useFinance } from "@/contexts/FinanceContext";
 
-const data = [
-  { name: "Rent", value: 1200, fill: "hsl(var(--primary))" },
-  { name: "Food", value: 450, fill: "hsl(var(--accent))" },
-  { name: "Travel", value: 300, fill: "hsl(var(--secondary))" },
-  { name: "Others", value: 200, fill: "hsl(var(--muted-foreground)/0.2)" },
-];
-
-const barData = [
-  { month: "Jan", income: 4000, expense: 2400 },
-  { month: "Feb", income: 3000, expense: 1398 },
-  { month: "Mar", income: 2000, expense: 9800 },
-  { month: "Apr", income: 2780, expense: 3908 },
+const chartPalette = [
+  "hsl(var(--primary))",
+  "hsl(var(--accent))",
+  "hsl(var(--secondary))",
+  "hsl(var(--muted-foreground)/0.35)",
+  "hsl(var(--primary)/0.7)",
 ];
 
 export const FinancialCharts = () => {
   const { convertFromUSD, formatAmount } = useCurrency();
+  const { transactions } = useFinance();
 
   const pieData = useMemo(
-    () => data.map((item) => ({ ...item, value: convertFromUSD(item.value) })),
-    [convertFromUSD],
+    () => {
+      const expenseByCategory = transactions
+        .filter((tx) => tx.type === "expense")
+        .reduce<Record<string, number>>((acc, tx) => {
+          acc[tx.category] = (acc[tx.category] ?? 0) + tx.amount;
+          return acc;
+        }, {});
+
+      const categories = Object.entries(expenseByCategory);
+      if (categories.length === 0) {
+        return [{ name: "No expenses yet", value: convertFromUSD(1), fill: chartPalette[3] }];
+      }
+
+      return categories
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([name, value], index) => ({
+          name,
+          value: convertFromUSD(value),
+          fill: chartPalette[index % chartPalette.length],
+        }));
+    },
+    [convertFromUSD, transactions],
   );
 
   const monthlyBarData = useMemo(
-    () =>
-      barData.map((item) => ({
-        ...item,
-        income: convertFromUSD(item.income),
-        expense: convertFromUSD(item.expense),
-      })),
-    [convertFromUSD],
+    () => {
+      const now = new Date();
+      const points = Array.from({ length: 6 }).map((_, idx) => {
+        const date = new Date(now.getFullYear(), now.getMonth() - (5 - idx), 1);
+        const month = date.getMonth();
+        const year = date.getFullYear();
+
+        const monthlyTransactions = transactions.filter((tx) => {
+          const txDate = new Date(tx.date);
+          return txDate.getMonth() === month && txDate.getFullYear() === year;
+        });
+
+        const income = monthlyTransactions
+          .filter((tx) => tx.type === "income")
+          .reduce((sum, tx) => sum + tx.amount, 0);
+        const expense = monthlyTransactions
+          .filter((tx) => tx.type === "expense")
+          .reduce((sum, tx) => sum + tx.amount, 0);
+
+        return {
+          month: date.toLocaleDateString(undefined, { month: "short" }),
+          income: convertFromUSD(income),
+          expense: convertFromUSD(expense),
+        };
+      });
+
+      return points;
+    },
+    [convertFromUSD, transactions],
   );
 
   return (

@@ -1,11 +1,13 @@
 import { motion } from "framer-motion";
-import { savingsGoals } from "@/data/mockData";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useFinance } from "@/contexts/FinanceContext";
+import { Button } from "@/components/ui/button";
 
 export const SavingsProgress = () => {
   const { theme } = useTheme();
   const { formatFromUSD } = useCurrency();
+  const { goals, contributeToGoal } = useFinance();
 
   return (
     <motion.div
@@ -20,7 +22,7 @@ export const SavingsProgress = () => {
       </h2>
 
       <div className="space-y-5">
-        {savingsGoals.map((goal, i) => {
+        {goals.map((goal, i) => {
           const pct = Math.round((goal.current / goal.target) * 100);
           return (
             <motion.div
@@ -52,7 +54,17 @@ export const SavingsProgress = () => {
                 />
               </div>
 
-              <p className="text-right text-xs tabular-nums text-muted-foreground mt-1">{pct}%</p>
+              <div className="mt-1 flex items-center justify-between">
+                <p className="text-right text-xs tabular-nums text-muted-foreground">{pct}%</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 px-2 text-[11px]"
+                  onClick={() => contributeToGoal(goal.id, 100)}
+                >
+                  +100
+                </Button>
+              </div>
             </motion.div>
           );
         })}

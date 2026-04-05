@@ -1,10 +1,17 @@
 import { motion } from "framer-motion";
-import { balanceData } from "@/data/mockData";
 import { TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { useFinance } from "@/contexts/FinanceContext";
 
 export const BalanceOverview = () => {
   const { formatFromUSD } = useCurrency();
+  const { manualBalance, manualIncomeToDate, manualSpentToday } = useFinance();
+
+  const totalBalance = manualBalance;
+  const income = manualIncomeToDate;
+  const spending = manualSpentToday;
+  const bufferAfterSpend = Math.max(0, totalBalance - spending);
+  const monthlyChangeLabel = totalBalance >= spending ? "+manual" : "manual";
 
   return (
     <motion.div
@@ -16,36 +23,43 @@ export const BalanceOverview = () => {
     >
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-heading text-sm font-medium text-muted-foreground uppercase tracking-wider">
-          Total Balance
+          Manual Snapshot
         </h2>
         <div className="flex items-center gap-1 text-xs font-mono text-primary">
           <TrendingUp className="w-3.5 h-3.5" />
-          +{balanceData.monthlyChange}%
+          {monthlyChangeLabel}
         </div>
       </div>
 
       <p className="font-heading text-3xl font-bold tabular-nums mb-6">
-        {formatFromUSD(balanceData.totalBalance)}
+        {formatFromUSD(totalBalance)}
       </p>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <ArrowUpRight className="w-3 h-3 text-primary" />
-            Savings
+            Income to date
           </div>
           <p className="text-lg font-semibold tabular-nums font-heading">
-            {formatFromUSD(balanceData.savings)}
+            {formatFromUSD(income)}
           </p>
         </div>
         <div className="space-y-1">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <ArrowDownRight className="w-3 h-3 text-destructive" />
-            Spending
+            Spent today
           </div>
           <p className="text-lg font-semibold tabular-nums font-heading">
-            {formatFromUSD(balanceData.spending)}
+            {formatFromUSD(spending)}
           </p>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-border bg-secondary/30 p-3">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>Balance after today</span>
+          <span className="font-semibold text-foreground">{formatFromUSD(bufferAfterSpend)}</span>
         </div>
       </div>
     </motion.div>
