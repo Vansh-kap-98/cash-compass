@@ -134,24 +134,37 @@ export const DashboardPlanner = () => {
     return base * profile.multiplier;
   }, [geo, monthlyIncome]);
 
-  const remainingToday = dailyBudget - spentToday;
-
   const todaysPlans = plans.filter((plan) => plan.date === today);
   const plannedToday = todaysPlans.reduce((sum, plan) => sum + plan.estimate, 0);
+
+  const selectedDaySpent = useMemo(() => {
+    if (planDate === today && manualSpentToday !== null) return manualSpentToday;
+
+    return transactions
+      .filter((tx) => tx.type === "expense" && tx.date === planDate)
+      .reduce((sum, tx) => sum + tx.amount, 0);
+  }, [manualSpentToday, planDate, today, transactions]);
+
+  const selectedDayPlanned = useMemo(
+    () => plans.filter((plan) => plan.date === planDate).reduce((sum, plan) => sum + plan.estimate, 0),
+    [planDate, plans],
+  );
+
+  const selectedDayRemaining = dailyBudget - selectedDaySpent - selectedDayPlanned;
 
   const dayAiSuggestions = useMemo(() => {
     const items: string[] = [];
 
-    if (remainingToday < 0) {
+    if (selectedDayRemaining < 0) {
       items.push("You are over today's budget. Switch to essential-only purchases for the rest of the day.");
-    } else if (remainingToday < dailyBudget * 0.25) {
+    } else if (selectedDayRemaining < dailyBudget * 0.25) {
       items.push("You are in the final 25% of your daily budget. Keep only high-priority plan items.");
     } else {
       items.push("You still have comfortable room today. Front-load essentials and delay impulse categories.");
     }
 
-    if (plannedToday > remainingToday) {
-      items.push("Your planned spend is above remaining budget. Reduce one plan item by around 20-30%.");
+    if (selectedDayPlanned > dailyBudget) {
+      items.push("Your planned spend is above budget. Reduce one plan item by around 20-30%.");
     }
 
     if (averageSpentPerDay > dailyBudget) {
@@ -163,7 +176,12 @@ export const DashboardPlanner = () => {
     }
 
     return items.slice(0, 3);
-  }, [averageSpentPerDay, dailyBudget, plannedToday, remainingToday]);
+  }, [averageSpentPerDay, dailyBudget, selectedDayPlanned, selectedDayRemaining]);
+
+  const removePlan = (planId: string) => {
+    setPlans((prev) => prev.filter((plan) => plan.id !== planId));
+    toast({ title: "Plan deleted", description: "The selected plan has been removed." });
+  };
 
   const addPlan = () => {
     const estimateInput = Number(planEstimate);
@@ -260,10 +278,11 @@ export const DashboardPlanner = () => {
             <Button type="button" onClick={addPlan} className="w-full">Add Plan</Button>
 
             <div className="rounded-xl border border-border p-3 text-sm space-y-2">
-              <p>Today planned: <span className="font-semibold">{formatFromUSD(plannedToday)}</span></p>
-              <p>Today budget: <span className="font-semibold">{formatFromUSD(dailyBudget)}</span></p>
-              <p className={remainingToday >= 0 ? "text-emerald-600" : "text-destructive"}>
-                Remaining today: {formatFromUSD(remainingToday)}
+              <p>Selected day spent: <span className="font-semibold">{formatFromUSD(selectedDaySpent)}</span></p>
+              <p>Selected day planned: <span className="font-semibold">{formatFromUSD(selectedDayPlanned)}</span></p>
+              <p>Daily budget: <span className="font-semibold">{formatFromUSD(dailyBudget)}</span></p>
+              <p className={selectedDayRemaining >= 0 ? "text-emerald-600" : "text-destructive"}>
+                Remaining after plans: {formatFromUSD(selectedDayRemaining)}
               </p>
             </div>
 
@@ -271,7 +290,10 @@ export const DashboardPlanner = () => {
               {todaysPlans.slice(0, 4).map((plan) => (
                 <div key={plan.id} className="flex items-center justify-between rounded-xl border border-border p-3 text-sm">
                   <span>{plan.title}</span>
-                  <span className="font-medium">{formatFromUSD(plan.estimate)}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{formatFromUSD(plan.estimate)}</span>
+                    <Button type="button" size="sm" variant="ghost" onClick={() => removePlan(plan.id)}>Delete</Button>
+                  </div>
                 </div>
               ))}
               {todaysPlans.length === 0 && (
@@ -284,7 +306,10 @@ export const DashboardPlanner = () => {
               {plans.slice(0, 6).map((plan) => (
                 <div key={plan.id} className="flex items-center justify-between text-sm">
                   <span>{plan.title} <span className="text-muted-foreground">({plan.date})</span></span>
-                  <span className="font-medium">{formatFromUSD(plan.estimate)}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{formatFromUSD(plan.estimate)}</span>
+                    <Button type="button" size="sm" variant="ghost" onClick={() => removePlan(plan.id)}>Delete</Button>
+                  </div>
                 </div>
               ))}
               {plans.length === 0 && <p className="text-sm text-muted-foreground">No saved plans yet.</p>}
@@ -315,7 +340,7 @@ export const DashboardPlanner = () => {
             <div className="space-y-2">
               {geoProfiles[geo].staples.map((item) => {
                 const cost = item.baseCost * geoProfiles[geo].multiplier;
-                const healthyLimit = Math.max(0, remainingToday * 0.4);
+                const healthyLimit = Math.max(0, selectedDayRemaining * 0.4);
                 const affordable = cost <= healthyLimit;
                 return (
                   <div key={item.name} className="rounded-xl border border-border p-3 text-sm">
