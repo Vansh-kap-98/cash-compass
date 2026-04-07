@@ -160,14 +160,7 @@ export const FeatureShowcase = ({ theme }: { theme: ThemeName }) => {
         ))}
       </div>
 
-      <button
-        type="button"
-        aria-label="Quick Entry Showcase"
-        className={`fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center text-xl ${styles.fab}`}
-      >
-        +
-      </button>
-      <p className="mt-4 text-xs text-muted-foreground">Floating Action Button is rendered as a static showcase element in this phase.</p>
+      <p className="mt-4 text-xs text-muted-foreground">Showcase cards are static UI examples in this phase.</p>
     </section>
   );
 };

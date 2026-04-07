@@ -1,16 +1,15 @@
-import { BalanceOverview } from "@/components/BalanceOverview";
-import { SavingsProgress } from "@/components/SavingsProgress";
-import { TransactionFeed } from "@/components/TransactionFeed";
-import { InsightBox } from "@/components/InsightBox";
-import { FinancialCharts } from "@/components/FinancialCharts";
 import { FeatureShowcase } from "@/components/FeatureShowcase";
-import { StudentPlannerHub } from "@/components/StudentPlannerHub";
+import { DashboardPlanner } from "@/components/DashboardPlanner";
+import { GoalsInsights } from "@/components/GoalsInsights";
+import { WorkspaceCanvas } from "@/components/WorkspaceCanvas";
+import { SettingsStudio } from "@/components/SettingsStudio";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useFinance } from "@/contexts/FinanceContext";
 import { Wallet, Bell, CalendarClock, PiggyBank } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 const SoftWidget = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="rounded-2xl border border-border bg-card/80 p-3 shadow-card">
@@ -22,6 +21,7 @@ const SoftWidget = ({ title, children }: { title: string; children: React.ReactN
 export const SoftBloomLayout = () => {
   const { formatFromUSD, convertToUSD, convertFromUSD } = useCurrency();
   const { manualBalance, manualIncomeToDate, manualSpentToday, setManualSnapshot } = useFinance();
+  const [activeTab, setActiveTab] = useState<"Dashboard" | "Goals" | "Workspace" | "Settings">("Dashboard");
 
   const updateSnapshot = (field: "balance" | "incomeToDate" | "spentToday", value: number) => {
     setManualSnapshot({
@@ -43,11 +43,12 @@ export const SoftBloomLayout = () => {
       </div>
 
       <nav className="space-y-1 mt-4 font-body text-sm">
-        {["Dashboard", "Transactions", "Goals", "Insights", "Settings"].map((item, i) => (
+        {["Dashboard", "Goals", "Workspace", "Settings"].map((item) => (
           <div
             key={item}
+            onClick={() => setActiveTab(item as "Dashboard" | "Goals" | "Workspace" | "Settings")}
             className={`px-3 py-2 rounded-lg cursor-pointer transition-colors ${
-              i === 0 ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"
+              activeTab === item ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"
             }`}
           >
             {item}
@@ -92,9 +93,9 @@ export const SoftBloomLayout = () => {
     </aside>
 
     {}
-    <main className="flex-1 px-8 py-8 max-w-4xl space-y-6">
+    <main className="flex-1 px-8 py-8 max-w-5xl space-y-6">
       <h1 className="font-heading text-2xl font-bold">Good morning ✨</h1>
-      <section className="grid grid-cols-1 gap-4 rounded-3xl border border-border bg-card/90 p-4 shadow-card md:grid-cols-3">
+      {activeTab === "Dashboard" && <section className="grid grid-cols-1 gap-4 rounded-3xl border border-border bg-card/90 p-4 shadow-card md:grid-cols-3">
         <div className="space-y-2">
           <Label className="text-xs uppercase tracking-wide text-muted-foreground">Total balance</Label>
           <Input
@@ -144,24 +145,14 @@ export const SoftBloomLayout = () => {
             Save snapshot
           </Button>
         </div>
-      </section>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Mini Planner</p>
-          <p className="mt-1 text-sm">Your student-friendly planner is ready. Start with survival mode below.</p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Focus Tip</p>
-          <p className="mt-1 text-sm">Soft steps win. A tiny trim today can protect your week.</p>
-        </div>
-      </div>
-      <StudentPlannerHub />
-      <BalanceOverview />
-      <FinancialCharts />
-      <SavingsProgress />
-      <InsightBox />
-      <TransactionFeed />
-      <FeatureShowcase theme="soft-bloom" />
+      </section>}
+
+      {activeTab === "Dashboard" && <DashboardPlanner />}
+      {activeTab === "Goals" && <GoalsInsights />}
+      {activeTab === "Workspace" && <WorkspaceCanvas />}
+      {activeTab === "Settings" && <SettingsStudio />}
+
+      {activeTab !== "Settings" && <FeatureShowcase theme="soft-bloom" />}
     </main>
   </div>
   );

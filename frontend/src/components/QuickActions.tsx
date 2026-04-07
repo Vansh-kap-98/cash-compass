@@ -152,14 +152,14 @@ export const QuickActions = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs defaultValue="transactions" className="w-full">
+          <Tabs defaultValue="records" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="transactions">Transactions</TabsTrigger>
+              <TabsTrigger value="records">Daily Records</TabsTrigger>
               <TabsTrigger value="goals">Goals</TabsTrigger>
               <TabsTrigger value="planning">Planning</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="transactions" className="space-y-5">
+            <TabsContent value="records" className="space-y-5">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="tx-type">Type</Label>
