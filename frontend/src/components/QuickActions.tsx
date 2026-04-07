@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Target, CalendarIcon, SlidersHorizontal } from "lucide-react";
 import { format } from "date-fns";
@@ -32,7 +32,7 @@ const expenseCategories = [
 const incomeCategories = ["Salary", "Freelance", "Investment", "Business", "Gift", "Other"];
 
 export const QuickActions = () => {
-  const { formatFromUSD } = useCurrency();
+  const { formatFromUSD, convertFromUSD, convertToUSD, currency } = useCurrency();
   const {
     startingBalance,
     transactions,
@@ -60,7 +60,11 @@ export const QuickActions = () => {
 
   const [budgetName, setBudgetName] = useState("Groceries");
   const [budgetLimit, setBudgetLimit] = useState("");
-  const [manualBalance, setManualBalance] = useState(String(startingBalance));
+  const [manualBalance, setManualBalance] = useState(String(convertFromUSD(startingBalance)));
+
+  useEffect(() => {
+    setManualBalance(String(convertFromUSD(startingBalance)));
+  }, [startingBalance, convertFromUSD, currency]);
 
   const latestTransactions = useMemo(
     () => [...transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5),
@@ -76,8 +80,9 @@ export const QuickActions = () => {
   };
 
   const handleAddTransaction = () => {
-    const amount = Number(txAmount);
-    if (!txName.trim() || !Number.isFinite(amount) || amount <= 0) {
+    const amountInput = Number(txAmount);
+    const amount = convertToUSD(amountInput);
+    if (!txName.trim() || !Number.isFinite(amountInput) || amountInput <= 0 || !Number.isFinite(amount) || amount <= 0) {
       toast({ title: "Invalid transaction", description: "Please provide a name and a valid amount." });
       return;
     }
@@ -96,10 +101,12 @@ export const QuickActions = () => {
   };
 
   const handleAddGoal = () => {
-    const target = Number(goalTarget);
-    const initial = Number(goalInitial || 0);
+    const targetInput = Number(goalTarget);
+    const initialInput = Number(goalInitial || 0);
+    const target = convertToUSD(targetInput);
+    const initial = convertToUSD(initialInput);
 
-    if (!goalName.trim() || !Number.isFinite(target) || target <= 0) {
+    if (!goalName.trim() || !Number.isFinite(targetInput) || targetInput <= 0 || !Number.isFinite(target) || target <= 0) {
       toast({ title: "Invalid goal", description: "Please add a goal name and target amount." });
       return;
     }
@@ -120,8 +127,9 @@ export const QuickActions = () => {
   };
 
   const handleBudgetSave = () => {
-    const limit = Number(budgetLimit);
-    if (!budgetName.trim() || !Number.isFinite(limit) || limit <= 0) {
+    const limitInput = Number(budgetLimit);
+    const limit = convertToUSD(limitInput);
+    if (!budgetName.trim() || !Number.isFinite(limitInput) || limitInput <= 0 || !Number.isFinite(limit) || limit <= 0) {
       toast({ title: "Invalid budget", description: "Provide a category and monthly limit." });
       return;
     }
@@ -132,8 +140,9 @@ export const QuickActions = () => {
   };
 
   const handleBalanceUpdate = () => {
-    const value = Number(manualBalance);
-    if (!Number.isFinite(value) || value < 0) {
+    const valueInput = Number(manualBalance);
+    const value = convertToUSD(valueInput);
+    if (!Number.isFinite(valueInput) || valueInput < 0 || !Number.isFinite(value) || value < 0) {
       toast({ title: "Invalid balance", description: "Starting balance must be zero or greater." });
       return;
     }

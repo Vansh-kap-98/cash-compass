@@ -28,6 +28,8 @@ const localeByCurrency: Record<CurrencyCode, string> = {
   RUB: "ru-RU",
 };
 
+const toFiniteNumber = (value: number) => (Number.isFinite(value) ? value : 0);
+
 const isCurrencyCode = (value: string | null): value is CurrencyCode => {
   if (!value) return false;
   return value === "USD" || value === "INR" || value === "RUB";
@@ -54,12 +56,12 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const convertFromUSD = useCallback(
-    (amount: number) => amount * conversionRatesFromUSD[currency],
+    (amount: number) => toFiniteNumber(amount) * conversionRatesFromUSD[currency],
     [currency],
   );
 
   const convertToUSD = useCallback(
-    (amount: number) => amount / conversionRatesFromUSD[currency],
+    (amount: number) => toFiniteNumber(amount) / conversionRatesFromUSD[currency],
     [currency],
   );
 
@@ -70,7 +72,7 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         currency,
         maximumFractionDigits: 2,
         ...options,
-      }).format(amount),
+      }).format(toFiniteNumber(amount)),
     [currency],
   );
 

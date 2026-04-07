@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFinance } from "@/contexts/FinanceContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "@/components/ui/use-toast";
 
 type GeoProfileKey = "us-city" | "india-metro" | "eastern-europe";
 
@@ -53,15 +54,30 @@ const geoProfiles: Record<GeoProfileKey, GeoProfile> = {
   },
 };
 
+const PLANS_STORAGE_KEY = "cash-compass-day-plans-v1";
+
 export const DashboardPlanner = () => {
-  const { formatFromUSD } = useCurrency();
+  const { formatFromUSD, convertToUSD } = useCurrency();
   const { transactions, manualBalance, manualIncomeToDate, manualSpentToday } = useFinance();
 
   const [geo, setGeo] = useState<GeoProfileKey>("us-city");
   const [planTitle, setPlanTitle] = useState("");
   const [planEstimate, setPlanEstimate] = useState("");
   const [planDate, setPlanDate] = useState(new Date().toISOString().slice(0, 10));
-  const [plans, setPlans] = useState<DayPlan[]>([]);
+  const [plans, setPlans] = useState<DayPlan[]>(() => {
+    const raw = localStorage.getItem(PLANS_STORAGE_KEY);
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw) as DayPlan[];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(PLANS_STORAGE_KEY, JSON.stringify(plans));
+  }, [plans]);
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -127,7 +143,7 @@ export const DashboardPlanner = () => {
     const items: string[] = [];
 
     if (remainingToday < 0) {
-      items.push("You are over today’s budget. Switch to essential-only purchases for the rest of the day.");
+      items.push("You are over today's budget. Switch to essential-only purchases for the rest of the day.");
     } else if (remainingToday < dailyBudget * 0.25) {
       items.push("You are in the final 25% of your daily budget. Keep only high-priority plan items.");
     } else {
@@ -150,8 +166,20 @@ export const DashboardPlanner = () => {
   }, [averageSpentPerDay, dailyBudget, plannedToday, remainingToday]);
 
   const addPlan = () => {
-    const estimate = Number(planEstimate);
-    if (!planTitle.trim() || !Number.isFinite(estimate) || estimate <= 0) return;
+    const estimateInput = Number(planEstimate);
+    const estimate = convertToUSD(estimateInput);
+    if (!planTitle.trim()) {
+      toast({ title: "Plan name required", description: "Please enter a plan name before adding." });
+      return;
+    }
+    if (!Number.isFinite(estimateInput) || estimateInput <= 0 || !Number.isFinite(estimate) || estimate <= 0) {
+      toast({ title: "Invalid amount", description: "Estimated amount must be greater than zero." });
+      return;
+    }
+    if (!planDate) {
+      toast({ title: "Date required", description: "Please choose a plan date." });
+      return;
+    }
 
     setPlans((prev) => [
       {
@@ -165,6 +193,7 @@ export const DashboardPlanner = () => {
 
     setPlanTitle("");
     setPlanEstimate("");
+    toast({ title: "Plan added", description: "Your daily plan was saved successfully." });
   };
 
   return (
@@ -248,6 +277,17 @@ export const DashboardPlanner = () => {
               {todaysPlans.length === 0 && (
                 <p className="text-sm text-muted-foreground">No plans added for today yet.</p>
               )}
+            </div>
+
+            <div className="rounded-xl border border-border p-3 space-y-2">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Saved plans</p>
+              {plans.slice(0, 6).map((plan) => (
+                <div key={plan.id} className="flex items-center justify-between text-sm">
+                  <span>{plan.title} <span className="text-muted-foreground">({plan.date})</span></span>
+                  <span className="font-medium">{formatFromUSD(plan.estimate)}</span>
+                </div>
+              ))}
+              {plans.length === 0 && <p className="text-sm text-muted-foreground">No saved plans yet.</p>}
             </div>
           </CardContent>
         </Card>
