@@ -81,21 +81,21 @@ const widgetLabels: Record<WidgetType, string> = {
 };
 
 const defaultSpan: Record<WidgetType, { col: number; row: number }> = {
-  "today-snapshot": { col: 4, row: 4 },
-  "budget-health": { col: 4, row: 4 },
-  "top-categories": { col: 4, row: 4 },
-  "goal-progress": { col: 4, row: 4 },
-  media: { col: 4, row: 4 },
-  "safe-to-spend": { col: 4, row: 4 },
-  "sub-stash-jar": { col: 4, row: 4 },
-  "burn-rate-line": { col: 4, row: 4 },
-  "waste-auditor": { col: 4, row: 4 },
-  "roommate-sync": { col: 4, row: 4 },
-  "manga-status": { col: 4, row: 4 },
-  "ascii-fortune": { col: 4, row: 4 },
-  "chibi-mascot": { col: 4, row: 4 },
-  "quick-entry-pad": { col: 4, row: 4 },
-  "3d-growth-gem": { col: 4, row: 4 },
+  "today-snapshot": { col: 3, row: 2 },
+  "budget-health": { col: 3, row: 2 },
+  "top-categories": { col: 3, row: 2 },
+  "goal-progress": { col: 3, row: 2 },
+  media: { col: 3, row: 2 },
+  "safe-to-spend": { col: 3, row: 2 },
+  "sub-stash-jar": { col: 3, row: 2 },
+  "burn-rate-line": { col: 3, row: 2 },
+  "waste-auditor": { col: 3, row: 2 },
+  "roommate-sync": { col: 3, row: 2 },
+  "manga-status": { col: 3, row: 2 },
+  "ascii-fortune": { col: 3, row: 2 },
+  "chibi-mascot": { col: 3, row: 2 },
+  "quick-entry-pad": { col: 3, row: 2 },
+  "3d-growth-gem": { col: 3, row: 2 },
 };
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
@@ -213,19 +213,19 @@ const SortableWidget = ({
       <div className="absolute bottom-2 right-2 z-30 flex items-center gap-1">
         <button
           type="button"
-          onMouseDown={(event) => onResizeStart(widget, event)}
-          className="rounded-md border border-white/35 bg-black/25 p-1 text-white backdrop-blur transition-colors hover:bg-black/35"
-          aria-label="Resize widget"
-        >
-          <RectangleHorizontal className="h-3.5 w-3.5" />
-        </button>
-        <button
-          type="button"
           onClick={() => onRemove(widget.id)}
           className="rounded-md border border-white/35 bg-black/20 p-1 text-white backdrop-blur transition-colors hover:bg-black/35"
           aria-label="Remove widget"
         >
           <Trash2 className="h-3.5 w-3.5" />
+        </button>
+        <button
+          type="button"
+          onMouseDown={(event) => onResizeStart(widget, event)}
+          className="rounded-md border border-white/35 bg-black/25 p-1 text-white backdrop-blur transition-colors hover:bg-black/35"
+          aria-label="Resize widget"
+        >
+          <RectangleHorizontal className="h-3.5 w-3.5" />
         </button>
       </div>
 
