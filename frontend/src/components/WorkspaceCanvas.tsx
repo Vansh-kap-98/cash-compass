@@ -22,7 +22,6 @@ import { useFinance } from "@/contexts/FinanceContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import gsap from "gsap";
 
 type WidgetType = 
   | "budget-health" 
@@ -153,11 +152,12 @@ const SortableWidget = ({
   const mediaInputId = `workspace-media-${widget.id}`;
 
   const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition: transition ?? "transform 300ms ease",
+    transform: CSS.Translate.toString(transform),
+    transition: transition ?? "transform 250ms cubic-bezier(0.25, 1, 0.5, 1)",
     gridColumn: `span ${widget.colSpan} / span ${widget.colSpan}`,
     gridRow: `span ${widget.rowSpan} / span ${widget.rowSpan}`,
     zIndex: isDragging ? 40 : 1,
+    opacity: isDragging ? 0.4 : 1,
   };
 
   return (
@@ -235,8 +235,8 @@ const SortableWidget = ({
 };
 
 export const WorkspaceCanvas = () => {
-  const { formatFromUSD } = useCurrency();
-  const { transactions, budgets, goals, manualSpentToday } = useFinance();
+  const { formatFromUSD, convertToUSD } = useCurrency();
+  const { transactions, budgets, goals, manualSpentToday, addTransaction, contributeToGoal } = useFinance();
 
   const [widgets, setWidgets] = useState<WorkspaceWidget[]>(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -470,7 +470,10 @@ export const WorkspaceCanvas = () => {
             variant="outline"
             className="mt-2 h-7 text-xs"
             onClick={() => {
-              gsap.fromTo(".sub-stash-boost", { scale: 1 }, { scale: 1.2, duration: 0.3, yoyo: true, repeat: 1 });
+              const firstGoal = goals[0];
+              if (firstGoal) {
+                contributeToGoal(firstGoal.id, 5);
+              }
             }}
           >
             Boost +$5
@@ -600,12 +603,38 @@ export const WorkspaceCanvas = () => {
         .sort((a, b) => b[1] - a[1])
         .slice(0, 3)
         .map(([name]) => name);
+      if (topCategories.length === 0) topCategories.push("Food", "Transport", "Shopping");
       return (
         <div className="space-y-2 h-full">
-          <input type="number" placeholder="Amount" className="w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-sm" />
+          <input
+            id={`qep-amount-${widget.id}`}
+            type="number"
+            placeholder="Amount"
+            min="0"
+            step="0.01"
+            className="w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-sm"
+          />
           <div className="space-y-1">
             {topCategories.map((cat, idx) => (
-              <Button key={idx} size="sm" variant="secondary" className="w-full text-xs">
+              <Button
+                key={idx}
+                size="sm"
+                variant="secondary"
+                className="w-full text-xs"
+                onClick={() => {
+                  const input = document.getElementById(`qep-amount-${widget.id}`) as HTMLInputElement | null;
+                  const val = Number(input?.value);
+                  if (!val || val <= 0) return;
+                  addTransaction({
+                    name: cat,
+                    amount: convertToUSD(val),
+                    type: "expense",
+                    category: cat,
+                    date: new Date().toISOString().slice(0, 10),
+                  });
+                  if (input) input.value = "";
+                }}
+              >
                 {cat}
               </Button>
             ))}
@@ -770,7 +799,7 @@ export const WorkspaceCanvas = () => {
           </div>
         </SortableContext>
 
-        <DragOverlay>
+        <DragOverlay dropAnimation={{ duration: 250, easing: "cubic-bezier(0.25, 1, 0.5, 1)" }}>
           {activeWidget ? (
             <WidgetPreview widget={activeWidget} content={activeWidget.type === "media" ? <div className="h-full rounded-xl bg-white/15" /> : renderWidgetContainer(activeWidget)} />
           ) : null}

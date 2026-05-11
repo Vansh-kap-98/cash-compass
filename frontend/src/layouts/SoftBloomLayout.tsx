@@ -5,6 +5,7 @@ import { WorkspaceCanvas } from "@/components/WorkspaceCanvas";
 import { SettingsStudio } from "@/components/SettingsStudio";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useFinance } from "@/contexts/FinanceContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { Wallet, Bell, CalendarClock, PiggyBank } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,7 @@ const SoftWidget = ({ title, children }: { title: string; children: React.ReactN
 );
 
 export const SoftBloomLayout = () => {
+  const { theme } = useTheme();
   const { formatFromUSD, convertToUSD, convertFromUSD } = useCurrency();
   const { manualBalance, manualIncomeToDate, manualSpentToday, setManualSnapshot } = useFinance();
   const [activeTab, setActiveTab] = useState<"Dashboard" | "Goals" | "Workspace" | "Settings">("Dashboard");
@@ -152,7 +154,7 @@ export const SoftBloomLayout = () => {
       {activeTab === "Workspace" && <WorkspaceCanvas />}
       {activeTab === "Settings" && <SettingsStudio />}
 
-      {activeTab !== "Settings" && <FeatureShowcase theme="soft-bloom" />}
+      {activeTab !== "Settings" && <FeatureShowcase theme={theme} />}
     </main>
   </div>
   );

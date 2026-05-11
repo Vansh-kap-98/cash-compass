@@ -7,9 +7,9 @@ export const BalanceOverview = () => {
   const { formatFromUSD } = useCurrency();
   const { manualBalance, manualIncomeToDate, manualSpentToday } = useFinance();
 
-  const totalBalance = manualBalance;
-  const income = manualIncomeToDate;
-  const spending = manualSpentToday;
+  const totalBalance = manualBalance ?? 0;
+  const income = manualIncomeToDate ?? 0;
+  const spending = manualSpentToday ?? 0;
   const bufferAfterSpend = Math.max(0, totalBalance - spending);
   const monthlyChangeLabel = totalBalance >= spending ? "+manual" : "manual";
 

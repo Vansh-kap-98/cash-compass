@@ -1,11 +1,9 @@
 import { motion } from "framer-motion";
 import { useCurrency } from "@/contexts/CurrencyContext";
-import { useTheme } from "@/contexts/ThemeContext";
 import { useFinance } from "@/contexts/FinanceContext";
 import { Button } from "@/components/ui/button";
 
 export const SavingsProgress = () => {
-  const { theme } = useTheme();
   const { formatFromUSD } = useCurrency();
   const { goals, contributeToGoal } = useFinance();
 
@@ -43,11 +41,7 @@ export const SavingsProgress = () => {
 
               <div className="relative h-2 rounded-full bg-secondary overflow-hidden">
                 <motion.div
-                  className={`absolute inset-y-0 left-0 rounded-full ${
-                    theme === "modern-academic"
-                      ? "bg-primary h-[2px] top-auto bottom-0"
-                      : "bg-primary"
-                  }`}
+                  className="absolute inset-y-0 left-0 rounded-full bg-primary"
                   initial={{ width: 0 }}
                   animate={{ width: `${pct}%` }}
                   transition={{ duration: 1.5, delay: 0.3 + i * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
