@@ -23,6 +23,18 @@ type GoalPeriod = "1-month" | "3-months" | "6-months" | "1-year" | "2-years" | "
 type BudgetPlanType = "trip" | "outing" | "event";
 
 interface BudgetLineItem { id: string; name: string; estimate: number; }
+interface FinalizedBudgetPlan {
+  id: string;
+  title: string;
+  planType: BudgetPlanType;
+  dateFrom: string;
+  dateTo?: string;
+  people: number;
+  items: BudgetLineItem[];
+  total: number;
+  perPerson: number;
+  createdAt: string;
+}
 
 const BUDGET_PLANS_KEY = "cash-compass-budget-plans-v1";
 
@@ -60,6 +72,16 @@ export const QuickActions = () => {
   const [budgetItems, setBudgetItems] = useState<BudgetLineItem[]>([]);
   const [newItemName, setNewItemName] = useState("");
   const [newItemEstimate, setNewItemEstimate] = useState("");
+  const [finalizedPlans, setFinalizedPlans] = useState<FinalizedBudgetPlan[]>(() => {
+    const raw = localStorage.getItem(BUDGET_PLANS_KEY);
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw) as FinalizedBudgetPlan[];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
 
   // Drag state for budget planner
   const [dragPos, setDragPos] = useState({ x: 0, y: 0 });
@@ -86,6 +108,10 @@ export const QuickActions = () => {
     window.addEventListener("mouseup", onUp);
     return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); };
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem(BUDGET_PLANS_KEY, JSON.stringify(finalizedPlans));
+  }, [finalizedPlans]);
 
   // ── Handlers ──
   const handleAddTransaction = () => {
@@ -142,6 +168,49 @@ export const QuickActions = () => {
   };
 
   const removeBudgetItem = (id: string) => setBudgetItems(prev => prev.filter(i => i.id !== id));
+
+  const clearBudgetDraft = () => {
+    setBudgetTitle("");
+    setBudgetDateTo("");
+    setBudgetPeople("1");
+    setBudgetItems([]);
+    setNewItemName("");
+    setNewItemEstimate("");
+  };
+
+  const finalizeBudgetPlan = () => {
+    const people = Math.max(1, Number(budgetPeople) || 1);
+    if (!budgetTitle.trim()) {
+      toast({ title: "Plan title required", description: "Add a plan title before finalising." });
+      return;
+    }
+    if (budgetItems.length === 0) {
+      toast({ title: "No items added", description: "Add at least one budget item to generate a bill and receipt." });
+      return;
+    }
+    if (budgetDateTo && budgetDateTo < budgetDateFrom) {
+      toast({ title: "Invalid dates", description: "End date cannot be before start date." });
+      return;
+    }
+
+    const total = budgetItems.reduce((sum, item) => sum + item.estimate, 0);
+    const finalizedPlan: FinalizedBudgetPlan = {
+      id: `bp-${Date.now()}`,
+      title: budgetTitle.trim(),
+      planType: budgetPlanType,
+      dateFrom: budgetDateFrom,
+      dateTo: budgetDateTo || undefined,
+      people,
+      items: budgetItems,
+      total,
+      perPerson: total / people,
+      createdAt: new Date().toISOString(),
+    };
+
+    setFinalizedPlans((prev) => [finalizedPlan, ...prev]);
+    toast({ title: "Budget finalised", description: `Bill created: ${formatAmount(finalizedPlan.total)}${people > 1 ? ` total, ${formatAmount(finalizedPlan.perPerson)} each.` : "."}` });
+    clearBudgetDraft();
+  };
 
   const planTypeConfig: Record<BudgetPlanType, { icon: React.ReactNode; label: string }> = {
     trip: { icon: <Plane className="w-3.5 h-3.5" />, label: "Trip" },
@@ -441,7 +510,54 @@ export const QuickActions = () => {
                 {budgetItems.length === 0 && (
                   <p className="text-xs text-muted-foreground text-center py-2">Add items above to see your budget breakdown</p>
                 )}
+                <Button type="button" onClick={finalizeBudgetPlan} className="w-full" disabled={budgetItems.length === 0 || !budgetTitle.trim()}>
+                  Finalise Bill & Receipt
+                </Button>
               </div>
+
+              {finalizedPlans.length > 0 && (
+                <div className="rounded-xl border border-border p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Latest Receipt</p>
+                    <Badge variant="secondary">{planTypeConfig[finalizedPlans[0].planType].label}</Badge>
+                  </div>
+                  <p className="text-sm font-semibold">{finalizedPlans[0].title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {finalizedPlans[0].dateFrom}
+                    {finalizedPlans[0].dateTo ? ` to ${finalizedPlans[0].dateTo}` : ""}
+                  </p>
+                  <div className="space-y-1">
+                    {finalizedPlans[0].items.map((item) => (
+                      <div key={item.id} className="flex items-center justify-between text-xs">
+                        <span>{item.name}</span>
+                        <span className="font-medium">{formatAmount(item.estimate)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="pt-1 border-t border-border space-y-1 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Final bill</span>
+                      <span className="font-semibold">{formatAmount(finalizedPlans[0].total)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Split ({finalizedPlans[0].people})</span>
+                      <span className="font-semibold">{formatAmount(finalizedPlans[0].perPerson)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {finalizedPlans.length > 1 && (
+                <div className="rounded-xl border border-border p-3 space-y-1.5">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">Recent Finalised Bills</p>
+                  {finalizedPlans.slice(1, 4).map((plan) => (
+                    <div key={plan.id} className="flex items-center justify-between text-xs">
+                      <span>{plan.title}</span>
+                      <span className="font-medium">{formatAmount(plan.total)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
         )}

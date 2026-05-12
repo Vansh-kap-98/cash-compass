@@ -5,13 +5,19 @@ import { useFinance } from "@/contexts/FinanceContext";
 
 export const BalanceOverview = () => {
   const { formatFromUSD } = useCurrency();
-  const { manualBalance, manualIncomeToDate, manualSpentToday } = useFinance();
+  const { manualBalance, transactions } = useFinance();
+
+  const today = new Date().toISOString().slice(0, 10);
 
   const totalBalance = manualBalance ?? 0;
-  const income = manualIncomeToDate ?? 0;
-  const spending = manualSpentToday ?? 0;
-  const bufferAfterSpend = Math.max(0, totalBalance - spending);
-  const monthlyChangeLabel = totalBalance >= spending ? "+manual" : "manual";
+  const spending = transactions
+    .filter((tx) => tx.type === "expense" && tx.date === today)
+    .reduce((sum, tx) => sum + tx.amount, 0);
+  const totalSpent = transactions
+    .filter((tx) => tx.type === "expense")
+    .reduce((sum, tx) => sum + tx.amount, 0);
+  const availableBalance = Math.max(0, totalBalance - totalSpent);
+  const monthlyChangeLabel = availableBalance >= spending ? "+expense-flow" : "expense-flow";
 
   return (
     <motion.div
@@ -32,17 +38,17 @@ export const BalanceOverview = () => {
       </div>
 
       <p className="font-heading text-3xl font-bold tabular-nums mb-6">
-        {formatFromUSD(totalBalance)}
+        {formatFromUSD(availableBalance)}
       </p>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <ArrowUpRight className="w-3 h-3 text-primary" />
-            Income to date
+            Total balance
           </div>
           <p className="text-lg font-semibold tabular-nums font-heading">
-            {formatFromUSD(income)}
+            {formatFromUSD(totalBalance)}
           </p>
         </div>
         <div className="space-y-1">
@@ -58,8 +64,8 @@ export const BalanceOverview = () => {
 
       <div className="mt-4 rounded-2xl border border-border bg-secondary/30 p-3">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Balance after today</span>
-          <span className="font-semibold text-foreground">{formatFromUSD(bufferAfterSpend)}</span>
+          <span>Total spent from entries</span>
+          <span className="font-semibold text-foreground">{formatFromUSD(totalSpent)}</span>
         </div>
       </div>
     </motion.div>

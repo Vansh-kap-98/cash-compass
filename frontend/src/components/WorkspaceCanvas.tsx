@@ -236,7 +236,7 @@ const SortableWidget = ({
 
 export const WorkspaceCanvas = () => {
   const { formatFromUSD, convertToUSD } = useCurrency();
-  const { transactions, budgets, goals, manualSpentToday, addTransaction, contributeToGoal } = useFinance();
+  const { transactions, budgets, goals, manualBalance, addTransaction, contributeToGoal } = useFinance();
 
   const [widgets, setWidgets] = useState<WorkspaceWidget[]>(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -303,6 +303,18 @@ export const WorkspaceCanvas = () => {
       }, {});
   }, [transactions]);
 
+  const spentTodayFromEntries = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    return transactions
+      .filter((tx) => tx.type === "expense" && tx.date === today)
+      .reduce((sum, tx) => sum + tx.amount, 0);
+  }, [transactions]);
+
+  const totalSpentFromEntries = useMemo(
+    () => transactions.filter((tx) => tx.type === "expense").reduce((sum, tx) => sum + tx.amount, 0),
+    [transactions],
+  );
+
   const addWidget = (type: WidgetType, mediaDataUrl?: string) => {
     const span = defaultSpan[type];
     setWidgets((prev) => [
@@ -364,7 +376,7 @@ export const WorkspaceCanvas = () => {
   const renderWidgetContainer = (widget: WorkspaceWidget) => {
     // Original widgets
     if (widget.type === "today-snapshot") {
-      return <p className="text-sm text-muted-foreground">Spent today: {formatFromUSD(manualSpentToday ?? 0)}</p>;
+      return <p className="text-sm text-muted-foreground">Spent today: {formatFromUSD(spentTodayFromEntries)}</p>;
     }
 
     if (widget.type === "budget-health") {
@@ -421,11 +433,14 @@ export const WorkspaceCanvas = () => {
 
     // New widgets
     if (widget.type === "safe-to-spend") {
-      const monthlyIncome = transactions
-        .filter((tx) => tx.type === "income")
-        .reduce((sum, tx) => sum + tx.amount, 0) || 3000;
-      const dailyBudget = (monthlyIncome * 0.55) / 30;
-      const safeToSpend = Math.max(0, dailyBudget - (manualSpentToday ?? 0));
+      const starting = manualBalance ?? 0;
+      const available = Math.max(0, starting - totalSpentFromEntries);
+      const now = new Date();
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const daysRemaining = Math.max(1, daysInMonth - now.getDate() + 1);
+      const dailyBudget = available / daysRemaining;
+      const safeToSpend = Math.max(0, dailyBudget - spentTodayFromEntries);
+      const completion = dailyBudget > 0 ? (safeToSpend / dailyBudget) * 100 : 0;
       return (
         <div className="flex flex-col items-center justify-center gap-3 h-full">
           <div className="relative w-20 h-20 rounded-full border-4 border-green-400/40 bg-green-400/10 flex items-center justify-center">
@@ -438,12 +453,12 @@ export const WorkspaceCanvas = () => {
                 fill="none"
                 stroke="#22c55e"
                 strokeWidth="3"
-                strokeDasharray={`${(safeToSpend / dailyBudget) * 283} 283`}
+                strokeDasharray={`${(completion / 100) * 283} 283`}
                 strokeLinecap="round"
                 style={{ transform: "rotate(-90deg)", transformOrigin: "50% 50%", transition: "all 0.3s" }}
               />
             </svg>
-            <span className="absolute text-xs font-bold text-green-400">{(safeToSpend / dailyBudget * 100).toFixed(0)}%</span>
+            <span className="absolute text-xs font-bold text-green-400">{completion.toFixed(0)}%</span>
           </div>
           <div className="text-center">
             <p className="text-xs text-muted-foreground">Safe to Spend</p>

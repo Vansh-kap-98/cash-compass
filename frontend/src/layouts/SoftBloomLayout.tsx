@@ -22,14 +22,14 @@ const SoftWidget = ({ title, children }: { title: string; children: React.ReactN
 export const SoftBloomLayout = () => {
   const { theme } = useTheme();
   const { formatFromUSD, convertToUSD, convertFromUSD } = useCurrency();
-  const { manualBalance, manualIncomeToDate, manualSpentToday, setManualSnapshot } = useFinance();
+  const { manualBalance, setManualSnapshot } = useFinance();
   const [activeTab, setActiveTab] = useState<"Dashboard" | "Goals" | "Workspace" | "Settings">("Dashboard");
 
-  const updateSnapshot = (field: "balance" | "incomeToDate" | "spentToday", value: number) => {
+  const updateSnapshot = (value: number) => {
     setManualSnapshot({
-      balance: field === "balance" ? convertToUSD(value) : manualBalance,
-      incomeToDate: field === "incomeToDate" ? convertToUSD(value) : manualIncomeToDate,
-      spentToday: field === "spentToday" ? convertToUSD(value) : manualSpentToday,
+      balance: convertToUSD(value),
+      incomeToDate: null,
+      spentToday: null,
     });
   };
 
@@ -97,7 +97,7 @@ export const SoftBloomLayout = () => {
     {}
     <main className="flex-1 px-8 py-8 max-w-5xl space-y-6">
       <h1 className="font-heading text-2xl font-bold">Good morning ✨</h1>
-      {activeTab === "Dashboard" && <section className="grid grid-cols-1 gap-4 rounded-3xl border border-border bg-card/90 p-4 shadow-card md:grid-cols-3">
+      {activeTab === "Dashboard" && <section className="grid grid-cols-1 gap-4 rounded-3xl border border-border bg-card/90 p-4 shadow-card">
         <div className="space-y-2">
           <Label className="text-xs uppercase tracking-wide text-muted-foreground">Total balance</Label>
           <Input
@@ -105,33 +105,13 @@ export const SoftBloomLayout = () => {
             min="0"
             step="0.01"
             value={manualBalance === null ? "" : convertFromUSD(manualBalance)}
-            onChange={(e) => (e.target.value === "" ? setManualSnapshot({ balance: null, incomeToDate: manualIncomeToDate, spentToday: manualSpentToday }) : updateSnapshot("balance", Math.max(0, Number(e.target.value) || 0)))}
+            onChange={(e) => (e.target.value === "" ? setManualSnapshot({ balance: null, incomeToDate: null, spentToday: null }) : updateSnapshot(Math.max(0, Number(e.target.value) || 0)))}
           />
         </div>
-        <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wide text-muted-foreground">Income to date</Label>
-          <Input
-            type="number"
-            min="0"
-            step="0.01"
-            value={manualIncomeToDate === null ? "" : convertFromUSD(manualIncomeToDate)}
-            onChange={(e) => (e.target.value === "" ? setManualSnapshot({ balance: manualBalance, incomeToDate: null, spentToday: manualSpentToday }) : updateSnapshot("incomeToDate", Math.max(0, Number(e.target.value) || 0)))}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wide text-muted-foreground">Spent today</Label>
-          <Input
-            type="number"
-            min="0"
-            step="0.01"
-            value={manualSpentToday === null ? "" : convertFromUSD(manualSpentToday)}
-            onChange={(e) => (e.target.value === "" ? setManualSnapshot({ balance: manualBalance, incomeToDate: manualIncomeToDate, spentToday: null }) : updateSnapshot("spentToday", Math.max(0, Number(e.target.value) || 0)))}
-          />
-        </div>
-        <div className="md:col-span-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-border bg-secondary/30 p-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-border bg-secondary/30 p-3">
           <div className="space-y-1">
             <p className="text-sm font-medium">Snapshot drives the whole page</p>
-            <p className="text-xs text-muted-foreground">Planner calculations, balance cards, and runway guidance update from these numbers.</p>
+            <p className="text-xs text-muted-foreground">Planner and dashboard calculations now use this total balance plus your expense entries only.</p>
           </div>
           <Button
             type="button"
@@ -139,8 +119,8 @@ export const SoftBloomLayout = () => {
             onClick={() =>
               setManualSnapshot({
                   balance: manualBalance,
-                  incomeToDate: manualIncomeToDate,
-                  spentToday: manualSpentToday,
+                  incomeToDate: null,
+                  spentToday: null,
               })
             }
           >

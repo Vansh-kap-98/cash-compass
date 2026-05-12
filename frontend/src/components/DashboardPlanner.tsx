@@ -58,7 +58,7 @@ const PLANS_STORAGE_KEY = "cash-compass-day-plans-v1";
 
 export const DashboardPlanner = () => {
   const { formatFromUSD, convertToUSD } = useCurrency();
-  const { transactions, manualBalance, manualIncomeToDate, manualSpentToday } = useFinance();
+  const { transactions, manualBalance } = useFinance();
 
   const [geo, setGeo] = useState<GeoProfileKey>("us-city");
   const [planTitle, setPlanTitle] = useState("");
@@ -81,46 +81,40 @@ export const DashboardPlanner = () => {
 
   const today = new Date().toISOString().slice(0, 10);
 
-  const monthlyIncome = useMemo(() => {
-    if (manualIncomeToDate !== null) return manualIncomeToDate;
-
-    const now = new Date();
-    return transactions
-      .filter((tx) => {
-        if (tx.type !== "income") return false;
-        const txDate = new Date(tx.date);
-        return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
-      })
-      .reduce((sum, tx) => sum + tx.amount, 0);
-  }, [manualIncomeToDate, transactions]);
+  const allExpenseTransactions = useMemo(() => transactions.filter((tx) => tx.type === "expense"), [transactions]);
 
   const spentToday = useMemo(() => {
-    if (manualSpentToday !== null) return manualSpentToday;
-
-    return transactions
+    return allExpenseTransactions
       .filter((tx) => tx.type === "expense" && tx.date === today)
       .reduce((sum, tx) => sum + tx.amount, 0);
-  }, [manualSpentToday, transactions, today]);
+  }, [allExpenseTransactions, today]);
+
+  const spentToDate = useMemo(
+    () => allExpenseTransactions.reduce((sum, tx) => sum + tx.amount, 0),
+    [allExpenseTransactions],
+  );
+
+  const remainingBalance = useMemo(() => {
+    const base = manualBalance ?? 0;
+    return Math.max(0, base - spentToDate);
+  }, [manualBalance, spentToDate]);
 
   const dailyRecords = useMemo(() => {
-    const map = new Map<string, { income: number; expense: number }>();
+    const map = new Map<string, { expense: number }>();
 
-    for (const tx of transactions) {
-      const entry = map.get(tx.date) ?? { income: 0, expense: 0 };
-      if (tx.type === "income") entry.income += tx.amount;
-      if (tx.type === "expense") entry.expense += tx.amount;
+    for (const tx of allExpenseTransactions) {
+      const entry = map.get(tx.date) ?? { expense: 0 };
+      entry.expense += tx.amount;
       map.set(tx.date, entry);
     }
 
     return [...map.entries()]
       .map(([date, totals]) => ({
         date,
-        income: totals.income,
         expense: totals.expense,
-        net: totals.income - totals.expense,
       }))
       .sort((a, b) => b.date.localeCompare(a.date));
-  }, [transactions]);
+  }, [allExpenseTransactions]);
 
   const averageSpentPerDay = useMemo(() => {
     if (dailyRecords.length === 0) return 0;
@@ -130,20 +124,21 @@ export const DashboardPlanner = () => {
 
   const dailyBudget = useMemo(() => {
     const profile = geoProfiles[geo];
-    const base = monthlyIncome > 0 ? (monthlyIncome * 0.55) / 30 : 35;
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const daysRemainingInMonth = Math.max(1, daysInMonth - now.getDate() + 1);
+    const base = remainingBalance > 0 ? remainingBalance / daysRemainingInMonth : 0;
     return base * profile.multiplier;
-  }, [geo, monthlyIncome]);
+  }, [geo, remainingBalance]);
 
   const todaysPlans = plans.filter((plan) => plan.date === today);
   const plannedToday = todaysPlans.reduce((sum, plan) => sum + plan.estimate, 0);
 
   const selectedDaySpent = useMemo(() => {
-    if (planDate === today && manualSpentToday !== null) return manualSpentToday;
-
-    return transactions
+    return allExpenseTransactions
       .filter((tx) => tx.type === "expense" && tx.date === planDate)
       .reduce((sum, tx) => sum + tx.amount, 0);
-  }, [manualSpentToday, planDate, today, transactions]);
+  }, [allExpenseTransactions, planDate]);
 
   const selectedDayPlanned = useMemo(
     () => plans.filter((plan) => plan.date === planDate).reduce((sum, plan) => sum + plan.estimate, 0),
@@ -219,10 +214,10 @@ export const DashboardPlanner = () => {
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card className="rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground">Total Balance</CardTitle>
+            <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground">Available Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">{formatFromUSD(manualBalance ?? 0)}</p>
+            <p className="text-2xl font-semibold">{formatFromUSD(remainingBalance)}</p>
           </CardContent>
         </Card>
 
@@ -237,10 +232,10 @@ export const DashboardPlanner = () => {
 
         <Card className="rounded-2xl">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground">Monthly Income</CardTitle>
+            <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground">Total Spent</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-semibold">{formatFromUSD(monthlyIncome)}</p>
+            <p className="text-2xl font-semibold">{formatFromUSD(spentToDate)}</p>
           </CardContent>
         </Card>
 
@@ -372,11 +367,9 @@ export const DashboardPlanner = () => {
         </CardHeader>
         <CardContent className="space-y-2">
           {dailyRecords.slice(0, 20).map((day) => (
-            <div key={day.date} className="grid grid-cols-2 gap-2 rounded-xl border border-border p-3 text-sm md:grid-cols-4">
+            <div key={day.date} className="grid grid-cols-1 gap-2 rounded-xl border border-border p-3 text-sm md:grid-cols-2">
               <p>{day.date}</p>
-              <p>Income: {formatFromUSD(day.income)}</p>
               <p>Spent: {formatFromUSD(day.expense)}</p>
-              <p className={day.net >= 0 ? "text-emerald-600" : "text-destructive"}>Net: {formatFromUSD(day.net)}</p>
             </div>
           ))}
           {dailyRecords.length === 0 && <p className="text-sm text-muted-foreground">No records yet. Add entries to start building your history.</p>}

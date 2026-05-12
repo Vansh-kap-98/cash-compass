@@ -73,12 +73,6 @@ const STORAGE_KEY = "cash-compass-finance-v1";
 
 const todayIso = new Date().toISOString().slice(0, 10);
 
-const getDateInPast = (daysAgo: number) => {
-  const date = new Date();
-  date.setDate(date.getDate() - daysAgo);
-  return date.toISOString().slice(0, 10);
-};
-
 const categoryIcons: Record<string, string> = {
   Income: "💰",
   Salary: "🏦",
@@ -97,90 +91,27 @@ const categoryIcons: Record<string, string> = {
 };
 
 const defaultState: FinanceState = {
-  startingBalance: 12000,
+  startingBalance: 0,
   manualBalance: null,
   manualIncomeToDate: null,
   manualSpentToday: null,
-  transactions: [
-    {
-      id: "tx-1",
-      name: "Salary Deposit",
-      amount: 4200,
-      type: "income",
-      category: "Salary",
-      date: getDateInPast(21),
-      icon: "🏦",
-    },
-    {
-      id: "tx-2",
-      name: "Freelance Work",
-      amount: 850,
-      type: "income",
-      category: "Freelance",
-      date: getDateInPast(18),
-      icon: "💼",
-    },
-    {
-      id: "tx-3",
-      name: "Rent",
-      amount: 1400,
-      type: "expense",
-      category: "Housing",
-      date: getDateInPast(17),
-      icon: "🏠",
-    },
-    {
-      id: "tx-4",
-      name: "Grocery Store",
-      amount: 128.5,
-      type: "expense",
-      category: "Groceries",
-      date: getDateInPast(5),
-      icon: "🛒",
-    },
-    {
-      id: "tx-5",
-      name: "Netflix",
-      amount: 15.99,
-      type: "expense",
-      category: "Entertainment",
-      date: getDateInPast(4),
-      icon: "🎬",
-    },
-    {
-      id: "tx-6",
-      name: "Coffee & Co.",
-      amount: 5.4,
-      type: "expense",
-      category: "Food",
-      date: getDateInPast(2),
-      icon: "☕",
-    },
-    {
-      id: "tx-7",
-      name: "Bus Pass",
-      amount: 56,
-      type: "expense",
-      category: "Transport",
-      date: getDateInPast(1),
-      icon: "🚌",
-    },
-  ],
-  goals: [
-    { id: "goal-1", name: "Emergency Fund", current: 8500, target: 10000, icon: "🛡️" },
-    { id: "goal-2", name: "Japan Trip", current: 3200, target: 5000, icon: "✈️" },
-    { id: "goal-3", name: "New Laptop", current: 1800, target: 2200, icon: "💻" },
-  ],
-  budgets: [
-    { id: "budget-1", name: "Housing", monthlyLimit: 1500 },
-    { id: "budget-2", name: "Groceries", monthlyLimit: 500 },
-    { id: "budget-3", name: "Transport", monthlyLimit: 250 },
-    { id: "budget-4", name: "Entertainment", monthlyLimit: 220 },
-    { id: "budget-5", name: "Food", monthlyLimit: 300 },
-  ],
+  transactions: [],
+  goals: [],
+  budgets: [],
 };
 
+const legacyDemoTransactionIds = new Set(["tx-1", "tx-2", "tx-3", "tx-4", "tx-5", "tx-6", "tx-7"]);
+const legacyDemoGoalIds = new Set(["goal-1", "goal-2", "goal-3"]);
+const legacyDemoBudgetIds = new Set(["budget-1", "budget-2", "budget-3", "budget-4", "budget-5"]);
+
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
+
+const stripLegacyDemoData = (state: FinanceState): FinanceState => ({
+  ...state,
+  transactions: state.transactions.filter((tx) => !legacyDemoTransactionIds.has(tx.id)),
+  goals: state.goals.filter((goal) => !legacyDemoGoalIds.has(goal.id)),
+  budgets: state.budgets.filter((budget) => !legacyDemoBudgetIds.has(budget.id)),
+});
 
 const readState = (): FinanceState => {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -191,13 +122,14 @@ const readState = (): FinanceState => {
     if (!parsed || !Array.isArray(parsed.transactions) || !Array.isArray(parsed.goals) || !Array.isArray(parsed.budgets)) {
       return defaultState;
     }
-    return {
+    const normalizedState: FinanceState = {
       ...defaultState,
       ...parsed,
       manualBalance: Number.isFinite(parsed.manualBalance ?? NaN) ? parsed.manualBalance : defaultState.manualBalance,
       manualIncomeToDate: Number.isFinite(parsed.manualIncomeToDate ?? NaN) ? parsed.manualIncomeToDate : defaultState.manualIncomeToDate,
       manualSpentToday: Number.isFinite(parsed.manualSpentToday ?? NaN) ? parsed.manualSpentToday : defaultState.manualSpentToday,
     };
+    return stripLegacyDemoData(normalizedState);
   } catch {
     return defaultState;
   }
