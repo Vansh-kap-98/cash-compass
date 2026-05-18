@@ -123,12 +123,31 @@ export const DashboardPlanner = () => {
   }, [dailyRecords]);
 
   const dailyBudget = useMemo(() => {
-    const profile = geoProfiles[geo];
+    const msPerDay = 24 * 60 * 60 * 1000;
+    // Try to read user-selected date range from localStorage (set by SoftBloomLayout)
+    try {
+      const raw = localStorage.getItem("cash-compass-range-v1");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.start && parsed?.end) {
+          const s = new Date(parsed.start);
+          const e = new Date(parsed.end);
+          if (!isNaN(s.getTime()) && !isNaN(e.getTime())) {
+            const diff = Math.ceil((e.getTime() - s.getTime()) / msPerDay) + 1;
+            const days = Math.max(1, diff);
+            return remainingBalance > 0 ? remainingBalance / days : 0;
+          }
+        }
+      }
+    } catch {
+      // fall through to month-based fallback
+    }
+
+    // Fallback behaviour: spread across remaining days in month
     const now = new Date();
     const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     const daysRemainingInMonth = Math.max(1, daysInMonth - now.getDate() + 1);
-    const base = remainingBalance > 0 ? remainingBalance / daysRemainingInMonth : 0;
-    return base * profile.multiplier;
+    return remainingBalance > 0 ? remainingBalance / daysRemainingInMonth : 0;
   }, [geo, remainingBalance]);
 
   const todaysPlans = plans.filter((plan) => plan.date === today);

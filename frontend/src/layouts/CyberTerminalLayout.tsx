@@ -3,7 +3,7 @@ import { SavingsProgress } from "@/components/SavingsProgress";
 import { TransactionFeed } from "@/components/TransactionFeed";
 import { InsightBox } from "@/components/InsightBox";
 import { FinancialCharts } from "@/components/FinancialCharts";
-import { FeatureShowcase } from "@/components/FeatureShowcase";
+
 import { Terminal, Database, Activity, ShieldCheck, BellRing, ScanLine, Radar } from "lucide-react";
 
 const TerminalWidget = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -105,13 +105,13 @@ export const CyberTerminalLayout = () => (
             </div>
           </div>
 
-          <FeatureShowcase theme="cyber-terminal" />
+          {/* FeatureShowcase removed */}
         </div>
       </div>
 
       {}
       <div className="mt-8 pt-4 border-t border-primary/10 flex justify-between text-[10px] opacity-50">
-        <span>© 2026 CURATED_CRYPTO_CORP</span>
+        <span>© 2026 CASH_COMPASS_CORP</span>
         <span className="flex gap-4">
            <span>LOC: 51.5074° N, 0.1278° W</span>
            <span>SYS_EPOCH: 1773839201</span>

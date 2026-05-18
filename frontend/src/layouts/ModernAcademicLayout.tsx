@@ -3,7 +3,7 @@ import { SavingsProgress } from "@/components/SavingsProgress";
 import { TransactionFeed } from "@/components/TransactionFeed";
 import { InsightBox } from "@/components/InsightBox";
 import { FinancialCharts } from "@/components/FinancialCharts";
-import { FeatureShowcase } from "@/components/FeatureShowcase";
+
 import { Cpu, ChevronRight, BellDot, ScanText, Binary } from "lucide-react";
 
 const NeoPanel = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -21,7 +21,7 @@ export const ModernAcademicLayout = () => (
         <div className="flex items-center gap-3">
           <Cpu className="w-4 h-4 text-primary" />
           <span className="font-heading text-sm font-semibold uppercase tracking-wider">
-            Curated.sys
+            cash-compass.sys
           </span>
           <ChevronRight className="w-3 h-3 text-muted-foreground" />
           <span className="text-xs text-muted-foreground font-mono">dashboard</span>
@@ -63,9 +63,7 @@ export const ModernAcademicLayout = () => (
         </NeoPanel>
       </div>
 
-      <div className="col-span-12">
-        <FeatureShowcase theme="modern-academic" />
-      </div>
+      <div className="col-span-12">{/* FeatureShowcase removed */}</div>
     </main>
   </div>
 );
