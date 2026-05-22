@@ -67,6 +67,7 @@ interface FinanceContextType {
   addGoal: (input: AddGoalInput) => void;
   contributeToGoal: (goalId: string, amount: number) => void;
   upsertBudget: (name: string, monthlyLimit: number) => void;
+  resetAll: () => void;
 }
 
 const STORAGE_KEY = "cash-compass-finance-v1";
@@ -157,6 +158,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       manualIncomeToDate: snapshot.incomeToDate !== null && Number.isFinite(snapshot.incomeToDate) ? Math.max(0, snapshot.incomeToDate) : null,
       manualSpentToday: snapshot.spentToday !== null && Number.isFinite(snapshot.spentToday) ? Math.max(0, snapshot.spentToday) : null,
     });
+  };
+
+  const resetAll = () => {
+    persist(defaultState);
   };
 
   const addTransaction = (input: AddTransactionInput) => {
@@ -259,6 +264,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       addGoal,
       contributeToGoal,
       upsertBudget,
+      resetAll,
     }),
     [state],
   );
