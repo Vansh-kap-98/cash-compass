@@ -80,11 +80,13 @@ const SignupPage = () => {
 
       if (data.user) {
         const { error: profileError } = await supabase.from("profiles").upsert(
-          {
-            id: data.user.id,
-            name: name.trim(),
-            email: data.user.email ?? email.trim(),
-          },
+          ([
+            {
+              id: data.user.id,
+              name: name.trim(),
+              email: data.user.email ?? email.trim(),
+            },
+          ] as any),
           { onConflict: "id" },
         );
 
