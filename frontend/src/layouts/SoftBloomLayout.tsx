@@ -10,6 +10,8 @@ import { Wallet, Bell, CalendarClock, PiggyBank } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
+import { useDateRangeValidation } from "@/hooks/useDateRangeValidation";
 import { useState, useMemo, useEffect } from "react";
 
 const SoftWidget = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -63,53 +65,19 @@ export const SoftBloomLayout = () => {
   const [startIso, setStartIso] = useState<string>(saved.start);
   const [endIso, setEndIso] = useState<string>(saved.end);
 
-  const formatIsoToDisplay = (iso: string) => {
-    try {
-      const d = new Date(iso);
-      if (isNaN(d.getTime())) return "";
-      const day = String(d.getDate()).padStart(2, "0");
-      const month = String(d.getMonth() + 1).padStart(2, "0");
-      const year = String(d.getFullYear());
-      return `${day}/${month}/${year}`;
-    } catch {
-      return "";
-    }
-  };
-
-  const parseToIso = (value: string): string | null => {
-    const v = value.trim();
-    if (!v) return null;
-    // ISO yyyy-mm-dd
-    const isoMatch = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (isoMatch) {
-      const d = new Date(v);
-      if (!isNaN(d.getTime())) return v;
-    }
-    // dd/mm/yyyy or d/m/yyyy with / - or . separators
-    const dm = v.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
-    if (dm) {
-      let day = Number(dm[1]);
-      let month = Number(dm[2]);
-      let year = Number(dm[3]);
-      if (year < 100) year += year >= 70 ? 1900 : 2000;
-      const js = new Date(year, month - 1, day);
-      if (js && js.getFullYear() === year && js.getMonth() === month - 1 && js.getDate() === day) {
-        return js.toISOString().slice(0, 10);
-      }
-    }
-    return null;
-  };
-
-  const [startInput, setStartInput] = useState<string>(formatIsoToDisplay(startIso));
-  const [endInput, setEndInput] = useState<string>(formatIsoToDisplay(endIso));
-
-  useEffect(() => setStartInput(formatIsoToDisplay(startIso)), [startIso]);
-  useEffect(() => setEndInput(formatIsoToDisplay(endIso)), [endIso]);
   useEffect(() => {
     try {
       localStorage.setItem(RANGE_KEY, JSON.stringify({ start: startIso, end: endIso }));
     } catch {}
   }, [startIso, endIso]);
+
+  // Use custom hook for date range validation
+  useDateRangeValidation({
+    startDateId: "start-date",
+    endDateId: "end-date",
+    today: todayIso,
+    onEndChange: setEndIso,
+  });
 
   const days = useMemo(() => {
     try {
@@ -210,35 +178,19 @@ export const SoftBloomLayout = () => {
           <div className="space-y-2">
             <Label className="text-xs uppercase tracking-wide text-muted-foreground">Start date</Label>
             <Input
-              type="text"
-              placeholder="dd/mm/yyyy"
-              value={startInput}
-              onChange={(e) => setStartInput(e.target.value)}
-              onBlur={() => {
-                const parsed = parseToIso(startInput);
-                if (parsed) setStartIso(parsed);
-                else setStartInput(formatIsoToDisplay(startIso));
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-              }}
+              id="start-date"
+              type="date"
+              value={startIso}
+              onChange={(e) => setStartIso(e.target.value)}
             />
           </div>
           <div className="space-y-2">
             <Label className="text-xs uppercase tracking-wide text-muted-foreground">End date</Label>
             <Input
-              type="text"
-              placeholder="dd/mm/yyyy"
-              value={endInput}
-              onChange={(e) => setEndInput(e.target.value)}
-              onBlur={() => {
-                const parsed = parseToIso(endInput);
-                if (parsed) setEndIso(parsed);
-                else setEndInput(formatIsoToDisplay(endIso));
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-              }}
+              id="end-date"
+              type="date"
+              value={endIso}
+              onChange={(e) => setEndIso(e.target.value)}
             />
           </div>
 
