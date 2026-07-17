@@ -22,7 +22,7 @@ export const ThemeToggle = () => {
   };
 
   return (
-    <div className="fixed top-6 right-6 z-[100]">
+    <div data-tour="theme-toggle" className="fixed top-6 right-6 z-[100]">
       <motion.button
         onClick={cycleTheme}
         whileHover={{ scale: 1.1 }}

@@ -3,6 +3,12 @@ import { DashboardPlanner } from "@/components/DashboardPlanner";
 import { GoalsInsights } from "@/components/GoalsInsights";
 import { WorkspaceCanvas } from "@/components/WorkspaceCanvas";
 import { SettingsStudio } from "@/components/SettingsStudio";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { EventCalendar } from "@/components/widgets/EventCalendar";
+import { SubscriptionTracker } from "@/components/widgets/SubscriptionTracker";
+import { SocialBenchmarks } from "@/components/widgets/SocialBenchmarks";
+import { SmartCards } from "@/components/insights/SmartCards";
+import { SpendingPatternInsight } from "@/components/forms/ReasonTags";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useFinance } from "@/contexts/FinanceContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -11,6 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useState, useMemo, useEffect } from "react";
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 const SoftWidget = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="rounded-2xl border border-border bg-card/80 p-3 shadow-card">
@@ -43,8 +51,7 @@ export const SoftBloomLayout = () => {
   }, [manualBalance, convertFromUSD]);
 
   const todayIso = new Date().toISOString().slice(0, 10);
-  const msPerDay = 24 * 60 * 60 * 1000;
-  const defaultEndIso = new Date(Date.now() + 7 * msPerDay).toISOString().slice(0, 10);
+  const defaultEndIso = new Date(Date.now() + 7 * MS_PER_DAY).toISOString().slice(0, 10);
   const RANGE_KEY = "cash-compass-range-v1";
 
   const readSavedRange = () => {
@@ -86,10 +93,10 @@ export const SoftBloomLayout = () => {
       if (!isNaN(d.getTime())) return v;
     }
     // dd/mm/yyyy or d/m/yyyy with / - or . separators
-    const dm = v.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
+    const dm = v.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})$/);
     if (dm) {
-      let day = Number(dm[1]);
-      let month = Number(dm[2]);
+      const day = Number(dm[1]);
+      const month = Number(dm[2]);
       let year = Number(dm[3]);
       if (year < 100) year += year >= 70 ? 1900 : 2000;
       const js = new Date(year, month - 1, day);
@@ -108,14 +115,16 @@ export const SoftBloomLayout = () => {
   useEffect(() => {
     try {
       localStorage.setItem(RANGE_KEY, JSON.stringify({ start: startIso, end: endIso }));
-    } catch {}
+    } catch {
+      return;
+    }
   }, [startIso, endIso]);
 
   const days = useMemo(() => {
     try {
       const s = new Date(startIso);
       const e = new Date(endIso);
-      const diff = Math.ceil((e.getTime() - s.getTime()) / msPerDay);
+      const diff = Math.ceil((e.getTime() - s.getTime()) / MS_PER_DAY);
       return Math.max(1, diff);
     } catch {
       return 1;
@@ -125,9 +134,10 @@ export const SoftBloomLayout = () => {
   const dailyBudgetUSD = manualBalance !== null ? manualBalance / days : null;
 
   return (
+  <>
   <div className="flex min-h-screen">
     {}
-    <aside className="w-[280px] shrink-0 border-r border-border bg-secondary/30 p-6 flex flex-col gap-6 sticky top-0 h-screen overflow-y-auto">
+    <aside className="hidden w-[280px] shrink-0 border-r border-border bg-secondary/30 p-6 lg:flex lg:flex-col lg:gap-6 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
       <div className="flex items-center gap-2 mb-4">
         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
           <Wallet className="w-4 h-4 text-primary-foreground" />
@@ -186,9 +196,26 @@ export const SoftBloomLayout = () => {
     </aside>
 
     {}
-    <main className="flex-1 px-8 py-8 max-w-5xl space-y-6">
+    <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8 max-w-5xl space-y-6">
+      <div className="flex items-center gap-2 overflow-x-auto pr-14 lg:hidden">
+        {[
+          ["Dashboard", "Dashboard"],
+          ["Goals", "Goals"],
+          ["Workspace", "Workspace"],
+          ["Settings", "Settings"],
+        ].map(([label, tab]) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setActiveTab(tab as "Dashboard" | "Goals" | "Workspace" | "Settings")}
+            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${activeTab === tab ? "bg-primary text-primary-foreground" : "bg-card/80 text-muted-foreground border border-border"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
       <h1 className="font-heading text-2xl font-bold">Good morning ✨</h1>
-      {activeTab === "Dashboard" && <section className="grid grid-cols-1 sm:grid-cols-4 gap-4 rounded-3xl border border-border bg-card/90 p-4 shadow-card items-end">
+      {activeTab === "Dashboard" && <section data-tour="balance-summary" className="grid grid-cols-1 sm:grid-cols-4 gap-4 rounded-3xl border border-border bg-card/90 p-4 shadow-card items-end">
         <div className="space-y-2">
           <Label className="text-xs uppercase tracking-wide text-muted-foreground">Total balance</Label>
           <Input
@@ -269,7 +296,16 @@ export const SoftBloomLayout = () => {
         </div>
       </section>}
 
-      {activeTab === "Dashboard" && <DashboardPlanner />}
+      {activeTab === "Dashboard" && <>
+        <DashboardPlanner />
+        <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <EventCalendar />
+          <SubscriptionTracker />
+        </section>
+        <SmartCards dailyLimit={dailyBudgetUSD} />
+        <SpendingPatternInsight />
+        <SocialBenchmarks />
+      </>}
       {activeTab === "Goals" && <GoalsInsights />}
       {activeTab === "Workspace" && <WorkspaceCanvas />}
       {activeTab === "Settings" && <SettingsStudio />}
@@ -277,5 +313,7 @@ export const SoftBloomLayout = () => {
       {activeTab !== "Settings" && null /* FeatureShowcase removed */}
     </main>
   </div>
+  <ThemeToggle />
+  </>
   );
 };
