@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Target, CalendarIcon, SlidersHorizontal, X, Minus, GripHorizontal, MapPin, Plane, Users, Utensils } from "lucide-react";
 import { format } from "date-fns";
-import { useFinance, type TransactionType } from "@/contexts/FinanceContext";
+import { useFinance, type ReasonTag, type TransactionType } from "@/contexts/FinanceContext";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { toast } from "@/components/ui/use-toast";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { Badge } from "@/components/ui/badge";
+import { ReasonTags } from "@/components/forms/ReasonTags";
 
 const expenseCategories = ["Housing","Groceries","Transport","Entertainment","Food","Utilities","Shopping","Health","Travel","Education","Other"];
 const incomeCategories = ["Salary","Freelance","Investment","Business","Gift","Other"];
@@ -51,6 +52,8 @@ export const QuickActions = () => {
   const [txDate, setTxDate] = useState<Date>(new Date());
   const [txNote, setTxNote] = useState("");
   const [txRecurrence, setTxRecurrence] = useState<RecurrenceType>("none");
+  const [txUnplanned, setTxUnplanned] = useState(false);
+  const [txReasonTags, setTxReasonTags] = useState<ReasonTag[]>([]);
 
   // ── Set Goal state ──
   const [goalOpen, setGoalOpen] = useState(false);
@@ -125,8 +128,8 @@ export const QuickActions = () => {
       ? `${txNote ? txNote + " | " : ""}Recurring: ${txRecurrence}`
       : txNote;
 
-    addTransaction({ name: txName, amount, type: txType, category: txCategory, date: txDate.toISOString().slice(0, 10), note: noteWithRecurrence });
-    setTxName(""); setTxAmount(""); setTxNote(""); setTxRecurrence("none");
+    addTransaction({ name: txName, amount, type: txType, category: txCategory, date: txDate.toISOString().slice(0, 10), note: noteWithRecurrence, isUnplanned: txUnplanned, reasonTags: txReasonTags });
+    setTxName(""); setTxAmount(""); setTxNote(""); setTxRecurrence("none"); setTxUnplanned(false); setTxReasonTags([]);
     setTxCategory(txType === "income" ? "Salary" : "Groceries");
     toast({ title: "Entry saved", description: txRecurrence !== "none" ? `Recurring ${txRecurrence} entry added.` : "Transaction recorded." });
   };
@@ -231,7 +234,7 @@ export const QuickActions = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Type</Label>
-                <Select value={txType} onValueChange={(v) => { setTxType(v as TransactionType); setTxCategory(v === "income" ? "Salary" : "Groceries"); }}>
+                <Select value={txType} onValueChange={(v) => { setTxType(v as TransactionType); setTxCategory(v === "income" ? "Salary" : "Groceries"); if (v === "income") { setTxUnplanned(false); setTxReasonTags([]); } }}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="expense">Expense</SelectItem>
@@ -300,6 +303,27 @@ export const QuickActions = () => {
                 </p>
               )}
             </div>
+
+            {txType === "expense" && (
+              <div className="rounded-2xl border border-border bg-secondary/20 p-3 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium">Unplanned / spontaneous</p>
+                    <p className="text-xs text-muted-foreground">Optional context to make insights more useful, never judgmental.</p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={txUnplanned}
+                    onClick={() => { setTxUnplanned((value) => !value); if (txUnplanned) setTxReasonTags([]); }}
+                    className={`relative h-6 w-11 rounded-full transition-colors ${txUnplanned ? "bg-primary" : "bg-muted"}`}
+                  >
+                    <span className={`absolute top-1 h-4 w-4 rounded-full bg-card shadow-sm transition-transform ${txUnplanned ? "translate-x-6" : "translate-x-1"}`} />
+                  </button>
+                </div>
+                {txUnplanned && <ReasonTags value={txReasonTags} onChange={setTxReasonTags} />}
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <Label>Note (optional)</Label>
@@ -583,7 +607,7 @@ export const QuickActions = () => {
       </AnimatePresence>
 
       {/* ═══ FAB BUTTONS ═══ */}
-      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
+      <div data-tour="action-controls" className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

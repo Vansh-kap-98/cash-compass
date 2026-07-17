@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo, useState } from "react";
 
 export type TransactionType = "income" | "expense";
+export type ReasonTag = "emotional" | "social" | "discount" | "impulse";
 
 export interface FinanceTransaction {
   id: string;
@@ -11,6 +12,9 @@ export interface FinanceTransaction {
   date: string;
   note?: string;
   icon?: string;
+  createdAt?: string;
+  isUnplanned?: boolean;
+  reasonTags?: ReasonTag[];
 }
 
 export interface SavingsGoal {
@@ -34,6 +38,8 @@ interface AddTransactionInput {
   category: string;
   date: string;
   note?: string;
+  isUnplanned?: boolean;
+  reasonTags?: ReasonTag[];
 }
 
 interface AddGoalInput {
@@ -181,6 +187,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
           date: input.date || todayIso,
           note: input.note?.trim() || undefined,
           icon,
+          createdAt: `${input.date || todayIso}T${new Date().toISOString().slice(11)}`,
+          isUnplanned: input.isUnplanned && input.type === "expense",
+          reasonTags: input.isUnplanned && input.type === "expense" ? input.reasonTags : undefined,
         },
         ...state.transactions,
       ],

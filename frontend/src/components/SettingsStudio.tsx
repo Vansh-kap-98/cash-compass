@@ -8,6 +8,7 @@ import { useCurrency, type CurrencyCode } from "@/contexts/CurrencyContext";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { restartAppTour } from "@/lib/tourState";
 
 const STORAGE_KEY = "cash-compass-ui-settings-v1";
 
@@ -142,6 +143,14 @@ export const SettingsStudio = () => {
             step={1}
             onValueChange={(value) => setSettings((prev) => ({ ...prev, fontScale: value[0] ?? 100 }))}
           />
+        </div>
+
+        <div className="space-y-2 rounded-2xl border border-border bg-secondary/20 p-4 md:col-span-2">
+          <div>
+            <Label>App tour</Label>
+            <p className="mt-1 text-xs text-muted-foreground">Replay the dashboard walkthrough whenever you want a quick orientation.</p>
+          </div>
+          <Button type="button" variant="secondary" size="sm" onClick={restartAppTour}>Restart app tour</Button>
         </div>
       </CardContent>
     </Card>
