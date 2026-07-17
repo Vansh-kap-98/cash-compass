@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useFinance } from "@/contexts/FinanceContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
-import { useSingleDateValidation } from "@/hooks/useSingleDateValidation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -81,12 +80,6 @@ export const DashboardPlanner = () => {
   }, [plans]);
 
   const today = new Date().toISOString().slice(0, 10);
-
-  // Use custom hook for plan date validation
-  useSingleDateValidation({
-    dateId: "plan-date",
-    today: today,
-  });
 
   const allExpenseTransactions = useMemo(() => transactions.filter((tx) => tx.type === "expense"), [transactions]);
 
@@ -293,12 +286,7 @@ export const DashboardPlanner = () => {
               </div>
               <div className="space-y-1.5">
                 <Label>Plan date</Label>
-                <Input
-                  id="plan-date"
-                  type="date"
-                  value={planDate}
-                  onChange={(e) => setPlanDate(e.target.value)}
-                />
+                <Input type="date" value={planDate} onChange={(e) => setPlanDate(e.target.value)} />
               </div>
             </div>
             <Button type="button" onClick={addPlan} className="w-full">Add Plan</Button>
