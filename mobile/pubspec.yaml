@@ -1,0 +1,50 @@
+name: cash_compass
+description: Cash Compass — personal finance dashboard for Android.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management — the direct analogue of the app's React Contexts.
+  provider: ^6.1.5
+
+  # Persistence. Replaces localStorage; one JSON blob per key.
+  shared_preferences: ^2.5.5
+
+  # Auth only, exactly as on the web.
+  supabase_flutter: ^2.17.2
+
+  # Routing, including the Android hardware back button.
+  go_router: ^17.5.0
+
+  # Live exchange rates from frankfurter.app — a single GET.
+  http: ^1.2.0
+
+  # Currency and date formatting. Replaces Intl.NumberFormat and date-fns.
+  intl: ^0.20.0
+
+  # Charts. Replaces Recharts.
+  fl_chart: ^1.2.0
+
+  # Typography, matching the Google Fonts the web app loads.
+  google_fonts: ^6.2.1
+
+  # Entrance/stagger animations. The framer-motion analogue.
+  flutter_animate: ^4.5.2
+
+  # Workspace image widget.
+  image_picker: ^1.1.2
+  path_provider: ^2.1.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

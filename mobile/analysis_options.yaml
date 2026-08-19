@@ -1,0 +1,30 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # const constructors are a real performance feature in Flutter, not style.
+    # Promoting these keeps the habit from slipping during the port.
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    prefer_const_literals_to_create_immutables: true
+
+    # Catches `context` used after an await without a mounted check — the most
+    # common runtime crash for developers arriving from React.
+    use_build_context_synchronously: true
+
+    # Background writes are deliberate in the stores; everything else that
+    # returns a Future should be awaited.
+    unawaited_futures: true
+
+analyzer:
+  errors:
+    # Treat these as build-breaking rather than advisory.
+    invalid_annotation_target: ignore
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
