@@ -23,6 +23,59 @@ const Map<String, String> categoryIcons = {
   'Savings': '🪙',
 };
 
+/// Selectable expense categories, in the order the web app lists them.
+const List<String> expenseCategories = [
+  'Housing',
+  'Groceries',
+  'Transport',
+  'Entertainment',
+  'Food',
+  'Utilities',
+  'Shopping',
+  'Health',
+  'Travel',
+  'Education',
+  'Other',
+];
+
+/// Selectable income categories, in the order the web app lists them.
+const List<String> incomeCategories = [
+  'Salary',
+  'Freelance',
+  'Investment',
+  'Business',
+  'Gift',
+  'Other',
+];
+
+/// How often an entry repeats.
+///
+/// There is no scheduler behind this — matching the web app, the choice is
+/// appended to the note as `Recurring: <value>` and used only by the
+/// subscription detector. A real scheduler would need notifications and
+/// background work, which is out of scope.
+enum Recurrence { none, daily, weekly, biweekly, monthly, yearly }
+
+extension RecurrenceLabel on Recurrence {
+  String get label => switch (this) {
+        Recurrence.none => 'One-time',
+        Recurrence.daily => 'Daily',
+        Recurrence.weekly => 'Weekly',
+        Recurrence.biweekly => 'Biweekly',
+        Recurrence.monthly => 'Monthly',
+        Recurrence.yearly => 'Yearly',
+      };
+}
+
+extension ReasonTagLabel on ReasonTag {
+  String get label => switch (this) {
+        ReasonTag.emotional => 'Emotional purchase',
+        ReasonTag.social => 'Social',
+        ReasonTag.discount => 'Discount / sale',
+        ReasonTag.impulse => 'Impulse',
+      };
+}
+
 /// A single income or expense entry.
 ///
 /// [amount] is always stored in USD, matching the web app: the active currency
@@ -62,6 +115,20 @@ class FinanceTransaction {
   final List<ReasonTag> reasonTags;
 
   bool get isExpense => type == TransactionType.expense;
+
+  /// [date] parsed to a [DateTime], or null if it is unparseable.
+  ///
+  /// Not cached — the class is `const`, so it cannot hold a mutable field.
+  /// Prefer the string helpers below where they suffice: `date` is ISO
+  /// `yyyy-MM-dd`, which compares and sorts correctly as plain text, and
+  /// skipping the parse is significantly faster across a long list.
+  DateTime? get parsedDate => DateTime.tryParse(date);
+
+  /// True when this entry falls in the given `yyyy-MM` month.
+  ///
+  /// A prefix test rather than a parse-and-compare: the month rules walk every
+  /// transaction, and `DateTime.tryParse` dominated that pass.
+  bool isInMonthPrefix(String yearMonth) => date.startsWith(yearMonth);
 
   Map<String, dynamic> toJson() => {
         'id': id,

@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../state/finance_provider.dart';
+import '../widgets/add_entry_sheet.dart';
+import '../widgets/set_goal_sheet.dart';
+import 'budget_plan_screen.dart';
 import 'tabs/dashboard_tab.dart';
 import 'tabs/goals_tab.dart';
+import 'tabs/planner_tab.dart';
 import 'tabs/settings_tab.dart';
 import 'tabs/workspace_tab.dart';
 
@@ -22,7 +26,57 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   int _index = 0;
 
-  static const _titles = ['Dashboard', 'Goals', 'Workspace', 'Settings'];
+  static const _titles = [
+    'Dashboard',
+    'Goals',
+    'Planner',
+    'Workspace',
+    'Settings',
+  ];
+
+  /// Index of the Settings tab, where a FAB would be meaningless.
+  static const _settingsIndex = 4;
+
+  Future<void> _openQuickActions(BuildContext context) async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.receipt_long_outlined),
+              title: const Text('Add Entry'),
+              subtitle: const Text('Log an expense or income'),
+              onTap: () => Navigator.pop(sheetContext, 'entry'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.flag_outlined),
+              title: const Text('Set Goal'),
+              subtitle: const Text('Create a savings target'),
+              onTap: () => Navigator.pop(sheetContext, 'goal'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.tune),
+              title: const Text('Plan Budget'),
+              subtitle: const Text('Cost out a trip, outing, or event'),
+              onTap: () => Navigator.pop(sheetContext, 'budget'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!context.mounted || action == null) return;
+    switch (action) {
+      case 'entry':
+        await AddEntrySheet.show(context);
+      case 'goal':
+        await SetGoalSheet.show(context);
+      case 'budget':
+        await BudgetPlanScreen.open(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,18 +99,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: const [
           DashboardTab(),
           GoalsTab(),
+          PlannerTab(),
           WorkspaceTab(),
           SettingsTab(),
         ],
       ),
-      // Temporary: proves the write-and-persist path before the real Add Entry
-      // sheet lands. Replace with the sheet in the entry/goals milestone.
-      floatingActionButton: _index == 0
-          ? FloatingActionButton(
-              onPressed: () => addSampleExpense(context),
+      // One FAB opening a chooser, rather than the web app's three stacked
+      // buttons — stacked FABs are not an Android pattern.
+      floatingActionButton: _index == _settingsIndex
+          ? null
+          : FloatingActionButton(
+              onPressed: () => _openQuickActions(context),
               child: const Icon(Icons.add),
-            )
-          : null,
+            ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
@@ -70,6 +125,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: Icon(Icons.savings_outlined),
             selectedIcon: Icon(Icons.savings),
             label: 'Goals',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.school_outlined),
+            selectedIcon: Icon(Icons.school),
+            label: 'Planner',
           ),
           NavigationDestination(
             icon: Icon(Icons.widgets_outlined),

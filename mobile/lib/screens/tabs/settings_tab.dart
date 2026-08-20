@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/theme/app_tokens.dart';
+import '../../dev/sample_data.dart';
+import '../../state/auth_provider.dart';
+import '../../state/budget_plan_provider.dart';
 import '../../state/currency_provider.dart';
+import '../../state/planner_provider.dart';
+import '../../state/student_planner_provider.dart';
+import '../../state/workspace_provider.dart';
 import '../../state/finance_provider.dart';
 import '../../state/theme_provider.dart';
 
@@ -113,6 +119,31 @@ class SettingsTab extends StatelessWidget {
           ),
         ),
         _Section(
+          title: 'Account',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.watch<AuthProvider>().isDemoMode
+                    ? 'Demo mode — data stays on this device.'
+                    : 'Signed in as '
+                        '${context.watch<AuthProvider>().user?.displayName ?? ''}',
+                style: theme.textTheme.bodySmall,
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                icon: const Icon(Icons.logout),
+                label: Text(
+                  context.watch<AuthProvider>().isDemoMode
+                      ? 'Leave demo mode'
+                      : 'Sign out',
+                ),
+                onPressed: () => context.read<AuthProvider>().signOut(),
+              ),
+            ],
+          ),
+        ),
+        _Section(
           title: 'Data',
           child: OutlinedButton.icon(
             icon: const Icon(Icons.delete_outline),
@@ -120,6 +151,36 @@ class SettingsTab extends StatelessWidget {
             onPressed: () => _confirmReset(context),
           ),
         ),
+        // Debug builds only — SampleData.load is a no-op elsewhere, and this
+        // section is not rendered at all in profile or release.
+        if (SampleData.isAvailable)
+          _Section(
+            title: 'Developer',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Debug build only. Loads a deterministic dataset so every '
+                  'widget has something real to show.',
+                  style: theme.textTheme.bodySmall,
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 10,
+                  children: [
+                    FilledButton.tonal(
+                      onPressed: () => _seed(context, load: true),
+                      child: const Text('Load sample data'),
+                    ),
+                    OutlinedButton(
+                      onPressed: () => _seed(context, load: false),
+                      child: const Text('Clear'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -130,6 +191,39 @@ class SettingsTab extends StatelessWidget {
     if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     return '${diff.inDays}d ago';
+  }
+
+  Future<void> _seed(BuildContext context, {required bool load}) async {
+    final finance = context.read<FinanceProvider>();
+    final planner = context.read<PlannerProvider>();
+    final workspace = context.read<WorkspaceProvider>();
+    final budgetPlans = context.read<BudgetPlanProvider>();
+    final students = context.read<StudentPlannerProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    if (load) {
+      await SampleData.load(
+        finance: finance,
+        planner: planner,
+        workspace: workspace,
+        budgetPlans: budgetPlans,
+        students: students,
+      );
+    } else {
+      await SampleData.clear(
+        finance: finance,
+        planner: planner,
+        workspace: workspace,
+        budgetPlans: budgetPlans,
+        students: students,
+      );
+    }
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(load ? 'Sample data loaded.' : 'Sample data cleared.'),
+      ),
+    );
   }
 
   Future<void> _confirmReset(BuildContext context) async {

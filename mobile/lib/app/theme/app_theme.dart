@@ -19,6 +19,27 @@ ThemeData buildTheme(
   FontPack fontPack = FontPack.defaultPack,
   double fontSizeFactor = 1.0,
 }) {
+  // Dragging the text-size slider notifies on every tick, and each notify
+  // rebuilds MaterialApp — which would rebuild the whole Google Fonts text
+  // theme (15+ TextStyles) 60 times a second. Memoising makes a repeat call a
+  // map lookup. The key space is tiny: 5 themes x 3 font packs x 8 slider
+  // stops, and only the combinations actually visited are ever built.
+  final key = '${t.name}|${fontPack.id}|${fontSizeFactor.toStringAsFixed(2)}';
+  final cached = _themeCache[key];
+  if (cached != null) return cached;
+
+  final built = _buildTheme(t, fontPack, fontSizeFactor);
+  _themeCache[key] = built;
+  return built;
+}
+
+final Map<String, ThemeData> _themeCache = {};
+
+ThemeData _buildTheme(
+  AppTokens t,
+  FontPack fontPack,
+  double fontSizeFactor,
+) {
   final scheme = ColorScheme(
     brightness: ThemeData.estimateBrightnessForColor(t.background),
     primary: t.primary,

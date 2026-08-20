@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../app/theme/app_tokens.dart';
@@ -78,16 +80,48 @@ class ThemeProvider extends ChangeNotifier {
     await _persistUiSettings();
   }
 
+  /// Dragging the Settings slider fires this on every tick. Repainting per tick
+  /// is wanted — writing to disk per tick is not — so the write is debounced.
   Future<void> setFontScale(double percent) async {
     final clamped = percent.clamp(85, 120).toDouble();
     if (clamped == fontScalePercent) return;
     fontScalePercent = clamped;
     notifyListeners();
-    await _persistUiSettings();
+    _scheduleWrite();
+  }
+
+  Timer? _writeTimer;
+  bool _writePending = false;
+
+  static const _writeDebounce = Duration(milliseconds: 500);
+
+  void _scheduleWrite() {
+    _writePending = true;
+    _writeTimer?.cancel();
+    _writeTimer = Timer(_writeDebounce, flush);
+  }
+
+  /// Writes immediately if anything is pending. Called on app pause.
+  Future<void> flush() async {
+    if (!_writePending) return;
+    _writeTimer?.cancel();
+    _writePending = false;
+    try {
+      await _persistUiSettings();
+    } catch (error) {
+      debugPrint('UI settings write failed: $error');
+      _writePending = true;
+    }
   }
 
   Future<void> _persistUiSettings() => _prefs.setJson(PrefsKeys.uiSettings, {
         'fontPack': fontPack.id,
         'fontScale': fontScalePercent,
       });
+
+  @override
+  void dispose() {
+    _writeTimer?.cancel();
+    super.dispose();
+  }
 }

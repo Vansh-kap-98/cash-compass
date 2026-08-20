@@ -14,11 +14,22 @@ abstract final class PrefsKeys {
   static const workspace = 'cash-compass-workspace-v3';
   static const dayPlans = 'cash-compass-day-plans-v1';
   static const budgetPlans = 'cash-compass-budget-plans-v1';
+
+  /// In-progress budget plan. Replaces the web app's "minimise to edge tab"
+  /// affordance, which only made sense as a desktop window.
+  static const budgetDraft = 'cash-compass-budget-draft-v1';
+
+  /// Student planner inputs. The web app persisted none of this.
+  static const studentPlanner = 'cash-compass-student-planner-v1';
   static const dateRange = 'cash-compass-range-v1';
   static const uiSettings = 'cash-compass-ui-settings-v1';
   static const exchangeRates = 'cash-compass-exchange-rates-v1';
   static const fixedLiabilities = 'cash-compass-fixed-liabilities-v1';
   static const region = 'cash-compass-region';
+
+  /// Not present in the web app — the location profile was component state
+  /// there and reset on every reload.
+  static const geoProfile = 'cash-compass-geo-profile-v1';
   static const demoMode = 'cash-compass-demo-mode-v1';
   static const completedTour = 'cash-compass-has-completed-tour-v1';
   static const theme = 'dashboard-theme';

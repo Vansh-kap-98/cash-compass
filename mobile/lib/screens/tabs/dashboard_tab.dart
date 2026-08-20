@@ -1,31 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/transaction.dart';
 import '../../state/currency_provider.dart';
 import '../../state/finance_provider.dart';
+import '../../widgets/daily_planner_card.dart';
+import '../../widgets/insight_cards.dart';
+import '../../widgets/location_guidance_card.dart';
 
 /// The Dashboard tab.
 ///
-/// Currently covers the balance snapshot and the four stat cards from
+/// Currently covers the balance snapshot and the stat cards from
 /// `DashboardPlanner.tsx`. The planner, insights, and event calendar land in
 /// later milestones.
+///
+/// Note the deliberate absence of `context.watch` at this level: each card
+/// subscribes to only what it displays. Watching the whole provider here would
+/// rebuild the balance TextField and the transaction list every time any
+/// unrelated value changed.
 class DashboardTab extends StatelessWidget {
   const DashboardTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final finance = context.watch<FinanceProvider>();
-    final currency = context.watch<CurrencyProvider>();
-
+    // ListView's constructor is not const, but every child is — so each card is
+    // allocated once and skipped on rebuild.
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-      children: [
-        _BalanceSnapshotCard(finance: finance, currency: currency),
-        const SizedBox(height: 16),
-        _StatGrid(finance: finance, currency: currency),
-        const SizedBox(height: 16),
-        _RecentTransactions(finance: finance, currency: currency),
+      children: const [
+        _BalanceSnapshotCard(),
+        SizedBox(height: 16),
+        _StatGrid(),
+        SizedBox(height: 16),
+        BudgetRangeCard(),
+        SizedBox(height: 16),
+        SmartCardsWidget(),
+        SizedBox(height: 16),
+        SpendingPatternCard(),
+        DailyPlannerCard(),
+        SizedBox(height: 16),
+        LocationGuidanceCard(),
+        SizedBox(height: 16),
+        SuggestionsCard(),
+        SizedBox(height: 16),
+        InsightBoxCard(),
+        SizedBox(height: 16),
+        SubscriptionsCard(),
+        SizedBox(height: 16),
+        EventCalendarCard(),
+        SizedBox(height: 16),
+        _RecentTransactions(),
+        SizedBox(height: 16),
+        DayRecordsCard(),
       ],
     );
   }
@@ -34,51 +59,62 @@ class DashboardTab extends StatelessWidget {
 /// Lets the user type the balance they actually have. Everything else on the
 /// page is derived from this plus recorded expenses.
 class _BalanceSnapshotCard extends StatefulWidget {
-  const _BalanceSnapshotCard({required this.finance, required this.currency});
-
-  final FinanceProvider finance;
-  final CurrencyProvider currency;
+  const _BalanceSnapshotCard();
 
   @override
   State<_BalanceSnapshotCard> createState() => _BalanceSnapshotCardState();
 }
 
 class _BalanceSnapshotCardState extends State<_BalanceSnapshotCard> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    final balance = widget.finance.manualBalance;
-    _controller = TextEditingController(
-      text: balance == null
-          ? ''
-          : widget.currency.convertFromUsd(balance).toStringAsFixed(2),
-    );
-  }
+  final _controller = TextEditingController();
+  final _focus = FocusNode();
 
   @override
   void dispose() {
     _controller.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
+  /// Keeps the field in step with the stored value.
+  ///
+  /// Setting the text only in `initState` left it stale whenever the balance
+  /// changed from elsewhere — most visibly when switching currency, which
+  /// relabelled the field without reconverting the number shown in it.
+  /// Skipped while focused so it never fights typing.
+  void _syncFromStore(double? balanceUsd, CurrencyProvider currency) {
+    if (_focus.hasFocus) return;
+    final next = balanceUsd == null
+        ? ''
+        : currency.convertFromUsd(balanceUsd).toStringAsFixed(2);
+    if (_controller.text != next) _controller.text = next;
+  }
+
   void _save() {
+    final finance = context.read<FinanceProvider>();
+    final currency = context.read<CurrencyProvider>();
+
     final raw = _controller.text.trim();
     if (raw.isEmpty) {
-      widget.finance.setManualSnapshot();
+      finance.setManualSnapshot();
       return;
     }
     final parsed = double.tryParse(raw);
     if (parsed == null) return;
     // The user types in their active currency; storage is always USD.
-    widget.finance
-        .setManualSnapshot(balance: widget.currency.convertToUsd(parsed));
+    finance.setManualSnapshot(balance: currency.convertToUsd(parsed));
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final currencyStore = context.watch<CurrencyProvider>();
+    final currency = currencyStore.currency;
+    // Rebuilds when the stored balance changes — including a seed, a reset, or
+    // a currency switch — so the field can resync.
+    final balanceUsd =
+        context.select<FinanceProvider, double?>((f) => f.manualBalance);
+    _syncFromStore(balanceUsd, currencyStore);
 
     return Card(
       child: Padding(
@@ -91,18 +127,20 @@ class _BalanceSnapshotCardState extends State<_BalanceSnapshotCard> {
               children: [
                 Text('Total balance', style: theme.textTheme.labelLarge),
                 ActionChip(
-                  label: Text(widget.currency.currency.code),
-                  onPressed: () => widget.currency.cycleCurrency(),
+                  label: Text(currency.code),
+                  onPressed: () =>
+                      context.read<CurrencyProvider>().cycleCurrency(),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _controller,
+              focusNode: _focus,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
-                prefixText: '${widget.currency.currency.symbol} ',
+                prefixText: '${currency.symbol} ',
                 hintText: '0.00',
               ),
               onSubmitted: (_) => _save(),
@@ -124,18 +162,20 @@ class _BalanceSnapshotCardState extends State<_BalanceSnapshotCard> {
 }
 
 class _StatGrid extends StatelessWidget {
-  const _StatGrid({required this.finance, required this.currency});
-
-  final FinanceProvider finance;
-  final CurrencyProvider currency;
+  const _StatGrid();
 
   @override
   Widget build(BuildContext context) {
+    final finance = context.watch<FinanceProvider>();
+    final currency = context.watch<CurrencyProvider>();
+
+    // The first three read cached aggregates. The daily average needs a group-
+    // by-day pass, which is O(n) once per build rather than per card.
     final stats = <({String label, double value})>[
       (label: 'Available', value: finance.availableBalance),
       (label: 'Spent today', value: finance.spentToday),
       (label: 'Total spent', value: finance.totalSpent),
-      (label: 'Total income', value: finance.totalIncome),
+      (label: 'Average / day', value: finance.averagePerDay),
     ];
 
     return GridView.count(
@@ -147,46 +187,61 @@ class _StatGrid extends StatelessWidget {
       childAspectRatio: 1.7,
       children: [
         for (final stat in stats)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    stat.label,
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
-                  const SizedBox(height: 6),
-                  FittedBox(
-                    child: Text(
-                      currency.formatFromUsd(stat.value),
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          _StatCard(
+            label: stat.label,
+            value: currency.formatFromUsd(stat.value),
           ),
       ],
     );
   }
 }
 
-class _RecentTransactions extends StatelessWidget {
-  const _RecentTransactions({required this.finance, required this.currency});
+class _StatCard extends StatelessWidget {
+  const _StatCard({required this.label, required this.value});
 
-  final FinanceProvider finance;
-  final CurrencyProvider currency;
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final recent = finance.transactions.take(10).toList();
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(label, style: theme.textTheme.labelMedium),
+            const SizedBox(height: 6),
+            FittedBox(
+              child: Text(
+                value,
+                style: theme.textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RecentTransactions extends StatelessWidget {
+  const _RecentTransactions();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    // Selecting on `revision` rather than on the list itself: the store mutates
+    // `transactions` in place, so a list-valued selector would compare equal to
+    // itself and never rebuild. Reading the list with `read` after the selector
+    // has registered the dependency gives the current contents.
+    context.select<FinanceProvider, int>((f) => f.revision);
+    final recent =
+        context.read<FinanceProvider>().transactions.take(10).toList();
+    final currency = context.watch<CurrencyProvider>();
 
     return Card(
       child: Padding(
@@ -204,6 +259,7 @@ class _RecentTransactions extends StatelessWidget {
             else
               for (final t in recent)
                 ListTile(
+                  key: ValueKey(t.id),
                   contentPadding: EdgeInsets.zero,
                   leading: Text(
                     t.icon ?? '💸',
@@ -229,14 +285,3 @@ class _RecentTransactions extends StatelessWidget {
   }
 }
 
-/// Temporary helper so the wiring can be verified end to end before the real
-/// Add Entry sheet lands. Remove once that ships.
-void addSampleExpense(BuildContext context) {
-  context.read<FinanceProvider>().addTransaction(
-        name: 'Coffee',
-        amount: 4.50,
-        type: TransactionType.expense,
-        category: 'Food',
-        date: todayIso(),
-      );
-}
