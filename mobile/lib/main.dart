@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'app/scroll_behavior.dart';
 import 'app/theme/app_theme.dart';
 import 'dev/frame_report.dart';
 import 'screens/auth_screen.dart';
@@ -147,6 +148,8 @@ class _CashCompassAppState extends State<CashCompassApp>
         builder: (context, themeState, _) => MaterialApp(
           title: 'Cash Compass',
           debugShowCheckedModeBanner: false,
+          // Removes Android's overscroll stretch app-wide; see AppScrollBehavior.
+          scrollBehavior: const AppScrollBehavior(),
           theme: buildTheme(
             themeState.tokens,
             fontPack: themeState.fontPack,
