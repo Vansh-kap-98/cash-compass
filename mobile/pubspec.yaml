@@ -40,6 +40,7 @@ dependencies:
   # Workspace image widget.
   image_picker: ^1.1.2
   path_provider: ^2.1.4
+  google_mlkit_text_recognition: ^0.17.1
 
 dev_dependencies:
   flutter_test:

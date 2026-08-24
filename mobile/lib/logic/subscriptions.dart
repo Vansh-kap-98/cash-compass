@@ -68,6 +68,34 @@ String merchantSignature(String name) {
   return buffer.toString();
 }
 
+/// Whether adding this charge would make the merchant look like a subscription.
+///
+/// Used by the receipt scanner to warn *before* saving. It deliberately runs
+/// the real [detectSubscriptions] over history-plus-candidate rather than
+/// reimplementing the cadence and amount rules, so there is exactly one
+/// definition of "is a subscription" in the app.
+bool wouldBeSubscription({
+  required List<FinanceTransaction> history,
+  required String merchant,
+  required double amount,
+  required String date,
+}) {
+  final signature = merchantSignature(merchant);
+  if (signature.isEmpty || amount <= 0) return false;
+
+  final candidate = FinanceTransaction(
+    id: 'candidate',
+    name: merchant,
+    amount: amount,
+    type: TransactionType.expense,
+    category: 'Other',
+    date: date,
+  );
+
+  return detectSubscriptions([...history, candidate])
+      .any((s) => merchantSignature(s.name) == signature);
+}
+
 /// Finds merchants charged on a 27–33 day cadence with consistent amounts.
 ///
 /// Both thresholds come from the web app: the day window tolerates months of
