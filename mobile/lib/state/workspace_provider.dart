@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../dev/log.dart';
 import '../models/json_utils.dart';
 import '../models/workspace_widget.dart';
 import '../services/image_store.dart';
@@ -110,7 +111,7 @@ class WorkspaceProvider extends ChangeNotifier {
         widgets.map((w) => w.toJson()).toList(),
       );
     } catch (error) {
-      debugPrint('Workspace write failed: $error');
+      logError('Workspace write', error);
       _writePending = true;
     }
   }

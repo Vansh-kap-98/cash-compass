@@ -177,11 +177,70 @@ In the running terminal: `r` hot-reloads (state preserved), `R` hot-restarts
 
 ## 6. Build an installable APK
 
+A plain `flutter build apk --release` produces a debug-key-signed, unobfuscated
+APK. That is fine for a throwaway smoke test on your own emulator. For anything
+you carry around on a phone with real financial data, do the signed build below.
+
+### One-time: create a keystore
+
+Never reuse a keystore from another project, and never keep using the Android
+debug key for a build that persists.
+
+`keytool` ships with the JDK bundled inside Android Studio and is usually not on
+PATH:
+
 ```bash
-flutter build apk --release
+"C:\Program Files\Android\Android Studio\jbrin\keytool.exe" -genkey -v -keystore "$HOME/keystores/cash-compass-test.jks" -keyalg RSA -keysize 2048 -validity 10000 -alias cashcompass
+```
+
+Copy `android/key.properties.example` to `android/key.properties` and fill in
+the passwords you just chose. Both `key.properties` and `*.jks` are gitignored;
+keep the `.jks` file backed up somewhere outside the repo, because losing it
+means you can never ship an update that upgrades an already-installed copy.
+
+If `key.properties` is absent the release build still works — it falls back to
+the debug key and prints a warning. Don't distribute that APK.
+
+### Build
+
+```bash
+flutter build apk --release --obfuscate --split-debug-info=build/debug-info --dart-define-from-file=config/dev.json
 ```
 
 Output lands at `build/app/outputs/flutter-apk/app-release.apk`.
+
+`--obfuscate` renames Dart symbols in `libapp.so`; `--split-debug-info` writes
+the map needed to turn an obfuscated crash trace back into readable frames.
+Keep `build/debug-info` for any build you actually install — without the map
+from that exact build, its stack traces are unreadable. It is gitignored.
+
+### Install
+
+```bash
+adb install build/app/outputs/flutter-apk/app-release.apk
+```
+
+Or copy the APK to the phone and open it — that needs "install from unknown
+sources" granted to whichever app opens it, a one-time device setting.
+
+### What the release build hardens
+
+| Measure | Where |
+| --- | --- |
+| Session tokens in the Android Keystore, not plaintext prefs | `lib/services/secure_session_store.dart` |
+| All logging compiled out of release | `lib/dev/log.dart` |
+| Cleartext HTTP blocked OS-wide | `android/app/src/main/res/xml/network_security_config.xml` |
+| No `adb backup` extraction of app data | `android:allowBackup="false"` in the manifest |
+| R8 shrinking + resource stripping | `android/app/build.gradle.kts`, keep rules in `proguard-rules.pro` |
+
+Verify the signature before you trust a build:
+
+```bash
+apksigner verify --print-certs build/app/outputs/flutter-apk/app-release.apk
+```
+
+The fingerprint must match your keystore, not the Android debug key (whose CN is
+`Android Debug`).
 
 ## What's already written
 

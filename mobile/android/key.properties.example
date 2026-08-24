@@ -1,0 +1,9 @@
+# Copy to key.properties (gitignored) and fill in the values you chose when
+# running keytool. storeFile must be an absolute path; on Windows use forward
+# slashes to avoid escaping issues.
+#
+#   storeFile=C:/Users/you/keystores/cash-compass-test.jks
+storePassword=
+keyPassword=
+keyAlias=cashcompass
+storeFile=

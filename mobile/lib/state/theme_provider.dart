@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../app/theme/app_tokens.dart';
+import '../dev/log.dart';
 import '../services/prefs.dart';
 
 /// Font packs offered in Settings, ported from `SettingsStudio.tsx`.
@@ -109,7 +110,7 @@ class ThemeProvider extends ChangeNotifier {
     try {
       await _persistUiSettings();
     } catch (error) {
-      debugPrint('UI settings write failed: $error');
+      logError('UI settings write', error);
       _writePending = true;
     }
   }

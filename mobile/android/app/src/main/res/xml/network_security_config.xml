@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Forces every network call the app makes through TLS at the OS level, rather
+  than relying on each call site happening to use an https:// URL.
+
+  Applies to Supabase auth and the frankfurter.app rate fetch today, and to the
+  FastAPI backend whenever that lands. Certificate pinning is deliberately not
+  configured yet: the backend host is still undecided, and a pin would have to
+  be reissued the moment it changes.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

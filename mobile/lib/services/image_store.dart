@@ -1,8 +1,9 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../dev/log.dart';
 
 /// Stores images picked for the workspace media widget.
 ///
@@ -66,7 +67,7 @@ class ImageStore {
 
       return fileName;
     } catch (error) {
-      debugPrint('Image pick failed: $error');
+      logError('Image pick', error);
       return null;
     }
   }
@@ -80,7 +81,7 @@ class ImageStore {
       final file = File('${dir.path}/$fileName');
       if (file.existsSync()) await file.delete();
     } catch (error) {
-      debugPrint('Image delete failed: $error');
+      logError('Image delete', error);
     }
   }
 }

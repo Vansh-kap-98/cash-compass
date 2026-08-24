@@ -46,3 +46,11 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Build-time secrets. Holds the Supabase URL and anon key; see SETUP.md.
+/config/dev.json
+/config/*.json
+
+# Dart obfuscation symbol maps. Required to symbolicate crash traces from a
+# release build, but they map obfuscated names back to source — never publish.
+/build/debug-info/

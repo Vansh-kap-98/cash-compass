@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
+import '../dev/log.dart';
 import '../models/json_utils.dart';
 import '../services/prefs.dart';
 import '../services/rates_api.dart';
@@ -118,7 +119,7 @@ class CurrencyProvider extends ChangeNotifier {
       });
     } catch (error) {
       ratesError = 'Live rates unavailable — using saved rates.';
-      debugPrint('Rate refresh failed: $error');
+      logError('Rate refresh', error);
     } finally {
       ratesLoading = false;
       notifyListeners();

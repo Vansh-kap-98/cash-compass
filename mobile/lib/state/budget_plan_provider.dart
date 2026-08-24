@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../dev/log.dart';
 import '../models/budget_plan.dart';
 import '../models/json_utils.dart';
 import '../services/prefs.dart';
@@ -175,7 +176,7 @@ class BudgetPlanProvider extends ChangeNotifier {
         await _prefs.setJson(PrefsKeys.budgetDraft, current.toJson());
       }
     } catch (error) {
-      debugPrint('Budget plan write failed: $error');
+      logError('Budget plan write', error);
       _writePending = true;
     }
   }

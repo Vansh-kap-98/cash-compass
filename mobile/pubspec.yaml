@@ -19,6 +19,11 @@ dependencies:
   # Auth only, exactly as on the web.
   supabase_flutter: ^2.17.2
 
+  # Android Keystore storage for the auth session. Supabase's default
+  # LocalStorage writes the access and refresh tokens as plaintext into
+  # shared_prefs, which survives an unencrypted backup.
+  flutter_secure_storage: ^9.2.4
+
   # Routing, including the Android hardware back button.
   go_router: ^17.5.0
 

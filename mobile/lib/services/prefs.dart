@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../dev/log.dart';
 
 /// Every storage key the app uses, in one place.
 ///
@@ -79,7 +80,7 @@ class Prefs {
       if (decoded is Map) return Map<String, dynamic>.from(decoded);
       return null;
     } catch (error) {
-      debugPrint('Prefs.getJson("$key") failed to decode: $error');
+      logError('Prefs.getJson("$key")', error);
       return null;
     }
   }
@@ -96,7 +97,7 @@ class Prefs {
       if (decoded is List) return decoded;
       return null;
     } catch (error) {
-      debugPrint('Prefs.getJsonList("$key") failed to decode: $error');
+      logError('Prefs.getJsonList("$key")', error);
       return null;
     }
   }

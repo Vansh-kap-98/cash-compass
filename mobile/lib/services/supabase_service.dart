@@ -1,5 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../dev/log.dart';
+import 'secure_session_store.dart';
 
 /// Build-time configuration.
 ///
@@ -28,7 +30,7 @@ abstract final class SupabaseService {
   /// Initialises Supabase if configured. Safe to call unconditionally.
   static Future<void> init() async {
     if (!Env.isSupabaseConfigured) {
-      debugPrint('Supabase not configured — demo mode only.');
+      logDebug(() => 'Supabase not configured — demo mode only.');
       return;
     }
     try {
@@ -37,12 +39,17 @@ abstract final class SupabaseService {
         // Supabase renamed this: `anonKey` is deprecated in favour of
         // `publishableKey`. Same value, new name.
         publishableKey: Env.supabaseAnonKey,
+        // Overrides the default SharedPreferences-backed store, which keeps the
+        // access and refresh tokens in plaintext. See [SecureSessionStore].
+        authOptions: FlutterAuthClientOptions(
+          localStorage: SecureSessionStore(supabaseUrl: Env.supabaseUrl),
+        ),
       );
       _ready = true;
     } catch (error) {
       // A bad URL or key must not prevent the app from starting; the user can
       // still work offline in demo mode.
-      debugPrint('Supabase init failed: $error');
+      logError('Supabase init', error);
     }
   }
 

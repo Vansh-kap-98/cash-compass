@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../dev/log.dart';
 import '../logic/budget_math.dart';
 import '../logic/insights.dart';
 import '../logic/subscriptions.dart';
@@ -270,7 +271,7 @@ class FinanceProvider extends ChangeNotifier {
     try {
       await _prefs.setJson(PrefsKeys.finance, toJson());
     } catch (error) {
-      debugPrint('Finance write failed: $error');
+      logError('Finance write', error);
       _writePending = true; // keep it dirty so a later flush retries
     }
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../dev/log.dart';
 import '../models/day_plan.dart';
 import '../models/json_utils.dart';
 import '../services/prefs.dart';
@@ -175,7 +176,7 @@ class PlannerProvider extends ChangeNotifier {
       });
       await _prefs.setString(PrefsKeys.geoProfile, geoProfileKey);
     } catch (error) {
-      debugPrint('Planner write failed: $error');
+      logError('Planner write', error);
       _writePending = true;
     }
   }

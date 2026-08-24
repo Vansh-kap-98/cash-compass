@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'app/scroll_behavior.dart';
 import 'app/theme/app_theme.dart';
 import 'dev/frame_report.dart';
+import 'dev/log.dart';
 import 'screens/auth_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'services/prefs.dart';
@@ -68,7 +69,7 @@ Future<void> main() async {
 /// Starts a future without awaiting it. Local copy so `main` doesn't need to
 /// import `dart:async` solely for this.
 void unawaited(Future<void> future) {
-  future.catchError((Object error) => debugPrint('Startup task failed: $error'));
+  future.catchError((Object error) => logError('Startup task', error));
 }
 
 class CashCompassApp extends StatefulWidget {

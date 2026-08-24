@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 /// Live USD-based exchange rates from frankfurter.app.
@@ -44,7 +43,6 @@ class RatesApi {
       }
     });
 
-    debugPrint('Fetched exchange rates: $rates');
     return rates;
   }
 

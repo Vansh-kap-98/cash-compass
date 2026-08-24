@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
+import '../dev/log.dart';
 import '../services/prefs.dart';
 import '../services/supabase_service.dart';
 
@@ -99,7 +100,7 @@ class AuthProvider extends ChangeNotifier {
     } on sb.AuthException catch (e) {
       return e.message;
     } catch (error) {
-      debugPrint('Sign in failed: $error');
+      logError('Sign in', error);
       return 'Could not sign in. Please try again.';
     }
   }
@@ -142,7 +143,7 @@ class AuthProvider extends ChangeNotifier {
             'email': email.trim(),
           }, onConflict: 'id');
         } catch (error) {
-          debugPrint('Profile upsert failed (non-fatal): $error');
+          logError('Profile upsert (non-fatal)', error);
         }
       }
 
@@ -153,7 +154,7 @@ class AuthProvider extends ChangeNotifier {
     } on sb.AuthException catch (e) {
       return e.message;
     } catch (error) {
-      debugPrint('Sign up failed: $error');
+      logError('Sign up', error);
       return 'Could not create the account. Please try again.';
     }
   }
@@ -202,7 +203,7 @@ class AuthProvider extends ChangeNotifier {
       try {
         await SupabaseService.client.auth.signOut();
       } catch (error) {
-        debugPrint('Sign out failed: $error');
+        logError('Sign out', error);
       }
     }
     _authUser = null;

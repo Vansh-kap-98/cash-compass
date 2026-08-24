@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../dev/log.dart';
 import '../logic/student_planner.dart';
 import '../models/json_utils.dart';
 import '../services/prefs.dart';
@@ -225,7 +226,7 @@ class StudentPlannerProvider extends ChangeNotifier {
     try {
       await _prefs.setJson(PrefsKeys.studentPlanner, toJson());
     } catch (error) {
-      debugPrint('Student planner write failed: $error');
+      logError('Student planner write', error);
       _writePending = true;
     }
   }
