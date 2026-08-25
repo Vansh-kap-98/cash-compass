@@ -1,0 +1,24 @@
+# Repo-wide safety net.
+#
+# Per-project ignores live in frontend/.gitignore, mobile/.gitignore, and
+# mobile/android/.gitignore. This file only covers things that must never be
+# committed from *anywhere* in the tree.
+
+# ------------------------------------------------------------- credentials
+# Android signing keys. mobile/android/.gitignore already covers that folder,
+# but a stray copy elsewhere in the tree would otherwise be committed -- and a
+# private signing key in git history is unrecoverable without rotating the key,
+# which forces every installed copy to be uninstalled.
+*.jks
+*.keystore
+key.properties
+
+# Build-time secrets.
+.env
+.env.*
+!.env.example
+config/dev.json
+
+# --------------------------------------------------------------------- os
+.DS_Store
+Thumbs.db
