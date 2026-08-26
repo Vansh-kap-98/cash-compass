@@ -94,7 +94,8 @@ void main() {
     // Surfaced as a snack bar, so it is visible without scrolling to the end
     // of the form — which is where the inline copy of the message lives.
     expect(
-      find.widgetWithText(SnackBar, 'Please provide a name and a valid amount.'),
+      find.widgetWithText(
+          SnackBar, 'Please provide a name and a valid amount.'),
       findsOneWidget,
       reason: 'the user must be told why nothing was saved',
     );

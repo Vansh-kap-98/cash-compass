@@ -105,8 +105,9 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
     final saved = double.tryParse(_savedController.text.trim()) ?? 0;
     // Displayed in the active currency, so no conversion here — the values the
     // user typed are already in that currency.
-    final perDay =
-        target <= 0 || _days <= 0 ? 0.0 : ((target - saved) / _days).clamp(0.0, double.infinity);
+    final perDay = target <= 0 || _days <= 0
+        ? 0.0
+        : ((target - saved) / _days).clamp(0.0, double.infinity);
 
     return SheetScaffold(
       title: 'Set Savings Goal',

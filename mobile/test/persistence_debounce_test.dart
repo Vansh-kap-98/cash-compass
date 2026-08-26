@@ -133,7 +133,8 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 700));
 
     expect(finance.transactions, isEmpty);
-    expect(prefs.writes, 0, reason: 'the stale write must not fire after reset');
+    expect(prefs.writes, 0,
+        reason: 'the stale write must not fire after reset');
     expect(prefs.removes, 1);
   });
 

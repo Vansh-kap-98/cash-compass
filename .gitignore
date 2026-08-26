@@ -22,3 +22,9 @@ config/dev.json
 # --------------------------------------------------------------------- os
 .DS_Store
 Thumbs.db
+
+# ------------------------------------------------------------------ tooling
+# Personal Claude Code hooks. These are activated from .claude/settings.local.json
+# (itself untracked) and reference absolute paths on one machine, so they are
+# not shareable. Team-wide config belongs in .claude/settings.json instead.
+.claude/hooks/

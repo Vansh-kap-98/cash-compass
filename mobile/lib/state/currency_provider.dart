@@ -41,8 +41,7 @@ const Duration _cacheTtl = Duration(hours: 1);
 /// Port of `frontend/src/contexts/CurrencyContext.tsx`. All stored amounts are
 /// USD; this class converts at the display boundary in both directions.
 class CurrencyProvider extends ChangeNotifier {
-  CurrencyProvider(this._prefs, {RatesApi? api})
-      : _api = api ?? RatesApi();
+  CurrencyProvider(this._prefs, {RatesApi? api}) : _api = api ?? RatesApi();
 
   final Prefs _prefs;
   final RatesApi _api;
@@ -68,8 +67,7 @@ class CurrencyProvider extends ChangeNotifier {
       final timestamp = asNullableDouble(cached['timestamp']);
       final rawRates = cached['rates'];
       if (timestamp != null && rawRates is Map) {
-        final cachedAt =
-            DateTime.fromMillisecondsSinceEpoch(timestamp.toInt());
+        final cachedAt = DateTime.fromMillisecondsSinceEpoch(timestamp.toInt());
         if (DateTime.now().difference(cachedAt) < _cacheTtl) {
           rates = _coerceRates(rawRates);
           lastUpdated = cachedAt;
@@ -139,8 +137,8 @@ class CurrencyProvider extends ChangeNotifier {
   /// This backs the tappable currency chip that replaces the desktop-only
   /// Right-Ctrl shortcut.
   Future<void> cycleCurrency() {
-    final next = AppCurrency
-        .values[(currency.index + 1) % AppCurrency.values.length];
+    final next =
+        AppCurrency.values[(currency.index + 1) % AppCurrency.values.length];
     return setCurrency(next);
   }
 

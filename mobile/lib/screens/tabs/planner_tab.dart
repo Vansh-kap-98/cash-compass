@@ -344,7 +344,8 @@ class _SocialCardState extends State<_SocialCard> {
             Expanded(
               child: TextField(
                 controller: _low,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(
                   isDense: true,
                   labelText: 'Low',
@@ -355,7 +356,8 @@ class _SocialCardState extends State<_SocialCard> {
             Expanded(
               child: TextField(
                 controller: _realistic,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(
                   isDense: true,
                   labelText: 'Realistic',
@@ -366,7 +368,8 @@ class _SocialCardState extends State<_SocialCard> {
             Expanded(
               child: TextField(
                 controller: _stretch,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(
                   isDense: true,
                   labelText: 'Stretch',
@@ -401,8 +404,7 @@ class _SocialCardState extends State<_SocialCard> {
             const SizedBox(width: 8),
             IconButton.filledTonal(
               icon: const Icon(Icons.remove),
-              onPressed:
-                  _split <= 1 ? null : () => setState(() => _split -= 1),
+              onPressed: _split <= 1 ? null : () => setState(() => _split -= 1),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -422,12 +424,12 @@ class _SocialCardState extends State<_SocialCard> {
               planner.addSocialPlan(
                 title: _title.text,
                 date: isoDate(_date),
-                low: currency.convertToUsd(
-                    double.tryParse(_low.text.trim()) ?? 0),
-                realistic: currency.convertToUsd(
-                    double.tryParse(_realistic.text.trim()) ?? 0),
-                stretch: currency.convertToUsd(
-                    double.tryParse(_stretch.text.trim()) ?? 0),
+                low: currency
+                    .convertToUsd(double.tryParse(_low.text.trim()) ?? 0),
+                realistic: currency
+                    .convertToUsd(double.tryParse(_realistic.text.trim()) ?? 0),
+                stretch: currency
+                    .convertToUsd(double.tryParse(_stretch.text.trim()) ?? 0),
                 splitCount: _split,
               );
               _title.clear();
@@ -501,8 +503,7 @@ class _RunwayCard extends StatelessWidget {
                 initial:
                     currency.convertFromUsd(planner.loanLumpSum).toString(),
                 onSubmitted: (v) => planner.setLoan(
-                  lumpSum:
-                      currency.convertToUsd(double.tryParse(v) ?? 0),
+                  lumpSum: currency.convertToUsd(double.tryParse(v) ?? 0),
                 ),
               ),
             ),
@@ -591,8 +592,7 @@ class _StreakCard extends StatelessWidget {
               ],
             ),
             const Spacer(),
-            if (streak >= 3)
-              const Chip(label: Text('3-day bloom streak 🌸')),
+            if (streak >= 3) const Chip(label: Text('3-day bloom streak 🌸')),
           ],
         ),
         const SizedBox(height: 12),

@@ -49,7 +49,8 @@ class SecureSessionStore extends LocalStorage {
       final legacyKey = 'sb-$host-auth-token';
       if (prefs.containsKey(legacyKey)) {
         await prefs.remove(legacyKey);
-        logDebug(() => 'Removed legacy plaintext session from SharedPreferences');
+        logDebug(
+            () => 'Removed legacy plaintext session from SharedPreferences');
       }
     } catch (error) {
       // Never block startup over cleanup of a key that may not exist.

@@ -148,9 +148,7 @@ class _DailyPlannerCardState extends State<DailyPlannerCard> {
     final currency = context.read<CurrencyProvider>();
     final typed = double.tryParse(_estimateController.text.trim());
 
-    if (_titleController.text.trim().isEmpty ||
-        typed == null ||
-        typed <= 0) {
+    if (_titleController.text.trim().isEmpty || typed == null || typed <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Add a plan name and a valid amount.')),
       );

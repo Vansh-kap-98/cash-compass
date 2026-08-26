@@ -15,7 +15,8 @@ void main() {
   // text to more lines, which is what pushes a body past its height.
   const phoneWidth = 380.0;
 
-  Widget card(WorkspaceWidgetType type, WidgetSize size, {required bool editing}) {
+  Widget card(WorkspaceWidgetType type, WidgetSize size,
+      {required bool editing}) {
     return Center(
       child: SizedBox(
         width: phoneWidth,

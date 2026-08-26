@@ -29,25 +29,23 @@ void main() {
   /// Mirrors what one DashboardTab build currently costs: four independent
   /// full scans of the transaction list, one per stat card.
   int fourFullScans(List<FinanceTransaction> txs, String today) {
-    final totalSpent = txs
-        .where((t) => t.isExpense)
-        .fold(0.0, (s, t) => s + t.amount);
-    final totalIncome = txs
-        .where((t) => !t.isExpense)
-        .fold(0.0, (s, t) => s + t.amount);
+    final totalSpent =
+        txs.where((t) => t.isExpense).fold(0.0, (s, t) => s + t.amount);
+    final totalIncome =
+        txs.where((t) => !t.isExpense).fold(0.0, (s, t) => s + t.amount);
     final spentToday = txs
         .where((t) => t.isExpense && t.date == today)
         .fold(0.0, (s, t) => s + t.amount);
     // availableBalance internally recomputes totalSpent a second time.
-    final available = txs
-        .where((t) => t.isExpense)
-        .fold(0.0, (s, t) => s + t.amount);
+    final available =
+        txs.where((t) => t.isExpense).fold(0.0, (s, t) => s + t.amount);
     return [totalSpent, totalIncome, spentToday, available].length;
   }
 
   void report(String label, int micros, {int? per}) {
     final ms = micros / 1000;
-    final suffix = per == null ? '' : ' (${(micros / per).toStringAsFixed(1)}µs each)';
+    final suffix =
+        per == null ? '' : ' (${(micros / per).toStringAsFixed(1)}µs each)';
     // ignore: avoid_print
     print('  $label: ${ms.toStringAsFixed(2)}ms$suffix');
   }

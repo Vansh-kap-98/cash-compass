@@ -239,7 +239,9 @@ _Guess<double> _extractAmount(List<String> lines) {
     // The amount is usually on the keyword line; if not, try the next line
     // down, which covers receipts that print the label and value separately.
     final onLine = _lastAmountIn(line);
-    if (onLine != null) return (value: onLine, confidence: FieldConfidence.high);
+    if (onLine != null) {
+      return (value: onLine, confidence: FieldConfidence.high);
+    }
 
     if (i + 1 < lines.length) {
       final below = _lastAmountIn(lines[i + 1]);

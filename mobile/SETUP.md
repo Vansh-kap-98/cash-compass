@@ -3,13 +3,15 @@
 This folder holds the Flutter port of the React app in `../frontend`. The React
 app stays as the reference spec; nothing is shared between the two builds.
 
-The Dart source in `lib/` is written and ready. What's missing is the Flutter
-SDK and the Android scaffolding (`android/`, `.metadata`, etc.), which only
-`flutter create` can generate.
+The app is complete and building. What this guide covers is getting the
+Flutter toolchain onto a new machine so you can run it — the Android
+scaffolding (`android/`, `.metadata`) is already committed, so there is no
+project generation step.
 
 ## 1. Install the toolchain
 
-Nothing Flutter-related is installed on this machine yet. Do these in order.
+If `flutter --version` already works, skip to section 2. Otherwise do these
+in order.
 
 ### Flutter SDK
 
@@ -89,10 +91,13 @@ If you use an emulator instead, it needs hardware acceleration: enable
 virtualisation (VT-x on Intel, SVM on AMD) in BIOS, then enable the Windows
 Hypervisor Platform feature. Without it the emulator is unusably slow.
 
-## 3. Generate the Android scaffolding
+## 3. Android scaffolding — already committed
 
-Run this **from inside this folder**. It fills in the missing platform files
-without touching the existing `lib/` or `pubspec.yaml`:
+`android/` and `.metadata` are in the repository, so a fresh clone needs
+nothing here. Skip to section 4.
+
+Only if the `android/` directory is somehow missing or corrupted, this
+regenerates it without touching `lib/` or `pubspec.yaml`:
 
 ```bash
 flutter create --org com.cashcompass --platforms=android --project-name cash_compass .
@@ -255,6 +260,7 @@ The fingerprint must match your keystore, not the Android debug key (whose CN is
 | `lib/state/currency_provider.dart` | Port of `CurrencyContext.tsx` |
 | `lib/state/theme_provider.dart` | Port of `ThemeContext.tsx` + font settings |
 
-Still to come: `main.dart`, the router, auth, and the screens. `main.dart` is
-deliberately not written yet because `flutter create` generates its own and
-would overwrite it.
+That table is a partial snapshot from early in the port. Everything listed
+there shipped, along with `main.dart`, the router, auth, and every screen. For
+the current state of each feature see
+[../CURRENT_FEATURES.md](../CURRENT_FEATURES.md), which is kept up to date.

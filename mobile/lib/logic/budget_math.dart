@@ -7,7 +7,6 @@ library;
 
 import '../models/transaction.dart';
 
-
 /// A cost-of-living profile used by the Location Budget Guidance card.
 class GeoProfile {
   const GeoProfile({
@@ -63,8 +62,8 @@ const List<GeoProfile> geoProfiles = [
   ),
 ];
 
-GeoProfile geoProfileFor(String key) =>
-    geoProfiles.firstWhere((p) => p.key == key, orElse: () => geoProfiles.first);
+GeoProfile geoProfileFor(String key) => geoProfiles
+    .firstWhere((p) => p.key == key, orElse: () => geoProfiles.first);
 
 /// One day's total expense, used for the records list and the daily average.
 class DailyRecord {

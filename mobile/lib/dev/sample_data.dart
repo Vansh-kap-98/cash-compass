@@ -265,7 +265,8 @@ abstract final class SampleData {
         dateFrom: iso(today.add(const Duration(days: 5))),
         people: 6,
         items: const [
-          BudgetLineItem(id: '$_prefix-bi-meal', name: 'Set menu', estimate: 180),
+          BudgetLineItem(
+              id: '$_prefix-bi-meal', name: 'Set menu', estimate: 180),
         ],
         createdAt: today.toIso8601String(),
       ),

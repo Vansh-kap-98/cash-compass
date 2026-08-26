@@ -52,7 +52,8 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
     final typed = double.tryParse(_itemCostController.text.trim());
     if (name.isEmpty || typed == null || typed <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Add an item name and a cost above zero.')),
+        const SnackBar(
+            content: Text('Add an item name and a cost above zero.')),
       );
       return;
     }
@@ -438,8 +439,9 @@ class BudgetReceiptsCard extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.delete_outline),
                       tooltip: 'Delete bill',
-                      onPressed: () =>
-                          context.read<BudgetPlanProvider>().deletePlan(plan.id),
+                      onPressed: () => context
+                          .read<BudgetPlanProvider>()
+                          .deletePlan(plan.id),
                     ),
                   ],
                 ),

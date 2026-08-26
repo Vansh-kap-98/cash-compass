@@ -114,8 +114,8 @@ class BudgetPlan {
   factory BudgetPlan.fromJson(Map<String, dynamic> j) => BudgetPlan(
         id: j['id'] as String,
         title: j['title'] as String? ?? 'Plan',
-        planType:
-            enumByName(BudgetPlanType.values, j['planType'], BudgetPlanType.trip),
+        planType: enumByName(
+            BudgetPlanType.values, j['planType'], BudgetPlanType.trip),
         dateFrom: j['dateFrom'] as String? ?? '',
         dateTo: j['dateTo'] as String?,
         people: (j['people'] as num?)?.toInt() ?? 1,

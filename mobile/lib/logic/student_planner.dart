@@ -43,8 +43,8 @@ class IncomeStream {
         id: j['id'] as String,
         name: j['name'] as String? ?? 'Income',
         amount: asDouble(j['amount']),
-        cadence:
-            enumByName(IncomeCadence.values, j['cadence'], IncomeCadence.weekly),
+        cadence: enumByName(
+            IncomeCadence.values, j['cadence'], IncomeCadence.weekly),
       );
 }
 
@@ -92,8 +92,7 @@ class SocialPlan {
   final String? note;
 
   /// What this person actually pays.
-  double get yourShare =>
-      realisticEstimate / (splitCount < 1 ? 1 : splitCount);
+  double get yourShare => realisticEstimate / (splitCount < 1 ? 1 : splitCount);
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -227,9 +226,8 @@ class RunwayResult {
   final double recommendedWeeklyCap;
 
   /// 0..1 — how far the runway stretches across the remaining semester.
-  double get progress => weeksRemaining <= 0
-      ? 0
-      : (runwayWeeks / weeksRemaining).clamp(0.0, 1.0);
+  double get progress =>
+      weeksRemaining <= 0 ? 0 : (runwayWeeks / weeksRemaining).clamp(0.0, 1.0);
 
   /// True when the money runs out before term ends.
   bool get willRunOut => runwayWeeks < weeksRemaining;
@@ -255,9 +253,7 @@ RunwayResult loanRunway({
   final expenses = transactions.where((t) {
     if (!t.isExpense) return false;
     final d = t.parsedDate;
-    return d != null &&
-        !d.isBefore(window.start) &&
-        !d.isAfter(window.end);
+    return d != null && !d.isBefore(window.start) && !d.isAfter(window.end);
   }).fold(0.0, (sum, t) => sum + t.amount);
 
   final elapsedDays = today.difference(window.start).inDays;

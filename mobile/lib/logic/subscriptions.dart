@@ -6,7 +6,6 @@ library;
 
 import '../models/transaction.dart';
 
-
 /// A merchant charging on a roughly monthly cadence.
 class DetectedSubscription {
   const DetectedSubscription({

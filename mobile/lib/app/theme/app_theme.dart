@@ -57,19 +57,16 @@ ThemeData _buildTheme(
   );
 
   // A non-default font pack overrides the theme's own font choices.
-  final bodyFamily = fontPack == FontPack.defaultPack
-      ? t.bodyFont
-      : fontPack.bodyFont;
-  final headingFamily = fontPack == FontPack.defaultPack
-      ? t.headingFont
-      : fontPack.headingFont;
+  final bodyFamily =
+      fontPack == FontPack.defaultPack ? t.bodyFont : fontPack.bodyFont;
+  final headingFamily =
+      fontPack == FontPack.defaultPack ? t.headingFont : fontPack.headingFont;
 
-  final baseText = GoogleFonts.getTextTheme(bodyFamily)
-      .apply(
-        bodyColor: t.foreground,
-        displayColor: t.foreground,
-        fontSizeFactor: fontSizeFactor,
-      );
+  final baseText = GoogleFonts.getTextTheme(bodyFamily).apply(
+    bodyColor: t.foreground,
+    displayColor: t.foreground,
+    fontSizeFactor: fontSizeFactor,
+  );
 
   // Headings use the heading font; body styles keep the body font.
   final headingStyle = GoogleFonts.getFont(headingFamily, color: t.foreground);
@@ -118,8 +115,7 @@ ThemeData _buildTheme(
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: t.card,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: t.input),
@@ -169,8 +165,7 @@ ThemeData _buildTheme(
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: t.card,
       shape: RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(t.radius)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(t.radius)),
       ),
     ),
     dialogTheme: DialogThemeData(

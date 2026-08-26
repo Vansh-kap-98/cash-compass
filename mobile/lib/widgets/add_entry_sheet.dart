@@ -128,7 +128,8 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
 
     return SheetScaffold(
       title: 'Add Entry',
-      subtitle: 'Log an expense or income. Mark recurring charges to track them.',
+      subtitle:
+          'Log an expense or income. Mark recurring charges to track them.',
       onSubmit: _save,
       submitLabel: 'Save Entry',
       children: [

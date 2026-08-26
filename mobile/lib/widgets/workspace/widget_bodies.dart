@@ -341,83 +341,83 @@ class _SubStashJar extends StatelessWidget {
 
     return _ScrollingBody(children: [
       Row(
-      children: [
-        Container(
-          width: 40,
-          height: 64,
-          decoration: BoxDecoration(
-            border: Border.all(color: theme.colorScheme.primary, width: 2),
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(6),
-              bottom: Radius.circular(16),
+        children: [
+          Container(
+            width: 40,
+            height: 64,
+            decoration: BoxDecoration(
+              border: Border.all(color: theme.colorScheme.primary, width: 2),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(6),
+                bottom: Radius.circular(16),
+              ),
             ),
-          ),
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: AnimatedFractionallySizedBox(
-              duration: const Duration(milliseconds: 500),
-              heightFactor: fill == 0 ? 0.02 : fill,
-              widthFactor: 1,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
-                  borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(14),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: AnimatedFractionallySizedBox(
+                duration: const Duration(milliseconds: 500),
+                heightFactor: fill == 0 ? 0.02 : fill,
+                widthFactor: 1,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary,
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(14),
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            // The label, amount, and Boost button together exceed a small
-            // card's 80px; min lets the column shrink to what it is given
-            // instead of demanding its natural height.
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Sub-stash', style: theme.textTheme.bodySmall),
-              FittedBox(
-                child: Text(
-                  currency.formatFromUsd(total),
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              // The label, amount, and Boost button together exceed a small
+              // card's 80px; min lets the column shrink to what it is given
+              // instead of demanding its natural height.
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Sub-stash', style: theme.textTheme.bodySmall),
+                FittedBox(
+                  child: Text(
+                    currency.formatFromUsd(total),
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              if (finance.goals.isNotEmpty)
-                Text(
-                  'Boosts "${finance.goals.first.name}"',
-                  style: theme.textTheme.bodySmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                const SizedBox(height: 4),
+                if (finance.goals.isNotEmpty)
+                  Text(
+                    'Boosts "${finance.goals.first.name}"',
+                    style: theme.textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: const Size(0, 32),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  onPressed: finance.goals.isEmpty
+                      ? null
+                      : () {
+                          // Converted, unlike the web app's literal +5.
+                          context.read<FinanceProvider>().contributeToGoal(
+                                finance.goals.first.id,
+                                currency.convertToUsd(5),
+                              );
+                        },
+                  child: Text(
+                    'Boost ${currency.formatAmount(5, decimalDigits: 0)}',
+                  ),
                 ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  minimumSize: const Size(0, 32),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                onPressed: finance.goals.isEmpty
-                    ? null
-                    : () {
-                        // Converted, unlike the web app's literal +5.
-                        context.read<FinanceProvider>().contributeToGoal(
-                              finance.goals.first.id,
-                              currency.convertToUsd(5),
-                            );
-                      },
-                child: Text(
-                  'Boost ${currency.formatAmount(5, decimalDigits: 0)}',
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
       ),
     ]);
   }
@@ -822,8 +822,7 @@ class _ChibiMascotState extends State<_ChibiMascot> {
     // handler at all. Tapping now actually does something.
     return Center(
       child: GestureDetector(
-        onTap: () =>
-            setState(() => _index = (_index + 1) % _faces.length),
+        onTap: () => setState(() => _index = (_index + 1) % _faces.length),
         child: _FitBody(
           child: Text(
             _faces[_index],

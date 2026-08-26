@@ -19,9 +19,8 @@ class RatesApi {
   /// Throws on network or parse failure so the caller can decide whether to
   /// fall back to cached or static rates.
   Future<Map<String, double>> fetch() async {
-    final response = await _client
-        .get(_endpoint)
-        .timeout(const Duration(seconds: 10));
+    final response =
+        await _client.get(_endpoint).timeout(const Duration(seconds: 10));
 
     if (response.statusCode != 200) {
       throw http.ClientException(

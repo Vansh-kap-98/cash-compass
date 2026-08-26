@@ -9,7 +9,6 @@ import '../models/budget_category.dart';
 import '../models/savings_goal.dart';
 import '../models/transaction.dart';
 
-
 /// Matches merchants that are usually recurring subscriptions.
 final RegExp subscriptionPattern =
     RegExp(r'netflix|spotify|subscription|prime|youtube', caseSensitive: false);
@@ -38,8 +37,7 @@ class BehaviorInsight {
   final bool isNight;
   final int count;
 
-  String get message =>
-      'Your spontaneous spending clusters around $weekday'
+  String get message => 'Your spontaneous spending clusters around $weekday'
       '${isNight ? ' nights' : ' daytimes'} — '
       'mostly ${tag.name} purchases ($count so far).';
 }

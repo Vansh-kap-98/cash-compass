@@ -9,9 +9,10 @@ import '../../widgets/location_guidance_card.dart';
 
 /// The Dashboard tab.
 ///
-/// Currently covers the balance snapshot and the stat cards from
-/// `DashboardPlanner.tsx`. The planner, insights, and event calendar land in
-/// later milestones.
+/// Ports `DashboardPlanner.tsx` plus the insight, subscription, and event
+/// surfaces around it: balance snapshot, stat grid, budget range, smart cards,
+/// spending pattern, daily planner, location guidance, suggestions, insight
+/// box, subscriptions, event calendar, recent transactions, and day records.
 ///
 /// Note the deliberate absence of `context.watch` at this level: each card
 /// subscribes to only what it displays. Watching the whole provider here would
@@ -284,4 +285,3 @@ class _RecentTransactions extends StatelessWidget {
     );
   }
 }
-

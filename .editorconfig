@@ -1,0 +1,48 @@
+# Editor defaults, applied automatically by VS Code, Android Studio, IntelliJ,
+# and most other editors. Keeps indentation and line endings consistent across
+# the team without anyone configuring their editor by hand.
+#
+# This repo holds two languages with different conventions, so the defaults
+# below are per-type rather than one rule for everything.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+# Dart: 2 spaces, 80 columns — what `dart format` produces. Do not change these
+# without changing the formatter, or every save will fight CI.
+[*.dart]
+indent_size = 2
+max_line_length = 80
+
+# TypeScript / JavaScript / JSON / CSS in the React reference app.
+[*.{ts,tsx,js,jsx,mjs,cjs,json,css,scss}]
+indent_size = 2
+
+[*.{yaml,yml}]
+indent_size = 2
+
+# Gradle Kotlin DSL follows Kotlin conventions.
+[*.{kt,kts}]
+indent_size = 4
+
+[*.{xml,html}]
+indent_size = 2
+
+# Markdown: two trailing spaces are a hard line break, so preserving them
+# matters. Everything else in this repo trims them.
+[*.md]
+trim_trailing_whitespace = false
+
+# Generated or vendored — leave exactly as the tool wrote it.
+[{pubspec.lock,package-lock.json,bun.lock}]
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+[gradlew.bat]
+end_of_line = crlf

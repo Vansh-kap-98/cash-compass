@@ -1,0 +1,51 @@
+# Normalise line endings so the repo does not depend on each person's local
+# git config.
+#
+# Without this, whether a file is committed as LF or CRLF depends on the
+# contributor's core.autocrlf setting. One teammate with a different value
+# rewrites every line of a file they barely touched, and the resulting diff
+# buries the real change.
+#
+# Everything git detects as text is stored LF in the repository. Windows
+# checkouts still get CRLF in the working tree when core.autocrlf says so.
+* text=auto eol=lf
+
+# Windows-only scripts that genuinely require CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+gradlew.bat text eol=crlf
+
+# Shell scripts must stay LF or they fail to execute.
+*.sh text eol=lf
+gradlew text eol=lf
+
+# ------------------------------------------------------------------ binary
+# Never diff, never line-ending-convert. Converting a binary corrupts it.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.jar binary
+*.apk binary
+*.aab binary
+*.jks binary
+*.keystore binary
+*.so binary
+*.pdf binary
+
+# ------------------------------------------------------- diff readability
+# Lockfiles are generated; collapse them in review and in `git diff`.
+pubspec.lock linguist-generated=true
+bun.lock linguist-generated=true -diff
+package-lock.json linguist-generated=true -diff
+
+# Report language stats from the app source, not the reference implementation
+# or generated Android scaffolding.
+frontend/dist/** linguist-generated=true
+mobile/android/** linguist-vendored=true

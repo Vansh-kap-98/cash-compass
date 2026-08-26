@@ -89,12 +89,12 @@ void main() {
 
   group('SavingsGoal', () {
     test('progress is clamped and safe against a zero target', () {
-      const goal =
-          SavingsGoal(id: 'g', name: 'Trip', current: 50, target: 100, icon: '🎯');
+      const goal = SavingsGoal(
+          id: 'g', name: 'Trip', current: 50, target: 100, icon: '🎯');
       expect(goal.progress, 0.5);
 
-      const over =
-          SavingsGoal(id: 'g', name: 'Trip', current: 500, target: 100, icon: '🎯');
+      const over = SavingsGoal(
+          id: 'g', name: 'Trip', current: 500, target: 100, icon: '🎯');
       expect(over.progress, 1.0);
       expect(over.isComplete, isTrue);
 

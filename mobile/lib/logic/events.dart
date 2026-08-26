@@ -5,7 +5,6 @@ library;
 
 import '../models/transaction.dart';
 
-
 enum Region { india, russia }
 
 extension RegionLabel on Region {
@@ -85,7 +84,8 @@ List<FinancialEvent> eventsFor(Region region, {DateTime? now}) {
             month: 12,
             day: 29,
             durationDays: 9,
-            note: 'Gifting, travel, and social spending cluster around this break.',
+            note:
+                'Gifting, travel, and social spending cluster around this break.',
             now: now,
           ),
           _event(

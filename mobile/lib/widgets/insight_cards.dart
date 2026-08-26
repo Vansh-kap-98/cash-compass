@@ -158,8 +158,7 @@ class SpendingPatternCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Spending pattern',
-                      style: theme.textTheme.titleMedium),
+                  Text('Spending pattern', style: theme.textTheme.titleMedium),
                   const SizedBox(height: 4),
                   Text(insight.message, style: theme.textTheme.bodySmall),
                 ],

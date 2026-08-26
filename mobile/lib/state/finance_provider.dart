@@ -25,8 +25,7 @@ const _legacyDemoIds = <String>{
 String todayIso() => isoDate(DateTime.now());
 
 /// Formats a [DateTime] as `yyyy-MM-dd`, ignoring any time component.
-String isoDate(DateTime d) =>
-    '${d.year.toString().padLeft(4, '0')}-'
+String isoDate(DateTime d) => '${d.year.toString().padLeft(4, '0')}-'
     '${d.month.toString().padLeft(2, '0')}-'
     '${d.day.toString().padLeft(2, '0')}';
 

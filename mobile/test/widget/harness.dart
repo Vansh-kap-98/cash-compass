@@ -172,7 +172,8 @@ class TestStores {
       budgets: const [
         BudgetCategory(id: 'fixture-b1', name: 'Food', monthlyLimit: 100),
         BudgetCategory(id: 'fixture-b2', name: 'Transport', monthlyLimit: 60),
-        BudgetCategory(id: 'fixture-b3', name: 'Entertainment', monthlyLimit: 80),
+        BudgetCategory(
+            id: 'fixture-b3', name: 'Entertainment', monthlyLimit: 80),
       ],
       manualBalance: 1500,
     );
