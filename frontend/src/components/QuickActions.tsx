@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Target, CalendarIcon, SlidersHorizontal, X, Minus, GripHorizontal, MapPin, Plane, Users, Utensils } from "lucide-react";
+import { Plus, Target, CalendarIcon, SlidersHorizontal, X, Minus, GripHorizontal, MapPin, Plane, Users, Utensils, ScanLine } from "lucide-react";
 import { format } from "date-fns";
 import { useFinance, type ReasonTag, type TransactionType } from "@/contexts/FinanceContext";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ReceiptScanner } from "@/components/ReceiptScanner";
+import { needsReview, type FieldConfidence, type ParsedReceipt } from "@/lib/receiptParser";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,6 +47,10 @@ export const QuickActions = () => {
 
   // ── Add Entry state ──
   const [entryOpen, setEntryOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  // Confidence of the last scan, per field. Cleared as soon as the user edits
+  // that field — the value is theirs then, not the OCR's.
+  const [scanConfidence, setScanConfidence] = useState<{ name: FieldConfidence; amount: FieldConfidence } | null>(null);
   const [txType, setTxType] = useState<TransactionType>("expense");
   const [txName, setTxName] = useState("");
   const [txAmount, setTxAmount] = useState("");
@@ -117,6 +123,30 @@ export const QuickActions = () => {
   }, [finalizedPlans]);
 
   // ── Handlers ──
+
+  /// Prefills the entry form from a scan.
+  ///
+  /// The scan seeds the form the user would otherwise have filled by hand,
+  /// rather than saving straight away: OCR is a guess, and the amount is the
+  /// one field where a wrong guess quietly corrupts every figure downstream.
+  const handleScanned = (receipt: ParsedReceipt) => {
+    if (receipt.merchant) setTxName(receipt.merchant);
+    // Taken as-is in the active currency. The parser strips the currency
+    // symbol, so there is nothing to convert *from*; treating it like a typed
+    // number matches how the rest of this form behaves.
+    if (receipt.amount !== null) setTxAmount(receipt.amount.toFixed(2));
+    if (receipt.category && expenseCategories.includes(receipt.category)) {
+      setTxCategory(receipt.category);
+    }
+    // A receipt is always money going out.
+    setTxType("expense");
+    setScanConfidence({
+      name: receipt.merchantConfidence,
+      amount: receipt.amountConfidence,
+    });
+    setEntryOpen(true);
+  };
+
   const handleAddTransaction = () => {
     const amountInput = Number(txAmount);
     const amount = convertToUSD(amountInput);
@@ -124,12 +154,18 @@ export const QuickActions = () => {
       toast({ title: "Invalid entry", description: "Please provide a name and valid amount." });
       return;
     }
-    const noteWithRecurrence = txRecurrence !== "none"
-      ? `${txNote ? txNote + " | " : ""}Recurring: ${txRecurrence}`
-      : txNote;
+    const noteParts = [
+      txNote,
+      txRecurrence !== "none" ? `Recurring: ${txRecurrence}` : "",
+      // Marks the entry as OCR-derived so a wrong figure can be traced back to
+      // a scan rather than blamed on the user's typing.
+      scanConfidence ? "Scanned receipt" : "",
+    ].filter(Boolean);
+    const noteWithRecurrence = noteParts.join(" | ");
 
     addTransaction({ name: txName, amount, type: txType, category: txCategory, date: txDate.toISOString().slice(0, 10), note: noteWithRecurrence, isUnplanned: txUnplanned, reasonTags: txReasonTags });
     setTxName(""); setTxAmount(""); setTxNote(""); setTxRecurrence("none"); setTxUnplanned(false); setTxReasonTags([]);
+    setScanConfidence(null);
     setTxCategory(txType === "income" ? "Salary" : "Groceries");
     toast({ title: "Entry saved", description: txRecurrence !== "none" ? `Recurring ${txRecurrence} entry added.` : "Transaction recorded." });
   };
@@ -224,6 +260,12 @@ export const QuickActions = () => {
   return (
     <>
       {/* ═══ ADD ENTRY DIALOG ═══ */}
+      <ReceiptScanner
+        open={scannerOpen}
+        onOpenChange={setScannerOpen}
+        onScanned={handleScanned}
+      />
+
       <Dialog open={entryOpen} onOpenChange={setEntryOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
@@ -256,14 +298,29 @@ export const QuickActions = () => {
                 </Popover>
               </div>
             </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => setScannerOpen(true)}
+            >
+              <ScanLine className="mr-2 h-4 w-4" />
+              Scan a receipt
+            </Button>
             <div className="space-y-1.5">
               <Label>Name</Label>
-              <Input placeholder="e.g. Grocery run" value={txName} onChange={(e) => setTxName(e.target.value)} />
+              <Input placeholder="e.g. Grocery run" value={txName} onChange={(e) => { setTxName(e.target.value); setScanConfidence((c) => (c ? { ...c, name: "none" } : c)); }} />
+              {scanConfidence && needsReview(scanConfidence.name) && (
+                <p className="text-xs text-muted-foreground">Scanned — please check</p>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Amount ({currency})</Label>
-                <Input type="number" min="0" step="0.01" value={txAmount} onChange={(e) => setTxAmount(e.target.value)} placeholder="0.00" />
+                <Input type="number" min="0" step="0.01" value={txAmount} onChange={(e) => { setTxAmount(e.target.value); setScanConfidence((c) => (c ? { ...c, amount: "none" } : c)); }} placeholder="0.00" />
+                {scanConfidence && needsReview(scanConfidence.amount) && (
+                  <p className="text-xs text-muted-foreground">Scanned — please check</p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label>Category</Label>

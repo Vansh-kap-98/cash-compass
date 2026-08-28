@@ -66,7 +66,7 @@ Pure Dart, no Flutter imports, unit-tested independently of the UI.
 | [events.dart](mobile/lib/logic/events.dart) — event calendar | ✅ | — |
 | [subscriptions.dart](mobile/lib/logic/subscriptions.dart) — recurring-charge detection | ✅ | — |
 | [student_planner.dart](mobile/lib/logic/student_planner.dart) | ✅ | — |
-| [receipt_parser.dart](mobile/lib/logic/receipt_parser.dart) | 🟡 | Logic and tests are done; nothing calls it — see [Receipt scanning](#receipt-scanning) |
+| [receipt_parser.dart](mobile/lib/logic/receipt_parser.dart) | ✅ | Wired to the camera — see [Receipt scanning](#receipt-scanning) |
 
 ## Workspace widgets
 
@@ -107,27 +107,26 @@ crosshatch background, and each theme specifies its own fonts.
 
 ### Receipt scanning
 
-**🟡 Parser only.**
+**✅ Built on both platforms.** Listed here because the two share rules but not
+code, which is a standing maintenance cost.
 
-| Piece | Status |
-| --- | --- |
-| Amount / merchant / category extraction with confidence scoring | ✅ Done, unit-tested against fixture text |
-| `google_mlkit_text_recognition` dependency | ✅ In `pubspec.yaml` (and shipping in the APK) |
-| Camera capture | ⚪ Not started |
-| ML Kit OCR call (`TextRecognizer`, `InputImage`) | ⚪ Not started |
-| UI to review and confirm a parsed receipt | ⚪ Not started |
-| Receipt image storage | ⚪ Not started |
+| Piece | Mobile | Web |
+| --- | --- | --- |
+| Parser with confidence scoring | ✅ [receipt_parser.dart](mobile/lib/logic/receipt_parser.dart) | ✅ [receiptParser.ts](frontend/src/lib/receiptParser.ts) |
+| OCR | ✅ ML Kit, native, bundled | ✅ tesseract.js, wasm, CDN-fetched |
+| Camera capture | ✅ [receipt_scanner.dart](mobile/lib/services/receipt_scanner.dart) | ✅ [ReceiptScanner.tsx](frontend/src/components/ReceiptScanner.tsx) |
+| Review before saving | ✅ Seeds the existing entry sheet | ✅ Seeds the existing entry dialog |
+| Subscription warning | ✅ via `wouldBeSubscription` | ⚪ Not ported |
+| Receipt image stored | ✅ App-private storage | ⚪ Not stored |
 
-Nothing in `lib/` constructs a `TextRecognizer` or opens the camera —
-[image_store.dart](mobile/lib/services/image_store.dart:38) uses
-`ImageSource.gallery` and serves the workspace image widget, not receipts.
+**The two parsers are separate implementations of one rule set.** They are kept
+honest only by sharing fixtures — `mobile/test/logic/receipt_parser_test.dart`
+and `frontend/src/test/receiptParser.test.ts` mirror each other case for case.
+Change a rule in one, change it in both, in the same PR.
 
-**To finish:** capture an image, hand it to ML Kit, feed the recognised lines
-into the existing `ParsedReceipt` pipeline, and build a confirm screen that
-surfaces `FieldConfidence` so an OCR guess never looks as certain as typed
-input. This will also need a `CAMERA` permission plus a runtime request with a
-rationale — deliberately not declared yet, since shipping an unused dangerous
-permission is worse than adding it when it is real.
+Web OCR is meaningfully weaker than ML Kit's, and its engine downloads ~10 MB
+from a CDN on first use, so the first web scan needs a connection. The captured
+image never leaves the device on either platform.
 
 ### Supabase / accounts
 
@@ -183,7 +182,6 @@ strings, and the signature read with `apksigner`.
 | **Social benchmarks** (`PARITY_SPEC.md` §7) | No code anywhere in `lib/`. Needs the city/course cost table, the private-lobby opt-in (`cash-compass-private-lobby-v1`), the seed challenge, and the leave-lobby control the web app claims but never implemented. |
 | **Backend / data sync** | Undecided between the maintainer's Python/FastAPI + MySQL service and finishing Supabase. Until one lands, `mobile/` and `frontend/` hold entirely separate data for the same account. |
 | **Themes 2–5** | See [Themes](#themes) above. |
-| **Receipt capture + OCR** | See [Receipt scanning](#receipt-scanning) above. |
 | **iOS** | Android only; `pubspec.yaml` and the setup guide assume it. No `ios/` directory exists. |
 | **CI** | No `.github/` — analyze, test, and build all run locally. |
 
