@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../services/receipt_scanner.dart';
 import '../state/finance_provider.dart';
 import '../widgets/add_entry_sheet.dart';
 import '../widgets/set_goal_sheet.dart';
@@ -45,6 +46,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
+              leading: const Icon(Icons.document_scanner_outlined),
+              title: const Text('Scan Receipt'),
+              subtitle: const Text('Read the amount from a photo'),
+              onTap: () => Navigator.pop(sheetContext, 'scan'),
+            ),
+            ListTile(
               leading: const Icon(Icons.receipt_long_outlined),
               title: const Text('Add Entry'),
               subtitle: const Text('Log an expense or income'),
@@ -69,6 +76,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     if (!context.mounted || action == null) return;
     switch (action) {
+      case 'scan':
+        await _scanReceipt(context);
       case 'entry':
         await AddEntrySheet.show(context);
       case 'goal':
@@ -77,6 +86,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
         await BudgetPlanScreen.open(context);
     }
   }
+
+  /// Captures a receipt and opens the entry sheet prefilled with what was read.
+  ///
+  /// A failed scan falls through to the ordinary form rather than dead-ending:
+  /// the user came here to record a purchase, and the camera not cooperating is
+  /// no reason to make them start over.
+  Future<void> _scanReceipt(BuildContext context) async {
+    final history = context.read<FinanceProvider>().transactions;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final result = await ReceiptScanner.scan(history: history);
+    if (!context.mounted) return;
+
+    switch (result) {
+      case ScanSuccess(:final receipt):
+        await AddEntrySheet.show(context, receipt: receipt);
+
+      case ScanFailed(reason: ScanFailure.cancelled):
+        // Backing out of the camera is not a failure worth announcing.
+        return;
+
+      case ScanFailed(:final reason):
+        messenger.showSnackBar(
+          SnackBar(content: Text(_scanFailureMessage(reason))),
+        );
+        await AddEntrySheet.show(context);
+    }
+  }
+
+  static String _scanFailureMessage(ScanFailure reason) => switch (reason) {
+        ScanFailure.cameraUnavailable =>
+          'Camera unavailable — check the permission in Settings. '
+              'Add the entry by hand for now.',
+        ScanFailure.noTextFound =>
+          'No text found in that photo. Try again in better light, or type it in.',
+        ScanFailure.nothingUseful =>
+          'Could not find an amount on that receipt. Fill it in below.',
+        ScanFailure.cancelled => '',
+      };
 
   @override
   Widget build(BuildContext context) {

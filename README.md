@@ -10,7 +10,8 @@ A personal finance dashboard, in two implementations:
 The Flutter app is a port of the React app. `mobile/PARITY_SPEC.md` transcribes
 every constant and formula from `frontend/src`, and several Dart files cite
 their React counterpart in a header comment — so `frontend/` is documentation
-you can run, not dead code. Don't add features to it.
+you can run, not dead code. Default to not adding features to it; receipt
+scanning is a deliberate exception, built on both platforms.
 
 There is no backend in this repo. Supabase handles auth only — and is not
 configured yet, so the app runs in offline demo mode; all financial data lives

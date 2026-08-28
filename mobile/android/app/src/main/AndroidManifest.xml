@@ -4,6 +4,18 @@
          rate fetch fail silently on a sideloaded APK. -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- Receipt scanning. Runtime-requested by image_picker when the camera is
+         first opened; declaring it here only makes the request possible.
+         No storage permission is needed alongside it: the capture is written
+         straight into app-private storage, which needs no grant. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <!-- The app is fully usable without a camera, so it must not be filtered
+         off the store or refused an install on a device that lacks one. -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false"/>
+
     <application
         android:label="Cash Compass"
         android:name="${applicationName}"

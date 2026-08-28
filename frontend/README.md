@@ -1,10 +1,13 @@
 # Cash Compass — React reference implementation
 
-**This is not the delivery target.** The live app is the Flutter one in
+**Mostly not the delivery target.** The live app is the Flutter one in
 [../mobile](../mobile). This directory is kept as the behavioural source of
 truth that the port is measured against.
 
-Do not add features here. See the [root README](../README.md) for why.
+Default to not adding features here — a feature built in both places has to be
+maintained in both places, and the parity spec only points one way. Receipt
+scanning is the current exception: it exists on web as well, by decision, and
+that means two implementations of the same rules (see below).
 
 ## Why it still exists
 
@@ -58,6 +61,21 @@ to fill in.
 | `npm run lint` | ESLint |
 | `npm test` | Vitest, single run |
 | `npm run test:watch` | Vitest in watch mode |
+
+## Receipt scanning — a deliberate duplicate
+
+[src/lib/receiptParser.ts](src/lib/receiptParser.ts) is a hand port of
+`mobile/lib/logic/receipt_parser.dart`. Both are held to the *same* fixtures:
+[src/test/receiptParser.test.ts](src/test/receiptParser.test.ts) mirrors
+`mobile/test/logic/receipt_parser_test.dart` case for case.
+
+**If you change a parsing rule, change it in both files and both test files in
+the same PR.** That paired test suite is the only thing keeping the two honest;
+nothing enforces it automatically.
+
+The OCR engines differ and cannot be made identical: mobile uses ML Kit's
+native models, web uses tesseract.js in wasm. Web recognition is noticeably
+weaker, which is why the entry form marks low-confidence fields for review.
 
 ## Known lint state
 
