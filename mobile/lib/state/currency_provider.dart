@@ -151,9 +151,21 @@ class CurrencyProvider extends ChangeNotifier {
   }
 
   /// Active currency -> USD. Use this on every amount the user types.
+  ///
+  /// Deliberately **not** rounded, unlike [convertFromUsd].
+  ///
+  /// This is the storage path: the result is what gets persisted. Rounding it
+  /// to cents quantises the stored value, and one US cent is nearly a rupee —
+  /// so ₹50,000 came back as ₹49,999.83 once converted for display. The error
+  /// is a bias rather than noise, so it accumulates across entries instead of
+  /// cancelling out.
+  ///
+  /// Rounding belongs on the way out, where [convertFromUsd] and
+  /// [formatAmount] already do it, because that is where a human reads the
+  /// number.
   double convertToUsd(double amount) {
     if (!amount.isFinite || _rate == 0) return 0;
-    return double.parse((amount / _rate).toStringAsFixed(2));
+    return amount / _rate;
   }
 
   /// Formats an amount already expressed in the active currency.

@@ -164,8 +164,20 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     [currency, rates],
   );
 
+  /**
+   * Active currency -> USD. Deliberately NOT rounded, unlike convertFromUSD.
+   *
+   * This is the storage path: the result is what gets persisted. Rounding it
+   * to cents quantises the stored value, and one US cent is nearly a rupee —
+   * so ₹50,000 came back as ₹49,999.83 once converted for display. The error
+   * is a bias rather than noise, so it accumulates across entries instead of
+   * cancelling out.
+   *
+   * Rounding belongs on the way out, where convertFromUSD and formatAmount
+   * already do it, because that is where a human reads the number.
+   */
   const convertToUSD = useCallback(
-    (amount: number) => round2(toFiniteNumber(amount) / rates[currency]),
+    (amount: number) => toFiniteNumber(amount) / rates[currency],
     [currency, rates],
   );
 

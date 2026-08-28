@@ -25,6 +25,35 @@ USD, convert at the edges. The other two are bugs: a budget planned in INR then
 viewed in USD currently shows INR numbers with a `$` sign. Flagged rather than
 faithfully reproduced.
 
+### Rounding: on the way out only
+
+Both apps originally rounded to 2 decimals in *both* directions. That is wrong
+on the inbound leg, and it was a real defect rather than a style choice:
+`convertToUSD` produces the value that gets **persisted**, and rounding it to
+cents quantises stored money. One US cent is nearly a rupee, so the stored
+figure drifted by up to ~₹0.48 per entry, always in the same direction rather
+than cancelling out.
+
+Observed: ₹50,000 came back as ₹49,999.83. Worse at small amounts — **₹1
+round-tripped to ₹0.83**, a 17% error, because 1/83.5 rounds to a single cent.
+
+The rule now, in both apps:
+
+| Direction | Rounded? | Why |
+| --- | --- | --- |
+| `convertToUSD` / `convertToUsd` | **No** | Storage. Full precision, so nothing is lost |
+| `convertFromUSD` / `convertFromUsd` | Yes, 2dp | Display. What a human reads |
+| `formatAmount` | Yes, locale currency | Display |
+
+Regression tests pin this in both codebases and are written as a round trip —
+type an amount, store it, read it back — because a test that only checks the
+conversion arithmetic passes happily while the round trip is broken:
+`mobile/test/currency_roundtrip_test.dart` and
+`frontend/src/test/currencyRoundtrip.test.ts`.
+
+Note this does not retroactively repair entries saved before the fix; their
+stored values were already quantised.
+
 ---
 
 ## 1. Add Entry (`QuickActions.tsx`)
