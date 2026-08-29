@@ -10,7 +10,13 @@ import '../services/prefs.dart';
 enum FontPack {
   defaultPack('default', 'Outfit', 'Inter'),
   editorial('editorial', 'Playfair Display', 'Newsreader'),
-  mono('mono', 'Geist Mono', 'JetBrains Mono');
+  // The web app's mono theme sets heading, body, and mono all to
+  // `'Geist Mono', monospace` (index.css:115-117). Geist Mono is not in the
+  // `google_fonts` catalogue, and unlike CSS there is no fallback in the stack
+  // — asking for it threw and blanked the screen. JetBrains Mono is the
+  // closest catalogued equivalent, and using it for both roles matches the
+  // web app's own single-font intent for this pack.
+  mono('mono', 'JetBrains Mono', 'JetBrains Mono');
 
   const FontPack(this.id, this.headingFont, this.bodyFont);
 

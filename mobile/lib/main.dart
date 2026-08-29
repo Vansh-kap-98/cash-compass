@@ -154,8 +154,32 @@ class _CashCompassAppState extends State<CashCompassApp>
           theme: buildTheme(
             themeState.tokens,
             fontPack: themeState.fontPack,
-            fontSizeFactor: themeState.fontSizeFactor,
           ),
+          // Text size is applied here rather than inside ThemeData.
+          //
+          // The obvious approach — `TextTheme.apply(fontSizeFactor:)` — cannot
+          // work with Google Fonts: the styles it returns carry a null
+          // `fontSize` and resolve against Material's defaults further down the
+          // tree. Multiplying null yields null, so in a release build the
+          // slider moved and nothing changed; in debug the same call tripped an
+          // assertion. `textScaler` scales at paint time, after those defaults
+          // have resolved, so it works on every style including the ones this
+          // app never names explicitly.
+          builder: (context, child) {
+            final media = MediaQuery.of(context);
+            // Compose with the OS accessibility setting instead of replacing
+            // it — someone who has enlarged text system-wide still gets it.
+            const probe = 14.0;
+            final platformScale = media.textScaler.scale(probe) / probe;
+            return MediaQuery(
+              data: media.copyWith(
+                textScaler: TextScaler.linear(
+                  platformScale * themeState.fontSizeFactor,
+                ),
+              ),
+              child: child!,
+            );
+          },
           home: const _AuthGate(),
         ),
       ),
