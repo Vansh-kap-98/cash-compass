@@ -160,10 +160,19 @@ class FinanceProvider extends ChangeNotifier {
   /// The manual snapshot the user typed, or zero if they haven't set one.
   double get totalBalance => manualBalance ?? 0;
 
-  /// What's left of the snapshot after all recorded expenses. Never negative,
-  /// matching the web app's `Math.max(0, ...)`.
+  /// What's left of the snapshot after recorded income and expenses.
+  ///
+  /// [totalBalance] is a snapshot the user typed at some point; every
+  /// transaction recorded afterwards adjusts it. Expenses subtract and income
+  /// adds — the web app only subtracted, which meant recording your salary
+  /// changed nothing on screen while recording a coffee did. That asymmetry was
+  /// the bug: the number claimed to track your money and ignored half of it.
+  ///
+  /// Deliberately diverges from `PARITY_SPEC.md` §5. See the note there.
+  ///
+  /// Never negative, matching the web app's `Math.max(0, ...)`.
   double get availableBalance {
-    final remaining = totalBalance - totalSpent;
+    final remaining = totalBalance + totalIncome - totalSpent;
     return remaining < 0 ? 0 : remaining;
   }
 

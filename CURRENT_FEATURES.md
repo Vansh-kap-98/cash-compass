@@ -15,8 +15,12 @@ because people trust it.
 | 🟡 Partial | Works, but a named piece is missing — the "Remaining" column says which |
 | ⚪ Not started | No code exists |
 
-Last verified against `main` on 2026-08-26: `flutter analyze` clean, 308 tests
-passing, `dart format` clean across all 61 files.
+Last verified against `main` on 2026-08-29: `flutter analyze` clean, 341 tests
+passing, `dart format` clean across all 66 files.
+
+Every row below was re-checked against the source on that date, not carried
+forward. Four claims were wrong and are corrected — see
+[Corrections](#corrections-2026-08-29).
 
 ---
 
@@ -31,7 +35,7 @@ passing, `dart format` clean across all 61 files.
 | Workspace tab | ✅ | — |
 | Settings tab | ✅ | — |
 | Budget plan screen | ✅ | — |
-| Android hardware back / routing (`go_router`) | ✅ | — |
+| Tab navigation (`IndexedStack`) + push routes | ✅ | Not `go_router` — see [Corrections](#corrections-2026-08-29) |
 
 The dashboard renders the full card stack: balance snapshot, stat grid, budget
 range, smart cards, spending pattern, daily planner, location guidance,
@@ -42,11 +46,15 @@ and day records.
 
 | Feature | Status | Remaining |
 | --- | --- | --- |
-| Transactions — add, edit, delete, categorise | ✅ | — |
-| Savings goals | ✅ | — |
-| Budget categories and plans | ✅ | — |
-| Day plans / daily planner | ✅ | — |
-| Fixed liabilities | ✅ | — |
+| Transactions — add, categorise | ✅ | — |
+| Transactions — **edit / delete** | ⚪ | `addTransaction` is the only mutator. No update or remove exists |
+| Savings goals — create, contribute | ✅ | — |
+| Savings goals — **edit / delete** | ⚪ | No `updateGoal` / `removeGoal` |
+| Budget categories — create, update | ✅ | `upsertBudget` covers both |
+| Budget categories — **delete** | ⚪ | No `removeBudget` |
+| Budget plans — create, finalise, delete | ✅ | — |
+| Day plans / daily planner — add, delete | ✅ | — |
+| **Fixed liabilities** | ⚪ | Storage key only; no provider, no UI, nothing reads it |
 | Manual balance entry, derived stats | ✅ | — |
 | Multi-currency with live FX (frankfurter.app) | ✅ | — |
 | Persistence (`shared_preferences`, debounced writes) | ✅ | — |
@@ -54,6 +62,14 @@ and day records.
 All amounts normalise to USD on input and convert on display, per
 `PARITY_SPEC.md` §0. The two conventions the web app got wrong are
 deliberately **not** reproduced.
+
+`availableBalance` is derived as `manualBalance + totalIncome - totalSpent`,
+floored at zero. The web app omitted income, so recording a salary changed
+nothing on screen while recording a coffee did — a deliberate divergence from
+`PARITY_SPEC.md` §5, pinned by
+[balance_reactivity_test.dart](mobile/test/widget/balance_reactivity_test.dart).
+Every consumer — safe-to-spend, daily planner, insight cards, location
+guidance, workspace widgets — reads that one getter, so they move together.
 
 ## Derived logic
 
@@ -175,6 +191,25 @@ strings, and the signature read with `apksigner`.
 
 ---
 
+## Corrections (2026-08-29)
+
+Four rows in this file claimed things the code does not do. Recorded rather
+than quietly edited, because anyone who planned work off the old version was
+misled.
+
+| Claimed | Reality |
+| --- | --- |
+| "Transactions — add, **edit, delete**, categorise ✅" | Only add. `FinanceProvider` has no update or remove method for transactions, and no UI offers one |
+| "Android hardware back / routing (**`go_router`**) ✅" | `go_router` is in `pubspec.yaml` and **used nowhere**. Navigation is `IndexedStack` for tabs and `MaterialPageRoute` for the budget screen. No `PopScope`/`WillPopScope` anywhere — back is stock Navigator behaviour |
+| "**Fixed liabilities** ✅" | Only `PrefsKeys.fixedLiabilities` exists. Nothing reads or writes it — no provider, no logic, no UI |
+| "Savings goals ✅" (implying full CRUD) | Create and contribute only |
+
+**Action:** `go_router` should be removed from `pubspec.yaml` or actually
+adopted. An unused routing dependency in a shipped APK is dead weight, and its
+presence in this file is what made the claim look verified.
+
+---
+
 ## Not started
 
 | Feature | Notes |
@@ -182,6 +217,9 @@ strings, and the signature read with `apksigner`.
 | **Social benchmarks** (`PARITY_SPEC.md` §7) | No code anywhere in `lib/`. Needs the city/course cost table, the private-lobby opt-in (`cash-compass-private-lobby-v1`), the seed challenge, and the leave-lobby control the web app claims but never implemented. |
 | **Backend / data sync** | Undecided between the maintainer's Python/FastAPI + MySQL service and finishing Supabase. Until one lands, `mobile/` and `frontend/` hold entirely separate data for the same account. |
 | **Themes 2–5** | See [Themes](#themes) above. |
+| **Transaction edit / delete** | The single most visible gap. `addTransaction` is the only mutator, so a mistyped entry cannot be corrected or removed. Anything added must route through `_persist()` so the derived figures stay correct. |
+| **Goal and budget-category delete** | Same shape as above. |
+| **Fixed liabilities** | Storage key reserved, nothing built. |
 | **iOS** | Android only; `pubspec.yaml` and the setup guide assume it. No `ios/` directory exists. |
 | **CI** | No `.github/` — analyze, test, and build all run locally. |
 

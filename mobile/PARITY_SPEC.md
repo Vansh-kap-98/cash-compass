@@ -209,6 +209,22 @@ Receipt view: latest plan in full, then up to 3 more in "Recent Finalised Bills"
 Storage `cash-compass-workspace-v3`. Every type defaults to a 3×2 span.
 
 **safe-to-spend:**
+
+> **Deliberate divergence.** The web app's formula below omits income entirely,
+> so recording a salary changed nothing on screen while recording a coffee did.
+> The snapshot is a point-in-time figure that later transactions adjust, and
+> subtracting expenses while ignoring income is not a convention — it is an
+> asymmetry. The port uses:
+>
+> ```
+> available = max(0, (manualBalance ?? 0) + totalIncome - totalSpent)
+> ```
+>
+> Pinned by `test/widget/balance_reactivity_test.dart`. Everything downstream
+> — safe-to-spend, the daily planner, location guidance, the insight cards and
+> the workspace widgets — reads the same `availableBalance`, so they all move
+> together.
+
 ```
 available    = max(0, (manualBalance ?? 0) - totalSpent)
 daysRemaining= max(1, daysInMonth - today.day + 1)
