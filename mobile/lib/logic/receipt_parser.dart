@@ -23,6 +23,49 @@ extension FieldConfidenceLabel on FieldConfidence {
       this == FieldConfidence.low || this == FieldConfidence.medium;
 }
 
+/// One `description ... price` row from the body of a receipt.
+class ReceiptLineItem {
+  const ReceiptLineItem({
+    required this.description,
+    required this.price,
+    this.quantity,
+  });
+
+  final String description;
+
+  /// Line price as printed, in the receipt's own currency.
+  final double price;
+
+  /// Leading quantity where the receipt printed one (`2 x Coffee`).
+  final int? quantity;
+
+  @override
+  String toString() => '${quantity == null ? '' : '$quantity x '}'
+      '$description = $price';
+}
+
+/// Why the parser believes the total it picked.
+///
+/// A receipt usually states its total more than once — as a labelled line, as
+/// `cash - change`, and implicitly as the sum of its items. Recording which of
+/// those agreed is what separates a confident read from a lucky one.
+enum TotalEvidence {
+  /// A labelled total line, corroborated by `cash - change` or the item sum.
+  corroborated,
+
+  /// A labelled total line, with nothing available to check it against.
+  labelledOnly,
+
+  /// No usable label; the figure came from `cash - change`.
+  derivedFromCash,
+
+  /// No label and no arithmetic — the largest non-excluded number on the page.
+  guessed,
+
+  /// Signals were found and they disagreed. The value is the best of them.
+  conflicting,
+}
+
 /// The result of reading a receipt.
 class ParsedReceipt {
   const ParsedReceipt({
@@ -35,6 +78,10 @@ class ParsedReceipt {
     this.suggestsSubscription = false,
     this.rawText = '',
     this.imagePath,
+    this.currencyCode,
+    this.lineItems = const [],
+    this.evidence = TotalEvidence.guessed,
+    this.discrepancy,
   });
 
   /// Amount as printed on the receipt — in whatever currency the receipt is in,
@@ -58,24 +105,57 @@ class ParsedReceipt {
 
   final String? imagePath;
 
+  /// ISO code of the currency printed on the receipt, or null when the receipt
+  /// carried no symbol or code near its total.
+  ///
+  /// Null is meaningful and must not be defaulted to USD by the parser — the
+  /// caller substitutes the user's active currency, which is a far better guess
+  /// than a hardcoded one for someone who never spends dollars.
+  final String? currencyCode;
+
+  /// Rows parsed from the body. Empty when the layout was not recognisable,
+  /// which is common and not an error.
+  final List<ReceiptLineItem> lineItems;
+
+  /// How the total was arrived at, and whether anything corroborated it.
+  final TotalEvidence evidence;
+
+  /// Set when independent signals disagreed, phrased for the review screen.
+  final String? discrepancy;
+
   /// True when nothing useful came back, so the caller can fall through to
   /// plain manual entry.
   bool get isEmpty => amount == null && merchant == null;
 
+  /// Sum of the parsed rows, or null when none were parsed.
+  double? get lineItemTotal {
+    if (lineItems.isEmpty) return null;
+    return lineItems.fold<double>(0, (sum, i) => sum + i.price);
+  }
+
   ParsedReceipt copyWith({
+    double? amount,
+    FieldConfidence? amountConfidence,
+    String? merchant,
+    String? category,
     bool? suggestsSubscription,
     String? imagePath,
+    String? currencyCode,
   }) =>
       ParsedReceipt(
-        amount: amount,
-        amountConfidence: amountConfidence,
-        merchant: merchant,
+        amount: amount ?? this.amount,
+        amountConfidence: amountConfidence ?? this.amountConfidence,
+        merchant: merchant ?? this.merchant,
         merchantConfidence: merchantConfidence,
-        category: category,
+        category: category ?? this.category,
         categoryConfidence: categoryConfidence,
         suggestsSubscription: suggestsSubscription ?? this.suggestsSubscription,
         rawText: rawText,
         imagePath: imagePath ?? this.imagePath,
+        currencyCode: currencyCode ?? this.currencyCode,
+        lineItems: lineItems,
+        evidence: evidence,
+        discrepancy: discrepancy,
       );
 
   static const empty = ParsedReceipt();
@@ -88,20 +168,31 @@ class ParsedReceipt {
 const _maxLines = 300;
 const _maxRawTextChars = 4000;
 
-/// Lines that mark a total, strongest first.
+/// Total labels in priority tiers, strongest first.
 ///
-/// Order matters: "grand total" beats "total", and "subtotal" is deliberately
-/// absent — matching it would pick the pre-tax figure.
-const _totalKeywords = <String>[
-  'grand total',
-  'amount due',
-  'balance due',
-  'total due',
-  'total',
-  'balance',
+/// Ranked rather than first-match: an unambiguous label anywhere on the receipt
+/// beats a bare "total" further down. Within a tier the *lowest* line wins,
+/// which is what makes "Total 40.00 / Tip 6.00 / Total after tip 46.00" resolve
+/// to 46.00.
+///
+/// "subtotal" is deliberately absent — matching it would pick the pre-tax
+/// figure.
+const _totalKeywordTiers = <List<String>>[
+  ['grand total', 'total amount', 'amount due', 'balance due', 'total due'],
+  ['total', 'balance'],
 ];
 
+/// Every total label, flattened, for the line-item scan to skip.
+final Set<String> _allTotalKeywords = {
+  for (final tier in _totalKeywordTiers) ...tier,
+};
+
 /// Words that disqualify a line from being the final total.
+///
+/// This runs *before* any ranking or fallback. Cash, change, and tender lines
+/// are the important ones: they are currency-formatted and routinely larger
+/// than the real total (`TOTAL 117.00 / CASH 200.00 / CHANGE 83.00`), so a
+/// naive "largest number" pass picks the wrong figure without them.
 const _totalNegatives = <String>[
   'subtotal',
   'sub total',
@@ -111,9 +202,57 @@ const _totalNegatives = <String>[
   'change',
   'cash',
   'tender',
+  'paid',
+  'due back',
   'savings',
   'discount',
 ];
+
+/// Card fragments printed as `ending in 4242` or `**** 4242`.
+///
+/// Four digits next to a currency-formatted line is exactly the shape of a
+/// plausible total, so these are excluded structurally rather than by keyword.
+final RegExp _cardEndingPattern = RegExp(
+  r'(ending\s+(in\s+)?\d{4}|[*x•]{2,}\s*\d{4}|\bx{4}\s*\d{4})',
+  caseSensitive: false,
+);
+
+/// Currency symbols mapped to the ISO code the app uses.
+const Map<String, String> _currencySymbols = {
+  r'$': 'USD',
+  '€': 'EUR',
+  '£': 'GBP',
+  '¥': 'JPY',
+  '₹': 'INR',
+  '₩': 'KRW',
+  '₽': 'RUB',
+};
+
+/// ISO codes worth recognising when printed as text next to the total.
+const _currencyCodes = <String>[
+  'USD',
+  'EUR',
+  'GBP',
+  'JPY',
+  'INR',
+  'KRW',
+  'RUB',
+];
+
+/// How far either side of the total line to look for a currency marker.
+///
+/// Deliberately narrow: a receipt can mention a currency in unrelated fine
+/// print ("prices in USD where shown"), and taking that over the symbol beside
+/// the actual figure would be worse than finding nothing.
+const _currencyWindow = 2;
+
+/// How far the item sum may drift from the stated total before it counts as a
+/// disagreement.
+///
+/// Generous on purpose. Tax, tip, and service charges are frequently not
+/// itemised, so a sum below the total is normal; only a real mismatch should
+/// cost the user confidence.
+const _itemSumTolerance = 0.02;
 
 /// Merchant keyword -> category. Values must exist in [expenseCategories].
 ///
@@ -202,19 +341,24 @@ ParsedReceipt parseReceiptLines(
   }
 
   final rawText = _capped(cleaned.join('\n'));
-  final amount = _extractAmount(cleaned);
+  final items = _extractLineItems(cleaned);
+  final total = _resolveTotal(cleaned, items);
   final merchant = _extractMerchant(cleaned);
   final category = _guessCategory(merchant.value, cleaned);
 
   return ParsedReceipt(
-    amount: amount.value,
-    amountConfidence: amount.confidence,
+    amount: total.value,
+    amountConfidence: total.confidence,
     merchant: merchant.value,
     merchantConfidence: merchant.confidence,
     category: category.value,
     categoryConfidence: category.confidence,
     rawText: rawText,
     imagePath: imagePath,
+    currencyCode: _detectCurrency(cleaned, total.lineIndex),
+    lineItems: items,
+    evidence: total.evidence,
+    discrepancy: total.discrepancy,
   );
 }
 
@@ -226,38 +370,117 @@ typedef _Guess<T> = ({T? value, FieldConfidence confidence});
 
 // ------------------------------------------------------------------- amount
 
-_Guess<double> _extractAmount(List<String> lines) {
-  // Search bottom-up: totals sit near the end, and when a receipt prints
-  // "Total" then "Total after tip", the later one is the real figure.
-  for (var i = lines.length - 1; i >= 0; i--) {
-    final line = lines[i];
-    final lower = line.toLowerCase();
+typedef _Total = ({
+  double? value,
+  FieldConfidence confidence,
+  TotalEvidence evidence,
+  String? discrepancy,
+  int? lineIndex,
+});
 
-    if (_totalNegatives.any(lower.contains)) continue;
-    if (!_totalKeywords.any(lower.contains)) continue;
+/// True when a line must never be read as the total.
+///
+/// Applied before ranking *and* before the largest-number fallback, so an
+/// excluded figure cannot win either path.
+bool _isExcluded(String lower, String raw) =>
+    _totalNegatives.any(lower.contains) || _cardEndingPattern.hasMatch(raw);
 
-    // The amount is usually on the keyword line; if not, try the next line
-    // down, which covers receipts that print the label and value separately.
-    final onLine = _lastAmountIn(line);
-    if (onLine != null) {
-      return (value: onLine, confidence: FieldConfidence.high);
+/// Picks the total, then tries to corroborate it.
+///
+/// Three signals are available on a typical receipt: a labelled line, the
+/// arithmetic `cash - change`, and the sum of the item rows. Agreement between
+/// any two is what earns high confidence; a keyword match on its own is only a
+/// label, and labels get misread.
+_Total _resolveTotal(List<String> lines, List<ReceiptLineItem> items) {
+  final labelled = _labelledTotal(lines);
+  final fromCash = _cashMinusChange(lines);
+  final rawItemSum =
+      items.isEmpty ? null : items.fold<double>(0, (sum, i) => sum + i.price);
+
+  // A receipt that itemises its tax tells us exactly what the gap between the
+  // items and the total should be. Without accounting for it, every receipt
+  // carrying a tax line looks like an item-sum mismatch — the items genuinely
+  // do not add up to the total, and are not meant to.
+  final tax = _labelledValue(lines, const ['tax', 'vat', 'gst']);
+  final itemSum =
+      rawItemSum == null ? null : (tax == null ? rawItemSum : rawItemSum + tax);
+
+  bool agrees(double? a, double? b) =>
+      a != null && b != null && (a - b).abs() <= _itemSumTolerance;
+
+  // ------------------------------------------------ a label was found
+  if (labelled != null) {
+    final value = labelled.value;
+
+    if (agrees(value, fromCash) || agrees(value, itemSum)) {
+      return (
+        value: value,
+        confidence: FieldConfidence.high,
+        evidence: TotalEvidence.corroborated,
+        discrepancy: null,
+        lineIndex: labelled.index,
+      );
     }
 
-    if (i + 1 < lines.length) {
-      final below = _lastAmountIn(lines[i + 1]);
-      if (below != null) {
-        return (value: below, confidence: FieldConfidence.medium);
-      }
+    // `cash - change` is arithmetic the receipt performed itself, so when it
+    // contradicts the label it is the better of the two. The label is reported
+    // rather than discarded — a user staring at the paper can settle it.
+    if (fromCash != null) {
+      return (
+        value: fromCash,
+        confidence: FieldConfidence.low,
+        evidence: TotalEvidence.conflicting,
+        discrepancy: 'Labelled total ${_money(value)} disagrees with '
+            'cash − change ${_money(fromCash)}. Using the arithmetic.',
+        lineIndex: labelled.index,
+      );
     }
+
+    if (itemSum != null && !agrees(value, itemSum)) {
+      // Tax and tip are routinely not itemised, so a total *above* the item sum
+      // is ordinary and only mildly reduces confidence. Below the sum is not
+      // explicable that way.
+      final belowItems = value != null && value < itemSum - _itemSumTolerance;
+      return (
+        value: value,
+        confidence: belowItems ? FieldConfidence.low : FieldConfidence.medium,
+        evidence: TotalEvidence.conflicting,
+        discrepancy: 'Total ${_money(value)} does not match the items '
+            '(${_money(itemSum)}) — please confirm.',
+        lineIndex: labelled.index,
+      );
+    }
+
+    return (
+      value: value,
+      confidence:
+          labelled.onSameLine ? FieldConfidence.high : FieldConfidence.medium,
+      evidence: TotalEvidence.labelledOnly,
+      discrepancy: null,
+      lineIndex: labelled.index,
+    );
   }
 
-  // Nothing labelled. The largest money-shaped number is a decent guess on a
-  // simple receipt and a bad one on a complex bill, so it is marked low and
-  // the UI asks the user to confirm.
+  // ------------------------------------------- no label, but cash and change
+  if (fromCash != null) {
+    return (
+      value: fromCash,
+      confidence: agrees(fromCash, itemSum)
+          ? FieldConfidence.high
+          : FieldConfidence.medium,
+      evidence: TotalEvidence.derivedFromCash,
+      discrepancy: null,
+      lineIndex: null,
+    );
+  }
+
+  // ----------------------------------------------------- nothing but numbers
+  // The largest money-shaped figure, with cash/change/card lines already
+  // removed. A decent guess on a simple receipt and a poor one on a complex
+  // bill, so it is marked low and the review screen asks for confirmation.
   double? largest;
   for (final line in lines) {
-    final lower = line.toLowerCase();
-    if (_totalNegatives.any(lower.contains)) continue;
+    if (_isExcluded(line.toLowerCase(), line)) continue;
     for (final match in _amountPattern.allMatches(line)) {
       final value = _toDouble(match.group(1));
       if (value == null) continue;
@@ -266,10 +489,104 @@ _Guess<double> _extractAmount(List<String> lines) {
   }
 
   if (largest == null || largest <= 0) {
-    return (value: null, confidence: FieldConfidence.none);
+    return (
+      value: null,
+      confidence: FieldConfidence.none,
+      evidence: TotalEvidence.guessed,
+      discrepancy: null,
+      lineIndex: null,
+    );
   }
-  return (value: largest, confidence: FieldConfidence.low);
+
+  return (
+    value: largest,
+    confidence: FieldConfidence.low,
+    evidence: TotalEvidence.guessed,
+    discrepancy: null,
+    lineIndex: null,
+  );
 }
+
+/// The best labelled total, by keyword tier then by position.
+///
+/// Within a tier the lowest line wins, which resolves
+/// "Total 40.00 / Tip 6.00 / Total after tip 46.00" to 46.00.
+({double? value, int index, bool onSameLine})? _labelledTotal(
+  List<String> lines,
+) {
+  for (final tier in _totalKeywordTiers) {
+    for (var i = lines.length - 1; i >= 0; i--) {
+      final line = lines[i];
+      final lower = line.toLowerCase();
+
+      if (_isExcluded(lower, line)) continue;
+      if (!tier.any(lower.contains)) continue;
+
+      final onLine = _lastAmountIn(line);
+      if (onLine != null) {
+        return (value: onLine, index: i, onSameLine: true);
+      }
+
+      // Some layouts print the label and the figure on separate lines.
+      if (i + 1 < lines.length) {
+        final below = _lastAmountIn(lines[i + 1]);
+        if (below != null) {
+          return (value: below, index: i + 1, onSameLine: false);
+        }
+      }
+    }
+  }
+  return null;
+}
+
+/// The figure on the lowest line matching any of [labels].
+///
+/// Used for tax and similar auxiliary lines. Deliberately does not reuse the
+/// total exclusion list, since the whole point is to read a line that list
+/// exists to reject.
+double? _labelledValue(List<String> lines, List<String> labels) {
+  for (var i = lines.length - 1; i >= 0; i--) {
+    final lower = lines[i].toLowerCase();
+    if (!labels.any(lower.contains)) continue;
+    // "tax invoice" and "tax id" are headings, not amounts.
+    if (lower.contains('invoice') || lower.contains('tax id')) continue;
+    final value = _lastAmountIn(lines[i]);
+    if (value != null) return value;
+  }
+  return null;
+}
+
+/// `cash - change`, when the receipt printed both.
+///
+/// This is the receipt doing the arithmetic for us, and it is independent of
+/// however the total line was labelled or misread.
+double? _cashMinusChange(List<String> lines) {
+  double? cash;
+  double? change;
+
+  for (final line in lines) {
+    final lower = line.toLowerCase();
+    if (_cardEndingPattern.hasMatch(line)) continue;
+
+    // "cash back" is money returned at the till, not the tender.
+    if (cash == null &&
+        lower.contains('cash') &&
+        !lower.contains('cash back')) {
+      cash = _lastAmountIn(line);
+    }
+    if (change == null &&
+        (lower.contains('change') || lower.contains('due back'))) {
+      change = _lastAmountIn(line);
+    }
+  }
+
+  if (cash == null || change == null) return null;
+  final total = cash - change;
+  if (total <= 0) return null;
+  return double.parse(total.toStringAsFixed(2));
+}
+
+String _money(double? v) => v == null ? '—' : v.toStringAsFixed(2);
 
 double? _lastAmountIn(String line) {
   double? found;
@@ -287,6 +604,92 @@ double? _toDouble(String? raw) {
   final value = double.tryParse(normalised);
   if (value == null || !value.isFinite) return null;
   return value;
+}
+
+// --------------------------------------------------------------- line items
+
+/// A leading quantity, as `2 x Coffee` or `2x Coffee` or plain `2 Coffee`.
+final RegExp _quantityPrefix = RegExp(r'^(\d{1,3})\s*[x×]?\s+(?=\D)');
+
+/// Rows from the receipt body, as `description ... price`.
+///
+/// Conservative by design: a row only counts when it has text *and* a trailing
+/// money figure, and is not a total, tax, or payment line. Over-collecting here
+/// would poison the item-sum cross-check, which is worse than collecting
+/// nothing — an absent sum simply means one fewer signal.
+List<ReceiptLineItem> _extractLineItems(List<String> lines) {
+  final items = <ReceiptLineItem>[];
+
+  for (final line in lines) {
+    final lower = line.toLowerCase();
+
+    if (_isExcluded(lower, line)) continue;
+    if (_allTotalKeywords.any(lower.contains)) continue;
+    if (_phonePattern.hasMatch(line)) continue;
+    if (_addressPattern.hasMatch(line)) continue;
+
+    final price = _lastAmountIn(line);
+    if (price == null || price <= 0) continue;
+
+    // Strip the trailing figure to leave the description.
+    final lastMatch = _amountPattern.allMatches(line).lastOrNull;
+    if (lastMatch == null) continue;
+    var description = line.substring(0, lastMatch.start).trim();
+
+    int? quantity;
+    final qty = _quantityPrefix.firstMatch(description);
+    if (qty != null) {
+      quantity = int.tryParse(qty.group(1)!);
+      description = description.substring(qty.end).trim();
+    }
+
+    // A row with no words is a stray number, not an item.
+    if (!_hasLetters.hasMatch(description)) continue;
+    // Descriptions that are mostly digits are dates, till numbers, or barcodes.
+    final letters = _hasLetters.allMatches(description).length;
+    if (letters < description.length / 3) continue;
+
+    items.add(ReceiptLineItem(
+      description: _titleCase(description),
+      price: price,
+      quantity: quantity,
+    ));
+  }
+
+  return items;
+}
+
+// ----------------------------------------------------------------- currency
+
+/// The currency printed beside the total, or null when there is no signal.
+///
+/// Deliberately scoped to a window around the total line. A receipt may mention
+/// a currency in unrelated fine print, and preferring that over the symbol next
+/// to the actual figure would be worse than returning null — null lets the
+/// caller fall back to the user's own currency, which is a better guess than
+/// anything the parser can invent.
+String? _detectCurrency(List<String> lines, int? totalLineIndex) {
+  Iterable<String> window;
+  if (totalLineIndex == null) {
+    // No located total. The last few lines are where the payment block sits.
+    window = lines.reversed.take(_currencyWindow * 2 + 1);
+  } else {
+    final from = (totalLineIndex - _currencyWindow).clamp(0, lines.length - 1);
+    final to = (totalLineIndex + _currencyWindow).clamp(0, lines.length - 1);
+    window = lines.sublist(from, to + 1);
+  }
+
+  for (final line in window) {
+    for (final entry in _currencySymbols.entries) {
+      if (line.contains(entry.key)) return entry.value;
+    }
+    final upper = line.toUpperCase();
+    for (final code in _currencyCodes) {
+      // Word-boundary match so "USDA ORGANIC" is not read as USD.
+      if (RegExp('\\b$code\\b').hasMatch(upper)) return code;
+    }
+  }
+  return null;
 }
 
 // ----------------------------------------------------------------- merchant
