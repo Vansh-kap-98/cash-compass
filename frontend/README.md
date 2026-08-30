@@ -65,17 +65,29 @@ to fill in.
 ## Receipt scanning — a deliberate duplicate
 
 [src/lib/receiptParser.ts](src/lib/receiptParser.ts) is a hand port of
-`mobile/lib/logic/receipt_parser.dart`. Both are held to the *same* fixtures:
-[src/test/receiptParser.test.ts](src/test/receiptParser.test.ts) mirrors
-`mobile/test/logic/receipt_parser_test.dart` case for case.
+`mobile/lib/logic/receipt_parser.dart`, and **it is frozen at the version it
+was ported from.** The mobile parser has since moved on; this one has not, by
+decision.
 
-**If you change a parsing rule, change it in both files and both test files in
-the same PR.** That paired test suite is the only thing keeping the two honest;
-nothing enforces it automatically.
+Mobile has, and this does not:
 
-The OCR engines differ and cannot be made identical: mobile uses ML Kit's
-native models, web uses tesseract.js in wasm. Web recognition is noticeably
-weaker, which is why the entry form marks low-confidence fields for review.
+- payment-line and card-ending exclusion before the largest-number fallback
+- tiered total-label ranking rather than first match
+- `cash - change` and item-sum cross-checks feeding confidence
+- currency identification
+- line-item extraction
+
+The two are therefore **no longer equivalent**, and the shared-fixture rule
+that used to govern them no longer applies. Do not treat a passing
+[src/test/receiptParser.test.ts](src/test/receiptParser.test.ts) as evidence
+that web parses a receipt the way the phone does — those fixtures only cover
+the v1 rules both still share.
+
+If web scanning becomes a real target again, port the mobile parser wholesale
+rather than patching this one forward rule by rule.
+
+The OCR engines also differ and cannot be made identical: mobile uses ML Kit's
+native models, web uses tesseract.js in wasm.
 
 ## Known lint state
 
