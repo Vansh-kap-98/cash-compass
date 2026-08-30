@@ -15,8 +15,8 @@ because people trust it.
 | 🟡 Partial | Works, but a named piece is missing — the "Remaining" column says which |
 | ⚪ Not started | No code exists |
 
-Last verified against `main` on 2026-08-29: `flutter analyze` clean, 341 tests
-passing, `dart format` clean across all 66 files.
+Last verified against `main` on 2026-08-30: `flutter analyze` clean, 385 tests
+passing, `dart format` clean across all 71 files.
 
 Every row below was re-checked against the source on that date, not carried
 forward. Four claims were wrong and are corrected — see
@@ -128,17 +128,39 @@ code, which is a standing maintenance cost.
 
 | Piece | Mobile | Web |
 | --- | --- | --- |
-| Parser with confidence scoring | ✅ [receipt_parser.dart](mobile/lib/logic/receipt_parser.dart) | ✅ [receiptParser.ts](frontend/src/lib/receiptParser.ts) |
+| Parser | ✅ v2 — [receipt_parser.dart](mobile/lib/logic/receipt_parser.dart) | 🟡 frozen at v1 |
+| Payment-line / card exclusion, tiered ranking | ✅ | ⚪ |
+| `cash - change` + item-sum cross-checks | ✅ | ⚪ |
+| Currency identification | ✅ | ⚪ |
+| Line-item extraction | ✅ | ⚪ |
 | OCR | ✅ ML Kit, native, bundled | ✅ tesseract.js, wasm, CDN-fetched |
 | Camera capture | ✅ [receipt_scanner.dart](mobile/lib/services/receipt_scanner.dart) | ✅ [ReceiptScanner.tsx](frontend/src/components/ReceiptScanner.tsx) |
-| Review before saving | ✅ Seeds the existing entry sheet | ✅ Seeds the existing entry dialog |
-| Subscription warning | ✅ via `wouldBeSubscription` | ⚪ Not ported |
-| Receipt image stored | ✅ App-private storage | ⚪ Not stored |
+| Rotation retry on a poor read | ✅ | ⚪ |
+| **Batch scan from gallery** | ✅ [receipt_batch_queue.dart](mobile/lib/logic/receipt_batch_queue.dart) | ⚪ |
+| Review before saving | ✅ Entry sheet, and a batch review screen | ✅ Seeds the entry dialog |
+| EXIF capture date | ✅ | ⚪ |
+| Duplicate flagging | ✅ | ⚪ |
+| Subscription warning | ✅ via `wouldBeSubscription` | ⚪ |
+| Receipt image stored | ✅ App-private storage | ⚪ |
 
-**The two parsers are separate implementations of one rule set.** They are kept
-honest only by sharing fixtures — `mobile/test/logic/receipt_parser_test.dart`
-and `frontend/src/test/receiptParser.test.ts` mirror each other case for case.
-Change a rule in one, change it in both, in the same PR.
+**The web parser is deliberately frozen at v1.** It is no longer equivalent to
+the mobile one, and the shared-fixture rule that used to keep them honest no
+longer applies — see [frontend/README.md](frontend/README.md). Web scanning is
+not a current target; if it becomes one, port the mobile parser wholesale
+rather than patching v1 forward.
+
+### Batch scanning
+
+Pick several receipts from the gallery, processed three at a time with results
+held in input order. **Nothing is written until the batch is confirmed** — rows
+are individually editable, retryable, and skippable, and a failed row never
+blocks the readable ones. Dates come from EXIF where the photo has it, so a
+receipt shot on Tuesday is dated Tuesday rather than the night it was scanned;
+where EXIF is absent the fallback is shown rather than applied silently.
+
+**This raises the stakes on the missing delete.** A batch can write ten
+transactions at once and there is still no way to remove one — see
+[Not started](#not-started).
 
 Web OCR is meaningfully weaker than ML Kit's, and its engine downloads ~10 MB
 from a CDN on first use, so the first web scan needs a connection. The captured
@@ -217,7 +239,7 @@ presence in this file is what made the claim look verified.
 | **Social benchmarks** (`PARITY_SPEC.md` §7) | No code anywhere in `lib/`. Needs the city/course cost table, the private-lobby opt-in (`cash-compass-private-lobby-v1`), the seed challenge, and the leave-lobby control the web app claims but never implemented. |
 | **Backend / data sync** | Undecided between the maintainer's Python/FastAPI + MySQL service and finishing Supabase. Until one lands, `mobile/` and `frontend/` hold entirely separate data for the same account. |
 | **Themes 2–5** | See [Themes](#themes) above. |
-| **Transaction edit / delete** | The single most visible gap. `addTransaction` is the only mutator, so a mistyped entry cannot be corrected or removed. Anything added must route through `_persist()` so the derived figures stay correct. |
+| **Transaction edit / delete** | The single most visible gap, and more urgent since batch scanning landed: a batch can write ten rows at once, and a wrong one can only be undone with Reset All, which wipes everything. `addTransaction` is the only mutator. Anything added must route through `_persist()` so the derived figures stay correct. |
 | **Goal and budget-category delete** | Same shape as above. |
 | **Fixed liabilities** | Storage key reserved, nothing built. |
 | **iOS** | Android only; `pubspec.yaml` and the setup guide assume it. No `ios/` directory exists. |
