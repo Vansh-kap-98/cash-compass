@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../logic/receipt_batch_queue.dart';
+import '../models/transaction.dart';
 import '../services/receipt_scanner.dart';
 import '../state/finance_provider.dart';
 import '../widgets/add_entry_sheet.dart';
 import '../widgets/set_goal_sheet.dart';
 import 'budget_plan_screen.dart';
+import 'receipt_batch_review_screen.dart';
 import 'tabs/dashboard_tab.dart';
 import 'tabs/goals_tab.dart';
 import 'tabs/planner_tab.dart';
@@ -52,6 +55,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onTap: () => Navigator.pop(sheetContext, 'scan'),
             ),
             ListTile(
+              leading: const Icon(Icons.burst_mode_outlined),
+              title: const Text('Scan Several'),
+              subtitle: const Text('Pick receipts from your gallery'),
+              onTap: () => Navigator.pop(sheetContext, 'batch'),
+            ),
+            ListTile(
               leading: const Icon(Icons.receipt_long_outlined),
               title: const Text('Add Entry'),
               subtitle: const Text('Log an expense or income'),
@@ -78,12 +87,65 @@ class _DashboardScreenState extends State<DashboardScreen> {
     switch (action) {
       case 'scan':
         await _scanReceipt(context);
+      case 'batch':
+        await _scanBatch(context);
       case 'entry':
         await AddEntrySheet.show(context);
       case 'goal':
         await SetGoalSheet.show(context);
       case 'budget':
         await BudgetPlanScreen.open(context);
+    }
+  }
+
+  /// Picks several receipts, processes them, and opens the review screen.
+  ///
+  /// Nothing is written until the user confirms from that screen.
+  Future<void> _scanBatch(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final history = context.read<FinanceProvider>().transactions;
+
+    final picked = await ReceiptScanner.pickBatch();
+    if (!context.mounted || picked.isEmpty) return;
+
+    // Processing runs behind a modal barrier rather than on the review screen,
+    // so a half-populated list never flashes up and reorders as results land.
+    final entries = <BatchEntry>[
+      for (var i = 0; i < picked.length; i++)
+        BatchEntry(id: 'batch-$i-${picked[i].name}', imagePath: picked[i].path),
+    ];
+
+    final processed = await showDialog<List<BatchEntry>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => _BatchProgressDialog(
+        entries: entries,
+        history: history,
+      ),
+    );
+
+    if (!context.mounted || processed == null || processed.isEmpty) return;
+
+    final saved = await ReceiptBatchReviewScreen.open(
+      context,
+      entries: processed,
+      onRetry: (entry) async {
+        final receipt = await ReceiptScanner.processFile(
+          entry.imagePath,
+          history: history,
+        );
+        return entry.copyWith(
+          receipt: receipt,
+          status: receipt == null ? BatchStatus.failed : BatchStatus.done,
+        );
+      },
+    );
+
+    if (saved != null && saved > 0) {
+      messenger.showSnackBar(
+        SnackBar(
+            content: Text('Saved $saved receipt${saved == 1 ? '' : 's'}.')),
+      );
     }
   }
 
@@ -189,6 +251,82 @@ class _DashboardScreenState extends State<DashboardScreen> {
             selectedIcon: Icon(Icons.settings),
             label: 'Settings',
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Runs the batch queue behind a modal barrier, reporting progress.
+///
+/// Sits in front of the review screen rather than inside it so results cannot
+/// reorder under the user as jobs finish at different speeds.
+class _BatchProgressDialog extends StatefulWidget {
+  const _BatchProgressDialog({required this.entries, required this.history});
+
+  final List<BatchEntry> entries;
+  final List<FinanceTransaction> history;
+
+  @override
+  State<_BatchProgressDialog> createState() => _BatchProgressDialogState();
+}
+
+class _BatchProgressDialogState extends State<_BatchProgressDialog> {
+  int _done = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _run();
+  }
+
+  Future<void> _run() async {
+    final queue = ReceiptBatchQueue(
+      process: (entry) async {
+        // OCR must stay on this isolate: ML Kit is a platform channel and
+        // cannot be called from a background one. The work is native and
+        // awaited, so it does not block the UI thread regardless.
+        final receipt = await ReceiptScanner.processFile(
+          entry.imagePath,
+          history: widget.history,
+        );
+        final captured = await ReceiptScanner.capturedAt(entry.imagePath);
+        return entry.copyWith(
+          receipt: receipt,
+          capturedAt: captured,
+          status: receipt == null ? BatchStatus.failed : BatchStatus.done,
+        );
+      },
+    );
+
+    List<BatchEntry> latest = widget.entries;
+    await for (final snapshot in queue.run(widget.entries)) {
+      latest = snapshot;
+      if (mounted) {
+        setState(() => _done = snapshot
+            .where((e) =>
+                e.status != BatchStatus.pending &&
+                e.status != BatchStatus.processing)
+            .length);
+      }
+    }
+
+    if (mounted) Navigator.of(context).pop(latest);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final total = widget.entries.length;
+    return AlertDialog(
+      title: const Text('Reading receipts'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LinearProgressIndicator(
+            value: total == 0 ? null : _done / total,
+          ),
+          const SizedBox(height: 16),
+          Text('$_done of $total'),
         ],
       ),
     );

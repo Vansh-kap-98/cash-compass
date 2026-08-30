@@ -168,6 +168,36 @@ class CurrencyProvider extends ChangeNotifier {
     return amount / _rate;
   }
 
+  /// True when [code] can be converted — i.e. a rate for it is known.
+  bool knowsRate(String? code) =>
+      code != null && (code == 'USD' || rates.containsKey(code));
+
+  /// An amount printed in [code] -> USD.
+  ///
+  /// For receipts, where the currency is whatever the shop printed rather than
+  /// whatever the user has selected. Returns null when no rate is known, so the
+  /// caller can say so instead of silently converting at the wrong rate — a
+  /// euro receipt treated as rupees is off by a factor of ninety.
+  ///
+  /// Not rounded, for the same reason as [convertToUsd]: this feeds storage.
+  double? convertToUsdFromCode(double amount, String? code) {
+    if (!amount.isFinite || code == null) return null;
+    if (code == 'USD') return amount;
+    final rate = rates[code];
+    if (rate == null || rate <= 0) return null;
+    return amount / rate;
+  }
+
+  /// An amount printed in [code] -> the active display currency.
+  ///
+  /// Composes the two conversions the app already has rather than introducing a
+  /// third rate path. Returns null when [code] is unknown.
+  double? convertToActiveFromCode(double amount, String? code) {
+    final usd = convertToUsdFromCode(amount, code);
+    if (usd == null) return null;
+    return convertFromUsd(usd);
+  }
+
   /// Formats an amount already expressed in the active currency.
   String formatAmount(double amount, {int? decimalDigits}) {
     final format = NumberFormat.currency(

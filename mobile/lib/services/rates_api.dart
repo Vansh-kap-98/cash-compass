@@ -11,8 +11,17 @@ class RatesApi {
 
   final http.Client _client;
 
+  /// Every currency the source publishes, not a fixed shortlist.
+  ///
+  /// A receipt can be in any currency, and the app has to convert whatever it
+  /// reads into the user's own. Asking for `to=INR,RUB` only served the three
+  /// currencies the UI offers and left a euro receipt unconvertible.
+  ///
+  /// Note the host: `api.frankfurter.app` now 301-redirects here, and relying
+  /// on a permanent redirect that the API owner can retire is not worth the
+  /// saved character count.
   static final Uri _endpoint =
-      Uri.parse('https://api.frankfurter.app/latest?from=USD&to=INR,RUB');
+      Uri.parse('https://api.frankfurter.dev/v1/latest?from=USD');
 
   /// Fetches rates keyed by currency code, always including `USD: 1`.
   ///
@@ -37,8 +46,13 @@ class RatesApi {
     final rates = <String, double>{'USD': 1};
     (body['rates'] as Map).forEach((key, value) {
       if (key is String && value is num) {
-        // The web app rounds to 2dp; match it so converted amounts agree.
-        rates[key] = double.parse(value.toDouble().toStringAsFixed(2));
+        // Full precision, deliberately. The web app rounds rates to 2dp, which
+        // is harmless at INR 83.5 but destroys currencies whose rate is below
+        // one — BHD at 0.377 becomes 0.38, an 0.8% error on every conversion.
+        // Same lesson as the storage-rounding bug in PARITY_SPEC.md §0: round
+        // when a human reads the number, never before.
+        final rate = value.toDouble();
+        if (rate > 0 && rate.isFinite) rates[key] = rate;
       }
     });
 
