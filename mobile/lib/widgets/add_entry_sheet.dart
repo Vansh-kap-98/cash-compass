@@ -49,6 +49,10 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
 
   String? _error;
 
+  /// Set when the scanned amount was converted from another currency, so the
+  /// user can see the figure on screen is not the figure on the paper.
+  String? _convertedFrom;
+
   /// True once the user edits a scanned field, so its "check this" hint can be
   /// dropped — the value is theirs now, not the OCR's.
   final Set<String> _confirmed = {};
@@ -62,12 +66,39 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
     final receipt = widget.receipt;
     if (receipt == null) return;
 
-    // The amount is taken as-is in the active currency. The parser strips the
-    // currency symbol, so there is nothing to convert *from* — treating it like
-    // a typed number is both the common case (local receipt, local currency)
-    // and the one the user can correct without learning a new control.
+    // The amount is filled in the *active* currency, whatever the receipt was
+    // printed in.
+    //
+    // The parser now reports the currency it saw. When that differs from the
+    // user's and a rate is known, convert — a €24.50 receipt scanned by someone
+    // working in rupees should fill in the rupee figure, because that is what
+    // the field is labelled and what `_save` will convert back from.
+    //
+    // When the receipt carried no currency marker, or names one with no rate,
+    // the number is taken as-is: assuming it is already in the user's currency
+    // is right far more often than guessing, and the review hint asks them to
+    // check either way.
     final amount = receipt.amount;
-    if (amount != null) _amountController.text = amount.toStringAsFixed(2);
+    if (amount != null) {
+      final currency = context.read<CurrencyProvider>();
+      final detected = receipt.currencyCode;
+      final converted = detected == null || detected == currency.currency.code
+          ? amount
+          : currency.convertToActiveFromCode(amount, detected) ?? amount;
+
+      _amountController.text = converted.toStringAsFixed(2);
+
+      // Say so when the figure on screen is not the figure on the paper.
+      if (detected != null &&
+          detected != currency.currency.code &&
+          currency.knowsRate(detected)) {
+        _convertedFrom = '${amount.toStringAsFixed(2)} $detected converted to '
+            '${currency.currency.code}';
+      } else if (detected != null && !currency.knowsRate(detected)) {
+        _convertedFrom = 'Receipt is in $detected — no exchange rate '
+            'available, so this is unconverted';
+      }
+    }
 
     final merchant = receipt.merchant;
     if (merchant != null) _nameController.text = merchant;
@@ -267,9 +298,10 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
             prefixText: '${currency.currency.symbol} ',
             hintText: '0.00',
             helperText: _reviewHint(
-              'amount',
-              _receipt?.amountConfidence ?? FieldConfidence.none,
-            ),
+                  'amount',
+                  _receipt?.amountConfidence ?? FieldConfidence.none,
+                ) ??
+                _convertedFrom,
           ),
         ),
         const SizedBox(height: 12),

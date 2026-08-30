@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:exif/exif.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -97,9 +99,118 @@ abstract final class ReceiptScanner {
     return ScanSuccess(_withSubscriptionHint(parsed, history));
   }
 
+  /// Picks several images from the gallery for batch processing.
+  ///
+  /// Returns an empty list when the user backs out, which is not an error.
+  static Future<List<XFile>> pickBatch() async {
+    try {
+      return await ImagePicker().pickMultiImage(
+        maxWidth: 1600,
+        maxHeight: 1600,
+        imageQuality: 90,
+      );
+    } catch (error) {
+      logError('Batch pick', error);
+      return const [];
+    }
+  }
+
+  /// Reads and parses one already-picked image.
+  ///
+  /// Split out from [scan] so the batch queue can drive it without reopening
+  /// the camera per receipt.
+  static Future<ParsedReceipt?> processFile(
+    String path, {
+    required List<FinanceTransaction> history,
+  }) async {
+    final lines = await _recogniseLines(path);
+    if (lines.isEmpty) return null;
+
+    final parsed = parseReceiptLines(lines, imagePath: path);
+    if (parsed.isEmpty) return null;
+    return _withSubscriptionHint(parsed, history);
+  }
+
+  /// When the photo was taken, from EXIF.
+  ///
+  /// Null for anything without capture metadata — a screenshot, a download, or
+  /// an image stripped by a messaging app. The caller must surface that rather
+  /// than silently substituting today, since the whole point of reading EXIF is
+  /// that a batch scanned tonight may contain a receipt from Tuesday.
+  static Future<DateTime?> capturedAt(String path) async {
+    try {
+      final bytes = await File(path).readAsBytes();
+      final tags = await readExifFromBytes(bytes);
+      for (final key in const [
+        'EXIF DateTimeOriginal',
+        'EXIF DateTimeDigitized',
+        'Image DateTime',
+      ]) {
+        final raw = tags[key]?.printable.trim();
+        if (raw == null || raw.isEmpty) continue;
+        // EXIF writes `2026:08:21 09:31:44`; only the date half is separated
+        // by colons, so it needs converting before DateTime can parse it.
+        final normalised = raw.replaceRange(
+          0,
+          10,
+          raw.substring(0, 10).replaceAll(':', '-'),
+        );
+        final parsed = DateTime.tryParse(normalised);
+        if (parsed != null) return parsed;
+      }
+    } catch (error) {
+      logError('EXIF read', error);
+    }
+    return null;
+  }
+
   // --------------------------------------------------------------------- OCR
 
+  /// Recognises [imagePath], retrying against rotations if the first pass finds
+  /// nothing usable.
+  ///
+  /// ML Kit reads the pixels as given. A gallery photo taken sideways returns
+  /// almost nothing, and that is one of the most common real-world failures —
+  /// far more common than genuinely unreadable print. Rotating and retrying is
+  /// cheap next to making the user re-photograph a receipt they have already
+  /// thrown away.
   static Future<List<String>> _recogniseLines(String imagePath) async {
+    final first = await _recogniseAt(imagePath);
+    // Two or three fragments is the signature of a sideways read: ML Kit finds
+    // something, but not a receipt.
+    if (first.length >= 4) return first;
+
+    for (final quarterTurns in const [1, 3, 2]) {
+      final rotated = await _rotatedCopy(imagePath, quarterTurns);
+      if (rotated == null) continue;
+      final lines = await _recogniseAt(rotated);
+      try {
+        await File(rotated).delete();
+      } catch (_) {
+        // A leftover temp file is not worth failing the scan over.
+      }
+      if (lines.length > first.length) return lines;
+    }
+
+    return first;
+  }
+
+  /// Writes a rotated copy beside the original and returns its path.
+  static Future<String?> _rotatedCopy(String path, int quarterTurns) async {
+    try {
+      final decoded = img.decodeImage(await File(path).readAsBytes());
+      if (decoded == null) return null;
+      final turned = img.copyRotate(decoded, angle: quarterTurns * 90);
+      final out = File('$path.rot$quarterTurns.jpg');
+      await out.writeAsBytes(img.encodeJpg(turned, quality: 90));
+      return out.path;
+    } catch (error) {
+      logError('Rotation retry', error);
+      return null;
+    }
+  }
+
+  static Future<List<String>> _recogniseAt(String imagePath) async {
     final recogniser = TextRecognizer(script: TextRecognitionScript.latin);
     try {
       final recognised = await recogniser.processImage(
