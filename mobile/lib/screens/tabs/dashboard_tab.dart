@@ -28,10 +28,15 @@ class DashboardTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
       children: const [
+        // The snapshot and the four figures it feeds are one unit, so they sit
+        // closer to each other (12) than to the cards below (24). The rest of
+        // the page keeps an even 16. That uneven rhythm is the hierarchy: it
+        // marks where "what you have" ends and "what we make of it" begins,
+        // which thirteen cards at a uniform 16 could not say.
         _BalanceSnapshotCard(),
-        SizedBox(height: 16),
+        SizedBox(height: 12),
         _StatGrid(),
-        SizedBox(height: 16),
+        SizedBox(height: 24),
         BudgetRangeCard(),
         SizedBox(height: 16),
         SmartCardsWidget(),
@@ -117,16 +122,22 @@ class _BalanceSnapshotCardState extends State<_BalanceSnapshotCard> {
         context.select<FinanceProvider, double?>((f) => f.manualBalance);
     _syncFromStore(balanceUsd, currencyStore);
 
+    // Elevation and padding, not a coloured edge, are what mark this card as
+    // the primary one -- a thick single-side border on a rounded card is the
+    // most recognisable shortcut for "this one matters" and reads as template.
     return Card(
+      elevation: 3,
+      shadowColor: theme.colorScheme.primary.withValues(alpha: 0.18),
+      surfaceTintColor: Colors.transparent,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Total balance', style: theme.textTheme.labelLarge),
+                Text('Total balance', style: theme.textTheme.titleMedium),
                 ActionChip(
                   label: Text(currency.code),
                   onPressed: () =>
@@ -191,6 +202,10 @@ class _StatGrid extends StatelessWidget {
           _StatCard(
             label: stat.label,
             value: currency.formatFromUsd(stat.value),
+            // Four equal tiles said all four figures matter equally. They do
+            // not: `availableBalance` is the one every other surface on the
+            // page reads, so it carries the accent and the others recede.
+            emphasis: stat.label == 'Available',
           ),
       ],
     );
@@ -198,28 +213,50 @@ class _StatGrid extends StatelessWidget {
 }
 
 class _StatCard extends StatelessWidget {
-  const _StatCard({required this.label, required this.value});
+  const _StatCard({
+    required this.label,
+    required this.value,
+    this.emphasis = false,
+  });
 
   final String label;
   final String value;
 
+  /// Marks the one figure on the grid the rest of the page derives from.
+  final bool emphasis;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return Card(
+      // A filled ground, per the design rules for this project: emphasis comes
+      // from fill, elevation or spacing, never from a coloured edge.
+      color: emphasis ? scheme.tertiaryContainer : null,
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        // 16/8 rather than 14/6 -- the whole app is on a 4px grid, and these
+        // two were the only values in this file that were not.
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(label, style: theme.textTheme.labelMedium),
-            const SizedBox(height: 6),
+            Text(
+              label,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: emphasis
+                    ? scheme.onTertiaryContainer
+                    : scheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 8),
             FittedBox(
               child: Text(
                 value,
-                style: theme.textTheme.titleLarge
-                    ?.copyWith(fontWeight: FontWeight.w600),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: emphasis ? scheme.tertiary : null,
+                ),
               ),
             ),
           ],

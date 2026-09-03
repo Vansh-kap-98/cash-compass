@@ -426,3 +426,43 @@ functional or removed: waste-auditor `✕`, roommate-sync "Settle Up",
 chibi-mascot click, EventCalendar "Apply safety margin" (cosmetic toggle,
 not persisted), `AuthShell.eyebrow` (accepted, never rendered),
 `DashboardPlanner.plannedToday` (computed, never shown).
+
+---
+
+## 11. Soft Bloom token divergences (mobile)
+
+The Dart Soft Bloom token set in [app_tokens.dart](lib/app/theme/app_tokens.dart)
+no longer transcribes `frontend/src/index.css` `:root` verbatim. Four values
+diverge, recorded here rather than changed silently. The identity is unchanged —
+warm cream ground, plum primary, white cards.
+
+| Token | Web | Mobile | Why |
+| --- | --- | --- | --- |
+| `primary` | `270 20% 72%` | `272 44% 42%` | White on the web value measures **2.20:1**. WCAG AA needs 4.5:1, so every filled button in the app failed. Text buttons drew primary on the cream ground at **1.99:1**. Now 7.56:1 and 6.84:1. |
+| `accent` | `0 0% 100%` | `20 82% 42%` | The web accent is pure white, identical to `card` — so the theme had no accent at all and nothing could be emphasised. Burnt amber reads against both cream and white. |
+| `accentForeground` | `268 18% 28%` | `0 0% 100%` | Follows `accent` going dark. |
+| `destructive` | `0 70% 55%` | `0 72% 46%` | 4.39:1 on white, marginally under AA. Now 5.60:1. |
+
+Two tokens are also **added**, with no web equivalent in the Dart port:
+`accentContainer` (`24 90% 94%`) and `onAccentContainer` (`20 70% 24%`). The web
+has the same pair as `--theme-accent-soft` / `--theme-accent-deep` but they were
+never transcribed, which is part of why `accent` sat unused. They map to
+`ColorScheme.tertiaryContainer` / `onTertiaryContainer`.
+
+**The web app is unchanged.** If Soft Bloom is ever restyled on the web, these
+are the values to port back, not the other way round.
+
+### Radius is a scale, not a per-component value
+
+The web has a single `--radius`. Mobile carries three steps, exposed on
+`ThemeData` as the `AppRadii` extension:
+
+| Step | Value | Used by |
+| --- | --- | --- |
+| `surface` | 24 (`--radius`) | Cards, bottom sheets, dialogs |
+| `control` | 14 | Buttons, inputs, chips, and ripples over them |
+| `small` | 8 | Thumbnails, swatches, inline bars |
+
+Before this the app used 2, 3, 8, 12, 14 and 24 with no rule — inputs were 12
+and the buttons beside them 14, and an `InkWell` ripple over an input was 12
+against a 12 border that has since moved to 14.

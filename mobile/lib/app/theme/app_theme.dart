@@ -1,3 +1,5 @@
+import 'dart:ui' show lerpDouble;
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -69,6 +71,60 @@ TextStyle _font(String family, Color color) {
   }
 }
 
+/// The radius scale, carried on [ThemeData] so widgets can ask for it instead
+/// of guessing a literal.
+///
+/// Widgets that draw their own rounded surface — an [InkWell] ripple over an
+/// [InputDecorator], an image thumbnail — previously hardcoded 12 while the
+/// input border beside them was 12 and the button above them was 14. Reading
+/// the scale keeps a ripple aligned to the field it sits in when either moves.
+@immutable
+class AppRadii extends ThemeExtension<AppRadii> {
+  const AppRadii({
+    required this.surface,
+    required this.control,
+    required this.small,
+  });
+
+  /// Cards, sheets, dialogs.
+  final double surface;
+
+  /// Buttons, inputs, chips, and anything that ripples over them.
+  final double control;
+
+  /// Thumbnails, swatches, inline bars.
+  final double small;
+
+  BorderRadius get controlBorder => BorderRadius.circular(control);
+  BorderRadius get smallBorder => BorderRadius.circular(small);
+
+  @override
+  AppRadii copyWith({double? surface, double? control, double? small}) =>
+      AppRadii(
+        surface: surface ?? this.surface,
+        control: control ?? this.control,
+        small: small ?? this.small,
+      );
+
+  @override
+  AppRadii lerp(AppRadii? other, double s) {
+    if (other == null) return this;
+    return AppRadii(
+      surface: lerpDouble(surface, other.surface, s)!,
+      control: lerpDouble(control, other.control, s)!,
+      small: lerpDouble(small, other.small, s)!,
+    );
+  }
+}
+
+/// Shorthand for `Theme.of(context).extension<AppRadii>()`, falling back to the
+/// default scale so a theme built without the extension still renders.
+extension AppRadiiAccess on ThemeData {
+  AppRadii get radii =>
+      extension<AppRadii>() ??
+      const AppRadii(surface: 24, control: 14, small: 8);
+}
+
 ThemeData _buildTheme(AppTokens t, FontPack fontPack) {
   final scheme = ColorScheme(
     brightness: ThemeData.estimateBrightnessForColor(t.background),
@@ -76,6 +132,14 @@ ThemeData _buildTheme(AppTokens t, FontPack fontPack) {
     onPrimary: t.primaryForeground,
     secondary: t.secondary,
     onSecondary: t.secondaryForeground,
+    // `accent` had no slot in the ColorScheme, so nothing in the widget tree
+    // could reach it — which is how it went unnoticed that Soft Bloom's accent
+    // was pure white. Mapping it to the tertiary slots gives it a name widgets
+    // can ask for; a theme that omits the container pair falls back to accent.
+    tertiary: t.accent,
+    onTertiary: t.accentForeground,
+    tertiaryContainer: t.accentContainer ?? t.accent,
+    onTertiaryContainer: t.onAccentContainer ?? t.accentForeground,
     error: t.destructive,
     onError: t.destructiveForeground,
     surface: t.card,
@@ -103,7 +167,18 @@ ThemeData _buildTheme(AppTokens t, FontPack fontPack) {
   // Headings use the heading font; body styles keep the body font.
   // This style carries no `fontSize`, so merging it below overrides the family
   // without undoing the scaling applied above.
-  final headingStyle = _font(headingFamily, t.foreground);
+  //
+  // The weight is part of the pairing, not decoration. Outfit at w600 against
+  // Inter at w400 is what separates a heading from a paragraph when both sit at
+  // similar sizes — without it the two families are near enough to read as one.
+  final headingStyle =
+      _font(headingFamily, t.foreground).copyWith(fontWeight: FontWeight.w600);
+
+  // `titleMedium` and `titleSmall` are included deliberately. `titleMedium` is
+  // the card-title style and is used 28 times across the app; while only
+  // `titleLarge` and the `headline*` sizes took the heading font, Outfit
+  // appeared on eight surfaces in total and every card heading rendered in
+  // Inter — so the app had two declared fonts and effectively shipped one.
   final textTheme = baseText.copyWith(
     displayLarge: baseText.displayLarge?.merge(headingStyle),
     displayMedium: baseText.displayMedium?.merge(headingStyle),
@@ -112,13 +187,23 @@ ThemeData _buildTheme(AppTokens t, FontPack fontPack) {
     headlineMedium: baseText.headlineMedium?.merge(headingStyle),
     headlineSmall: baseText.headlineSmall?.merge(headingStyle),
     titleLarge: baseText.titleLarge?.merge(headingStyle),
+    titleMedium: baseText.titleMedium?.merge(headingStyle),
+    titleSmall: baseText.titleSmall?.merge(headingStyle),
   );
 
   final cardRadius = BorderRadius.circular(t.radius);
+  final controlRadius = BorderRadius.circular(t.radiusControl);
 
   return ThemeData(
     useMaterial3: true,
     colorScheme: scheme,
+    extensions: [
+      AppRadii(
+        surface: t.radius,
+        control: t.radiusControl,
+        small: t.radiusSmall,
+      ),
+    ],
     scaffoldBackgroundColor: t.background,
     canvasColor: t.background,
     textTheme: textTheme,
@@ -151,45 +236,91 @@ ThemeData _buildTheme(AppTokens t, FontPack fontPack) {
       fillColor: t.card,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: controlRadius,
         borderSide: BorderSide(color: t.input),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: controlRadius,
         borderSide: BorderSide(color: t.input),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: controlRadius,
         borderSide: BorderSide(color: t.ring, width: 2),
+      ),
+      // Errors were previously drawn with the Material default red rather than
+      // the theme's destructive colour, so the one state that most needs to be
+      // unmistakable was the only one off-palette.
+      errorBorder: OutlineInputBorder(
+        borderRadius: controlRadius,
+        borderSide: BorderSide(color: t.destructive),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: controlRadius,
+        borderSide: BorderSide(color: t.destructive, width: 2),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: controlRadius,
+        borderSide: BorderSide(color: t.border),
       ),
       labelStyle: TextStyle(color: t.mutedForeground),
       hintStyle: TextStyle(color: t.mutedForeground),
+      errorStyle: TextStyle(color: t.destructive),
     ),
+    // Buttons share one padding rule and one radius. Vertical padding is 12 --
+    // on the 4px grid -- with the 48dp minimum touch target stated explicitly
+    // rather than smuggled in as an off-grid 14.
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: t.primary,
         foregroundColor: t.primaryForeground,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        disabledBackgroundColor: t.secondary,
+        disabledForegroundColor: t.mutedForeground,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        minimumSize: const Size(0, 48),
+        shape: RoundedRectangleBorder(borderRadius: controlRadius),
         textStyle: const TextStyle(fontWeight: FontWeight.w600),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: t.foreground,
+        disabledForegroundColor: t.mutedForeground,
         side: BorderSide(color: t.border),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        minimumSize: const Size(0, 48),
+        shape: RoundedRectangleBorder(borderRadius: controlRadius),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: t.primary),
+      style: TextButton.styleFrom(
+        foregroundColor: t.primary,
+        disabledForegroundColor: t.mutedForeground,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        minimumSize: const Size(0, 48),
+        shape: RoundedRectangleBorder(borderRadius: controlRadius),
+      ),
     ),
+    // A selected chip fills with `primary`. The label previously stayed
+    // `secondaryForeground` in both states, so a selected chip drew dark ink on
+    // a dark plum fill. Resolving the label and the border per state keeps both
+    // states legible instead of only the unselected one.
     chipTheme: ChipThemeData(
       backgroundColor: t.secondary,
       selectedColor: t.primary,
-      labelStyle: TextStyle(color: t.secondaryForeground),
-      side: BorderSide(color: t.border),
+      checkmarkColor: t.primaryForeground,
+      labelStyle: WidgetStateTextStyle.resolveWith(
+        (states) => TextStyle(
+          color: states.contains(WidgetState.selected)
+              ? t.primaryForeground
+              : t.secondaryForeground,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      side: WidgetStateBorderSide.resolveWith(
+        (states) => BorderSide(
+          color: states.contains(WidgetState.selected) ? t.primary : t.border,
+        ),
+      ),
       shape: const StadiumBorder(),
     ),
     progressIndicatorTheme: ProgressIndicatorThemeData(

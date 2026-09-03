@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app/theme/app_theme.dart';
 import '../logic/budget_math.dart';
 import '../state/currency_provider.dart';
 import '../state/finance_provider.dart';
@@ -114,7 +115,8 @@ class _DateField extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      // Matches the input border this ripples over.
+      borderRadius: Theme.of(context).radii.controlBorder,
       child: InputDecorator(
         decoration: InputDecoration(labelText: label),
         child: Text(value),

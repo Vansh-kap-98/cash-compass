@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app/theme/app_theme.dart';
 import '../logic/receipt_parser.dart';
 import '../models/transaction.dart';
 import '../state/currency_provider.dart';
@@ -325,7 +326,8 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
             Expanded(
               child: InkWell(
                 onTap: _pickDate,
-                borderRadius: BorderRadius.circular(12),
+                // Matches the input border this ripples over.
+                borderRadius: Theme.of(context).radii.controlBorder,
                 child: InputDecorator(
                   decoration: const InputDecoration(labelText: 'Date'),
                   child: Text(isoDate(_date)),
