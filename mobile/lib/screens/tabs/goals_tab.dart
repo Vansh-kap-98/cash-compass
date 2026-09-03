@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
+import '../../l10n/presenters.dart';
 import '../../logic/insights.dart';
 import '../../models/savings_goal.dart';
 import '../../state/currency_provider.dart';
@@ -14,6 +16,7 @@ class GoalsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final finance = context.watch<FinanceProvider>();
     final suggestions = goalInsights(finance.transactions);
@@ -43,7 +46,7 @@ class GoalsTab extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Personalised guidance',
+                  l10n.goalsGuidanceTitle,
                   style: theme.textTheme.titleMedium,
                 ),
                 const SizedBox(height: 10),
@@ -55,7 +58,10 @@ class GoalsTab extends StatelessWidget {
                       children: [
                         Text('•  ', style: theme.textTheme.bodyMedium),
                         Expanded(
-                          child: Text(s, style: theme.textTheme.bodyMedium),
+                          child: Text(
+                            goalInsightMessage(l10n, s),
+                            style: theme.textTheme.bodyMedium,
+                          ),
                         ),
                       ],
                     ),
@@ -74,6 +80,7 @@ class _EmptyGoals extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     return Card(
       child: Padding(
@@ -87,13 +94,13 @@ class _EmptyGoals extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'No savings goals yet.',
+              l10n.goalsEmptyTitle,
               style: theme.textTheme.bodyLarge,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
             Text(
-              'Use the + button to create one.',
+              l10n.goalsEmptyBody,
               style: theme.textTheme.bodySmall,
               textAlign: TextAlign.center,
             ),
@@ -111,6 +118,7 @@ class _GoalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
 
@@ -143,8 +151,10 @@ class _GoalCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${currency.formatFromUsd(goal.current)}'
-                  ' of ${currency.formatFromUsd(goal.target)}',
+                  l10n.goalAmountOf(
+                    currency.formatFromUsd(goal.current),
+                    currency.formatFromUsd(goal.target),
+                  ),
                   style: theme.textTheme.bodySmall,
                 ),
                 TextButton(
@@ -158,7 +168,9 @@ class _GoalCard extends StatelessWidget {
                             currency.convertToUsd(100),
                           ),
                   child: Text(
-                    'Add ${currency.formatAmount(100, decimalDigits: 0)}',
+                    l10n.goalAddAmount(
+                      currency.formatAmount(100, decimalDigits: 0),
+                    ),
                   ),
                 ),
               ],

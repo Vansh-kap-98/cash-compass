@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../app/theme/app_theme.dart';
+import '../l10n/l10n.dart';
+import '../l10n/presenters.dart';
 import '../models/budget_plan.dart';
 import '../state/budget_plan_provider.dart';
 import '../state/currency_provider.dart';
@@ -53,8 +55,7 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
     final typed = double.tryParse(_itemCostController.text.trim());
     if (name.isEmpty || typed == null || typed <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Add an item name and a cost above zero.')),
+        SnackBar(content: Text(context.l10n.budgetItemInvalid)),
       );
       return;
     }
@@ -77,33 +78,36 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
   }
 
   Future<void> _finalise() async {
+    final l10n = context.l10n;
     final error = _store.finalizeDraft();
     if (!mounted) return;
     if (error != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(error)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(budgetPlanErrorMessage(l10n, error))),
+      );
       return;
     }
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Budget finalised.')),
+      SnackBar(content: Text(l10n.budgetFinalised)),
     );
   }
 
   Future<void> _confirmDiscard() async {
+    final l10n = context.l10n;
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Discard this plan?'),
-        content: const Text('The draft and its items will be deleted.'),
+        title: Text(l10n.budgetDiscardDialogTitle),
+        content: Text(l10n.budgetDiscardDialogBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Keep'),
+            child: Text(l10n.actionKeep),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Discard'),
+            child: Text(l10n.actionDiscard),
           ),
         ],
       ),
@@ -116,6 +120,7 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final store = context.watch<BudgetPlanProvider>();
@@ -127,11 +132,11 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Budget planner'),
+        title: Text(l10n.budgetPlannerTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            tooltip: 'Discard draft',
+            tooltip: l10n.budgetDiscardTooltip,
             onPressed: _confirmDiscard,
           ),
         ],
@@ -140,21 +145,21 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         children: [
           SegmentedButton<BudgetPlanType>(
-            segments: const [
+            segments: [
               ButtonSegment(
                 value: BudgetPlanType.trip,
-                label: Text('Trip'),
-                icon: Icon(Icons.flight_takeoff),
+                label: Text(l10n.budgetTypeTrip),
+                icon: const Icon(Icons.flight_takeoff),
               ),
               ButtonSegment(
                 value: BudgetPlanType.outing,
-                label: Text('Outing'),
-                icon: Icon(Icons.restaurant),
+                label: Text(l10n.budgetTypeOuting),
+                icon: const Icon(Icons.restaurant),
               ),
               ButtonSegment(
                 value: BudgetPlanType.event,
-                label: Text('Event'),
-                icon: Icon(Icons.group),
+                label: Text(l10n.budgetTypeEvent),
+                icon: const Icon(Icons.group),
               ),
             ],
             selected: {draft.planType},
@@ -165,9 +170,9 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
           TextField(
             controller: _titleController,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Plan title',
-              hintText: 'e.g. Goa weekend',
+            decoration: InputDecoration(
+              labelText: l10n.budgetFieldTitle,
+              hintText: l10n.budgetFieldTitleHint,
             ),
             onChanged: (v) => _store.updateDraft(draft.copyWith(title: v)),
           ),
@@ -176,7 +181,7 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
             children: [
               Expanded(
                 child: _DateField(
-                  label: 'From',
+                  label: l10n.budgetFieldFrom,
                   value: draft.dateFrom,
                   onTap: () async {
                     final picked = await showDatePicker(
@@ -197,7 +202,7 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _DateField(
-                  label: 'To (optional)',
+                  label: l10n.budgetFieldTo,
                   value: draft.dateTo ?? '—',
                   onTap: () async {
                     final picked = await showDatePicker(
@@ -221,7 +226,8 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
           const SizedBox(height: 16),
           Row(
             children: [
-              Text('Splitting between', style: theme.textTheme.bodyMedium),
+              Text(l10n.budgetSplittingBetween,
+                  style: theme.textTheme.bodyMedium),
               const Spacer(),
               IconButton.filledTonal(
                 icon: const Icon(Icons.remove),
@@ -245,7 +251,7 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
             ],
           ),
           const Divider(height: 28),
-          Text('Items', style: theme.textTheme.titleMedium),
+          Text(l10n.budgetItems, style: theme.textTheme.titleMedium),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -254,7 +260,8 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
                 child: TextField(
                   controller: _itemNameController,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(labelText: 'Item'),
+                  decoration:
+                      InputDecoration(labelText: l10n.budgetFieldItem),
                 ),
               ),
               const SizedBox(width: 10),
@@ -265,14 +272,14 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
-                    labelText: 'Cost (${currency.currency.code})',
+                    labelText: l10n.budgetFieldCost(currency.currency.code),
                   ),
                 ),
               ),
               const SizedBox(width: 6),
               IconButton.filled(
                 icon: const Icon(Icons.add),
-                tooltip: 'Add item',
+                tooltip: l10n.budgetAddItemTooltip,
                 onPressed: () => _addItem(draft),
               ),
             ],
@@ -282,7 +289,7 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
-                'Add items above to see the breakdown.',
+                l10n.budgetItemsEmpty,
                 style: theme.textTheme.bodySmall,
               ),
             )
@@ -299,7 +306,7 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
                     Text(currency.formatFromUsd(item.estimate)),
                     IconButton(
                       icon: const Icon(Icons.close),
-                      tooltip: 'Remove',
+                      tooltip: l10n.actionRemove,
                       onPressed: () => _store.updateDraft(
                         draft.copyWith(
                           items: draft.items
@@ -320,7 +327,8 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Total', style: theme.textTheme.bodyMedium),
+                      Text(l10n.budgetTotal,
+                          style: theme.textTheme.bodyMedium),
                       Text(
                         currency.formatFromUsd(draft.total),
                         style: theme.textTheme.titleMedium
@@ -334,7 +342,7 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Per person (${draft.people})',
+                          l10n.budgetPerPerson(draft.people),
                           style: theme.textTheme.bodySmall,
                         ),
                         Text(currency.formatFromUsd(draft.perPerson)),
@@ -352,7 +360,7 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
           child: FilledButton(
             onPressed: _finalise,
-            child: const Text('Finalise bill'),
+            child: Text(l10n.budgetFinalise),
           ),
         ),
       ),
@@ -391,6 +399,7 @@ class BudgetReceiptsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final store = context.watch<BudgetPlanProvider>();
@@ -403,7 +412,8 @@ class BudgetReceiptsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Finalised bills', style: theme.textTheme.titleMedium),
+            Text(l10n.budgetReceiptsTitle,
+                style: theme.textTheme.titleMedium),
             const SizedBox(height: 10),
             for (final plan in store.plans.take(5))
               Padding(
@@ -419,9 +429,18 @@ class BudgetReceiptsCard extends StatelessWidget {
                             style: theme.textTheme.bodyMedium,
                           ),
                           Text(
-                            '${plan.planType.label} · ${plan.dateFrom}'
-                            '${plan.dateTo == null ? '' : ' → ${plan.dateTo}'}'
-                            ' · ${plan.items.length} items',
+                            plan.dateTo == null
+                                ? l10n.budgetReceiptSummary(
+                                    budgetPlanTypeLabel(l10n, plan.planType),
+                                    plan.dateFrom,
+                                    plan.items.length,
+                                  )
+                                : l10n.budgetReceiptSummaryRange(
+                                    budgetPlanTypeLabel(l10n, plan.planType),
+                                    plan.dateFrom,
+                                    plan.dateTo!,
+                                    plan.items.length,
+                                  ),
                             style: theme.textTheme.bodySmall,
                           ),
                         ],
@@ -433,14 +452,16 @@ class BudgetReceiptsCard extends StatelessWidget {
                         Text(currency.formatFromUsd(plan.total)),
                         if (plan.people > 1)
                           Text(
-                            '${currency.formatFromUsd(plan.perPerson)} each',
+                            l10n.budgetEach(
+                              currency.formatFromUsd(plan.perPerson),
+                            ),
                             style: theme.textTheme.bodySmall,
                           ),
                       ],
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete_outline),
-                      tooltip: 'Delete bill',
+                      tooltip: l10n.budgetDeleteTooltip,
                       onPressed: () => context
                           .read<BudgetPlanProvider>()
                           .deletePlan(plan.id),

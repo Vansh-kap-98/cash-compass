@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
+import '../l10n/presenters.dart';
 import '../logic/budget_math.dart';
 import '../logic/events.dart';
 import '../logic/insights.dart';
@@ -15,7 +17,9 @@ class InsightBoxCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
+    final currency = context.watch<CurrencyProvider>();
     final finance = context.watch<FinanceProvider>();
     final suggestions = finance.suggestions;
 
@@ -25,7 +29,8 @@ class InsightBoxCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Smart suggestions', style: theme.textTheme.titleMedium),
+            Text(l10n.smartSuggestionsTitle,
+                style: theme.textTheme.titleMedium),
             const SizedBox(height: 10),
             for (final s in suggestions)
               Padding(
@@ -34,12 +39,15 @@ class InsightBoxCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      s.title,
+                      suggestionTitle(l10n, s),
                       style: theme.textTheme.bodyMedium
                           ?.copyWith(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 2),
-                    Text(s.body, style: theme.textTheme.bodySmall),
+                    Text(
+                      suggestionBody(l10n, s, currency.formatFromUsd),
+                      style: theme.textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),
@@ -56,6 +64,7 @@ class SmartCardsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final finance = context.watch<FinanceProvider>();
@@ -90,34 +99,35 @@ class SmartCardsWidget extends StatelessWidget {
                       : theme.colorScheme.error,
                 ),
                 const SizedBox(width: 8),
-                Text('Smart cards', style: theme.textTheme.titleMedium),
+                Text(l10n.smartCardsTitle,
+                    style: theme.textTheme.titleMedium),
               ],
             ),
             const SizedBox(height: 8),
             if (card.watching)
               Text(
-                'Smart cards are on watch. Discretionary spending is '
-                'comfortable today.',
+                l10n.smartCardsWatching,
                 style: theme.textTheme.bodySmall,
               )
             else ...[
               Text(
-                'You have spent ${currency.formatFromUsd(card.todayAmount)} on '
-                'small extras today — '
-                '${(card.shareOfLimit * 100).round()}% of your daily limit.',
+                l10n.smartCardsSpent(
+                  currency.formatFromUsd(card.todayAmount),
+                  (card.shareOfLimit * 100).round(),
+                ),
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 6),
               Text(
-                'At this rate that is '
-                '${currency.formatFromUsd(card.annualised)} a year.',
+                l10n.smartCardsAnnualised(
+                  currency.formatFromUsd(card.annualised),
+                ),
                 style: theme.textTheme.bodySmall,
               ),
               if (card.divertGoalName != null) ...[
                 const SizedBox(height: 6),
                 Text(
-                  'Diverting it to "${card.divertGoalName}" would get you there '
-                  'sooner.',
+                  l10n.smartCardsDivert(card.divertGoalName!),
                   style: theme.textTheme.bodySmall,
                 ),
               ],
@@ -135,6 +145,7 @@ class SpendingPatternCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final insight = context.watch<FinanceProvider>().behaviorPattern;
 
@@ -158,9 +169,13 @@ class SpendingPatternCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Spending pattern', style: theme.textTheme.titleMedium),
+                  Text(l10n.spendingPatternTitle,
+                      style: theme.textTheme.titleMedium),
                   const SizedBox(height: 4),
-                  Text(insight.message, style: theme.textTheme.bodySmall),
+                  Text(
+                    behaviorInsightMessage(l10n, insight),
+                    style: theme.textTheme.bodySmall,
+                  ),
                 ],
               ),
             ),
@@ -177,6 +192,7 @@ class SubscriptionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final subs = context.watch<FinanceProvider>().subscriptions;
@@ -187,17 +203,17 @@ class SubscriptionsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Recurring charges', style: theme.textTheme.titleMedium),
+            Text(l10n.recurringChargesTitle,
+                style: theme.textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
-              'Detected from a monthly cadence in your history.',
+              l10n.recurringChargesSubtitle,
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: 10),
             if (subs.isEmpty)
               Text(
-                'Nothing detected yet. Recurring charges appear after a couple '
-                'of monthly repeats.',
+                l10n.recurringChargesEmpty,
                 style: theme.textTheme.bodySmall,
               )
             else
@@ -212,7 +228,10 @@ class SubscriptionsCard extends StatelessWidget {
                           children: [
                             Text(s.name, style: theme.textTheme.bodyMedium),
                             Text(
-                              '${s.chargeCount} charges · last ${s.lastCharged}',
+                              l10n.subscriptionCharges(
+                                s.chargeCount,
+                                s.lastCharged,
+                              ),
                               style: theme.textTheme.bodySmall,
                             ),
                           ],
@@ -223,7 +242,9 @@ class SubscriptionsCard extends StatelessWidget {
                         children: [
                           Text(currency.formatFromUsd(s.averageAmount)),
                           Text(
-                            '${currency.formatFromUsd(s.annualCost)}/yr',
+                            l10n.perYear(
+                              currency.formatFromUsd(s.annualCost),
+                            ),
                             style: theme.textTheme.bodySmall,
                           ),
                         ],
@@ -272,6 +293,7 @@ class _EventCalendarCardState extends State<EventCalendarCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final finance = context.watch<FinanceProvider>();
@@ -289,17 +311,24 @@ class _EventCalendarCardState extends State<EventCalendarCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Financial calendar', style: theme.textTheme.titleMedium),
+            Text(l10n.financialCalendarTitle,
+                style: theme.textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
-              'Events that can change your spending velocity.',
+              l10n.financialCalendarSubtitle,
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: 12),
             SegmentedButton<Region>(
-              segments: const [
-                ButtonSegment(value: Region.india, label: Text('India')),
-                ButtonSegment(value: Region.russia, label: Text('Russia')),
+              segments: [
+                ButtonSegment(
+                  value: Region.india,
+                  label: Text(l10n.regionIndia),
+                ),
+                ButtonSegment(
+                  value: Region.russia,
+                  label: Text(l10n.regionRussia),
+                ),
               ],
               selected: {_region},
               onSelectionChanged: (s) => _setRegion(s.first),
@@ -316,24 +345,22 @@ class _EventCalendarCardState extends State<EventCalendarCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${active.name} is coming soon',
+                      l10n.eventComingSoon(eventName(l10n, active.kind)),
                       style: theme.textTheme.bodyMedium
                           ?.copyWith(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Spending usually rises during this window. Projected '
-                      '${currency.formatFromUsd(forecast.projected)} per active '
-                      'day — about '
-                      '${currency.formatFromUsd(forecast.increase)} above your '
-                      'usual.',
+                      l10n.eventForecast(
+                        currency.formatFromUsd(forecast.projected),
+                        currency.formatFromUsd(forecast.increase),
+                      ),
                       style: theme.textTheme.bodySmall,
                     ),
                     if (!forecast.basedOnHistory) ...[
                       const SizedBox(height: 4),
                       Text(
-                        'Estimated from your overall average — no history for '
-                        'this window yet.',
+                        l10n.eventNoHistory,
                         style: theme.textTheme.bodySmall,
                       ),
                     ],
@@ -351,9 +378,13 @@ class _EventCalendarCardState extends State<EventCalendarCard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(e.name, style: theme.textTheme.bodyMedium),
                           Text(
-                            '${e.type} · ${isoDate(e.start)}',
+                            eventName(l10n, e.kind),
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          Text(
+                            '${eventTypeLabel(l10n, e.type)} · '
+                            '${isoDate(e.start)}',
                             style: theme.textTheme.bodySmall,
                           ),
                         ],
@@ -361,8 +392,8 @@ class _EventCalendarCardState extends State<EventCalendarCard> {
                     ),
                     Text(
                       daysUntil(e.start) == 0
-                          ? 'Today'
-                          : '${daysUntil(e.start)}d',
+                          ? l10n.eventToday
+                          : l10n.eventDaysShort(daysUntil(e.start)),
                       style: theme.textTheme.bodySmall,
                     ),
                   ],

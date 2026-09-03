@@ -1,0 +1,22 @@
+# Configuration for `flutter gen-l10n`, which runs automatically as part of
+# every build because pubspec.yaml sets `generate: true`.
+#
+# English is the template: every message is authored in app_en.arb with its
+# ICU placeholders and plural categories, and app_ru.arb mirrors those keys.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+
+# Generated sources live under lib/ rather than .dart_tool/ so that analysis,
+# Ctrl+click navigation, and code review all see the same files the app runs.
+output-dir: lib/l10n/gen
+
+# Lists any key present in app_en.arb but missing from app_ru.arb. Generation
+# still succeeds — this is a report to check, not a gate — so treat a non-empty
+# file as a bug: it means that string silently ships in English.
+untranslated-messages-file: l10n-untranslated.json
+
+# AppLocalizations.of(context) returns non-null. The app always installs the
+# delegates, so the nullable form would add a `!` at every call site.
+nullable-getter: false

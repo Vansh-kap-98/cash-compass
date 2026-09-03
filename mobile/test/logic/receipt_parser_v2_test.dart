@@ -142,7 +142,9 @@ TOTAL           95.00
       expect(r.evidence, TotalEvidence.conflicting);
       expect(
         r.discrepancy,
-        contains('does not match the items'),
+        isA<ItemSumDiscrepancy>()
+            .having((d) => d.labelled, 'labelled', 95.00)
+            .having((d) => d.itemSum, 'itemSum', 20.00),
         reason: 'the review screen shows this instead of silently trusting it',
       );
     });
@@ -171,7 +173,10 @@ CHANGE          83.00
             'should not beat it',
       );
       expect(r.evidence, TotalEvidence.conflicting);
-      expect(r.discrepancy, contains('disagrees'));
+      expect(
+        r.discrepancy,
+        isA<CashChangeDiscrepancy>().having((d) => d.computed, 'computed', 117.00),
+      );
     });
   });
 

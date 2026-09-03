@@ -1,24 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../state/currency_provider.dart';
 import '../state/finance_provider.dart';
 import 'sheet_scaffold.dart';
 
 /// Savings-goal periods offered as presets, with their day counts.
+///
+/// The chip labels are localised in [goalPeriodLabel] rather than held here —
+/// "6 Months" is display text, and this enum is also what the calculation reads.
 enum GoalPeriod {
-  oneMonth('1 Month', 30),
-  threeMonths('3 Months', 90),
-  sixMonths('6 Months', 180),
-  oneYear('1 Year', 365),
-  twoYears('2 Years', 730),
-  custom('Custom', 90);
+  oneMonth(30),
+  threeMonths(90),
+  sixMonths(180),
+  oneYear(365),
+  twoYears(730),
+  custom(90);
 
-  const GoalPeriod(this.label, this.days);
+  const GoalPeriod(this.days);
 
-  final String label;
   final int days;
 }
+
+String goalPeriodLabel(AppLocalizations l10n, GoalPeriod p) => switch (p) {
+      GoalPeriod.oneMonth => l10n.periodOneMonth,
+      GoalPeriod.threeMonths => l10n.periodThreeMonths,
+      GoalPeriod.sixMonths => l10n.periodSixMonths,
+      GoalPeriod.oneYear => l10n.periodOneYear,
+      GoalPeriod.twoYears => l10n.periodTwoYears,
+      GoalPeriod.custom => l10n.periodCustom,
+    };
 
 /// Create a savings goal.
 ///
@@ -65,17 +77,18 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
   }
 
   void _save() {
+    final l10n = context.l10n;
     final name = _nameController.text.trim();
     final target = double.tryParse(_targetController.text.trim());
     final saved = double.tryParse(_savedController.text.trim()) ?? 0;
 
     if (name.isEmpty || target == null || !target.isFinite || target <= 0) {
-      const message = 'Add a goal name and target amount.';
+      final message = l10n.goalInvalid;
       setState(() => _error = message);
       // Mirrored as a snack bar so the error is visible without scrolling to
       // the bottom of the form.
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(message)),
+        SnackBar(content: Text(message)),
       );
       return;
     }
@@ -92,11 +105,12 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
 
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Goal created.')));
+        .showSnackBar(SnackBar(content: Text(l10n.goalCreated)));
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final goals = context.watch<FinanceProvider>().goals;
@@ -110,11 +124,10 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
         : ((target - saved) / _days).clamp(0.0, double.infinity);
 
     return SheetScaffold(
-      title: 'Set Savings Goal',
-      subtitle:
-          "Define how much to save and by when. We'll show you the daily target.",
+      title: l10n.goalSheetTitle,
+      subtitle: l10n.goalSheetSubtitle,
       onSubmit: _save,
-      submitLabel: 'Create Goal',
+      submitLabel: l10n.goalSheetSubmit,
       children: [
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +138,7 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
                 controller: _iconController,
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 20),
-                decoration: const InputDecoration(labelText: 'Icon'),
+                decoration: InputDecoration(labelText: l10n.goalFieldIcon),
               ),
             ),
             const SizedBox(width: 12),
@@ -133,9 +146,9 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
               child: TextField(
                 controller: _nameController,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  labelText: 'Goal name',
-                  hintText: 'Emergency fund',
+                decoration: InputDecoration(
+                  labelText: l10n.goalFieldName,
+                  hintText: l10n.goalFieldNameHint,
                 ),
               ),
             ),
@@ -151,7 +164,7 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
                     const TextInputType.numberWithOptions(decimal: true),
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
-                  labelText: 'Target (${currency.currency.code})',
+                  labelText: l10n.goalFieldTarget(currency.currency.code),
                   hintText: '5000',
                 ),
               ),
@@ -163,8 +176,8 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 onChanged: (_) => setState(() {}),
-                decoration: const InputDecoration(
-                  labelText: 'Already saved',
+                decoration: InputDecoration(
+                  labelText: l10n.goalFieldSaved,
                   hintText: '0',
                 ),
               ),
@@ -172,7 +185,7 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
           ],
         ),
         const SizedBox(height: 16),
-        Text('Timeframe', style: theme.textTheme.labelLarge),
+        Text(l10n.goalTimeframe, style: theme.textTheme.labelLarge),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -180,7 +193,7 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
           children: [
             for (final p in GoalPeriod.values)
               ChoiceChip(
-                label: Text(p.label),
+                label: Text(goalPeriodLabel(l10n, p)),
                 selected: _period == p,
                 onSelected: (_) => setState(() => _period = p),
               ),
@@ -196,11 +209,12 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
                   controller: _customDaysController,
                   keyboardType: TextInputType.number,
                   onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(labelText: 'Days'),
+                  decoration:
+                      InputDecoration(labelText: l10n.goalFieldDays),
                 ),
               ),
               const SizedBox(width: 12),
-              Text('minimum 7', style: theme.textTheme.bodySmall),
+              Text(l10n.goalMinimumDays, style: theme.textTheme.bodySmall),
             ],
           ),
         ],
@@ -213,19 +227,21 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'To reach your goal in $_days days:',
+                    l10n.goalReachIn(_days),
                     style: theme.textTheme.bodySmall,
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    '${currency.formatAmount(perDay)} / day',
+                    l10n.goalPerDay(currency.formatAmount(perDay)),
                     style: theme.textTheme.titleMedium
                         ?.copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${currency.formatAmount(perDay * 7)} / week · '
-                    '${currency.formatAmount(perDay * 30)} / month',
+                    l10n.goalPerWeekMonth(
+                      currency.formatAmount(perDay * 7),
+                      currency.formatAmount(perDay * 30),
+                    ),
                     style: theme.textTheme.bodySmall,
                   ),
                 ],
@@ -235,7 +251,7 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
         ],
         if (goals.isNotEmpty) ...[
           const SizedBox(height: 20),
-          Text('Current goals', style: theme.textTheme.labelLarge),
+          Text(l10n.goalCurrentGoals, style: theme.textTheme.labelLarge),
           const SizedBox(height: 8),
           for (final g in goals)
             Padding(

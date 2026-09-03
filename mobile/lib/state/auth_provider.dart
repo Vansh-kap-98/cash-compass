@@ -31,6 +31,44 @@ const _demoUser = AppUser(
   isDemo: true,
 );
 
+/// Why a sign-in or sign-up attempt failed.
+///
+/// Returned instead of a sentence so the form can render it in the active
+/// language — see `lib/l10n/presenters.dart`.
+enum AuthError {
+  noBackend,
+  missingCredentials,
+  signInFailed,
+  signUpFailed,
+  confirmEmail,
+  missingName,
+  invalidEmail,
+  shortPassword,
+  passwordMismatch,
+}
+
+/// The outcome of an auth attempt: one of this app's own [AuthError] cases, or
+/// a message Supabase itself produced.
+///
+/// Supabase returns its own already-worded English strings ("Invalid login
+/// credentials"), which cannot be translated here without matching on their
+/// text — brittle, and it changes between releases. Those are passed through
+/// verbatim and shown as-is; everything this app decides for itself is an
+/// [AuthError] and gets translated.
+sealed class AuthFailure {
+  const AuthFailure();
+}
+
+class AuthErrorFailure extends AuthFailure {
+  const AuthErrorFailure(this.error);
+  final AuthError error;
+}
+
+class AuthServerFailure extends AuthFailure {
+  const AuthServerFailure(this.message);
+  final String message;
+}
+
 /// Session state: real Supabase auth plus a local demo bypass.
 ///
 /// Port of `AuthContext.tsx`. Demo mode exists so the app is fully usable with
@@ -82,14 +120,13 @@ class AuthProvider extends ChangeNotifier {
 
   // --------------------------------------------------------------- actions
 
-  /// Signs in. Returns an error message, or null on success.
-  Future<String?> signIn(String email, String password) async {
+  /// Signs in. Returns the failure, or null on success.
+  Future<AuthFailure?> signIn(String email, String password) async {
     if (!SupabaseService.isReady) {
-      return 'Accounts are unavailable — this build has no Supabase config. '
-          'Use demo mode.';
+      return const AuthErrorFailure(AuthError.noBackend);
     }
     if (email.trim().isEmpty || password.isEmpty) {
-      return 'Enter your email and password.';
+      return const AuthErrorFailure(AuthError.missingCredentials);
     }
     try {
       await SupabaseService.client.auth.signInWithPassword(
@@ -98,23 +135,22 @@ class AuthProvider extends ChangeNotifier {
       );
       return null;
     } on sb.AuthException catch (e) {
-      return e.message;
+      return AuthServerFailure(e.message);
     } catch (error) {
       logError('Sign in', error);
-      return 'Could not sign in. Please try again.';
+      return const AuthErrorFailure(AuthError.signInFailed);
     }
   }
 
-  /// Creates an account. Returns an error message, or null on success.
-  Future<String?> signUp({
+  /// Creates an account. Returns the failure, or null on success.
+  Future<AuthFailure?> signUp({
     required String name,
     required String email,
     required String password,
     required String confirm,
   }) async {
     if (!SupabaseService.isReady) {
-      return 'Accounts are unavailable — this build has no Supabase config. '
-          'Use demo mode.';
+      return const AuthErrorFailure(AuthError.noBackend);
     }
 
     final validation = validateSignUp(
@@ -123,7 +159,7 @@ class AuthProvider extends ChangeNotifier {
       password: password,
       confirm: confirm,
     );
-    if (validation != null) return validation;
+    if (validation != null) return AuthErrorFailure(validation);
 
     try {
       final response = await SupabaseService.client.auth.signUp(
@@ -148,32 +184,32 @@ class AuthProvider extends ChangeNotifier {
       }
 
       if (response.session == null) {
-        return 'Check your email to confirm your account, then sign in.';
+        return const AuthErrorFailure(AuthError.confirmEmail);
       }
       return null;
     } on sb.AuthException catch (e) {
-      return e.message;
+      return AuthServerFailure(e.message);
     } catch (error) {
       logError('Sign up', error);
-      return 'Could not create the account. Please try again.';
+      return const AuthErrorFailure(AuthError.signUpFailed);
     }
   }
 
   /// Shared validation so the form and the store can never disagree.
-  static String? validateSignUp({
+  static AuthError? validateSignUp({
     required String name,
     required String email,
     required String password,
     required String confirm,
   }) {
-    if (name.trim().isEmpty) return 'Enter your name.';
+    if (name.trim().isEmpty) return AuthError.missingName;
     if (!emailPattern.hasMatch(email.trim())) {
-      return 'Enter a valid email address.';
+      return AuthError.invalidEmail;
     }
     if (password.length < 8) {
-      return 'Password must be at least 8 characters.';
+      return AuthError.shortPassword;
     }
-    if (password != confirm) return 'Passwords do not match.';
+    if (password != confirm) return AuthError.passwordMismatch;
     return null;
   }
 

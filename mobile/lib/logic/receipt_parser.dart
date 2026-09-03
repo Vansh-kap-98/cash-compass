@@ -67,6 +67,33 @@ enum TotalEvidence {
 }
 
 /// The result of reading a receipt.
+/// Why the parser is unsure about the total it chose.
+///
+/// Holds the conflicting figures, not a sentence: the wording belongs to the
+/// review screen and has to change with the language.
+sealed class ReceiptDiscrepancy {
+  const ReceiptDiscrepancy();
+}
+
+/// The printed total disagrees with the receipt's own `cash − change`.
+class CashChangeDiscrepancy extends ReceiptDiscrepancy {
+  const CashChangeDiscrepancy({required this.labelled, required this.computed});
+
+  /// The figure printed beside the "total" label, if one was read.
+  final double? labelled;
+
+  /// What `cash − change` comes to.
+  final double? computed;
+}
+
+/// The printed total does not match the sum of the line items.
+class ItemSumDiscrepancy extends ReceiptDiscrepancy {
+  const ItemSumDiscrepancy({required this.labelled, required this.itemSum});
+
+  final double? labelled;
+  final double? itemSum;
+}
+
 class ParsedReceipt {
   const ParsedReceipt({
     this.amount,
@@ -120,8 +147,10 @@ class ParsedReceipt {
   /// How the total was arrived at, and whether anything corroborated it.
   final TotalEvidence evidence;
 
-  /// Set when independent signals disagreed, phrased for the review screen.
-  final String? discrepancy;
+  /// Set when independent signals disagreed. Carries the figures rather than a
+  /// sentence — the review screen words it in the active language via
+  /// `lib/l10n/presenters.dart`.
+  final ReceiptDiscrepancy? discrepancy;
 
   /// True when nothing useful came back, so the caller can fall through to
   /// plain manual entry.
@@ -374,7 +403,7 @@ typedef _Total = ({
   double? value,
   FieldConfidence confidence,
   TotalEvidence evidence,
-  String? discrepancy,
+  ReceiptDiscrepancy? discrepancy,
   int? lineIndex,
 });
 
@@ -430,8 +459,10 @@ _Total _resolveTotal(List<String> lines, List<ReceiptLineItem> items) {
         value: fromCash,
         confidence: FieldConfidence.low,
         evidence: TotalEvidence.conflicting,
-        discrepancy: 'Labelled total ${_money(value)} disagrees with '
-            'cash − change ${_money(fromCash)}. Using the arithmetic.',
+        discrepancy: CashChangeDiscrepancy(
+          labelled: value,
+          computed: fromCash,
+        ),
         lineIndex: labelled.index,
       );
     }
@@ -445,8 +476,7 @@ _Total _resolveTotal(List<String> lines, List<ReceiptLineItem> items) {
         value: value,
         confidence: belowItems ? FieldConfidence.low : FieldConfidence.medium,
         evidence: TotalEvidence.conflicting,
-        discrepancy: 'Total ${_money(value)} does not match the items '
-            '(${_money(itemSum)}) — please confirm.',
+        discrepancy: ItemSumDiscrepancy(labelled: value, itemSum: itemSum),
         lineIndex: labelled.index,
       );
     }
@@ -585,8 +615,6 @@ double? _cashMinusChange(List<String> lines) {
   if (total <= 0) return null;
   return double.parse(total.toStringAsFixed(2));
 }
-
-String _money(double? v) => v == null ? '—' : v.toStringAsFixed(2);
 
 double? _lastAmountIn(String line) {
   double? found;

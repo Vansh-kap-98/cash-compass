@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
 import '../logic/receipt_batch_queue.dart';
 import '../models/transaction.dart';
 import '../services/receipt_scanner.dart';
@@ -30,57 +31,52 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   int _index = 0;
 
-  static const _titles = [
-    'Dashboard',
-    'Goals',
-    'Planner',
-    'Workspace',
-    'Settings',
-  ];
-
   /// Index of the Settings tab, where a FAB would be meaningless.
   static const _settingsIndex = 4;
 
   Future<void> _openQuickActions(BuildContext context) async {
     final action = await showModalBottomSheet<String>(
       context: context,
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.document_scanner_outlined),
-              title: const Text('Scan Receipt'),
-              subtitle: const Text('Read the amount from a photo'),
-              onTap: () => Navigator.pop(sheetContext, 'scan'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.burst_mode_outlined),
-              title: const Text('Scan Several'),
-              subtitle: const Text('Pick receipts from your gallery'),
-              onTap: () => Navigator.pop(sheetContext, 'batch'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.receipt_long_outlined),
-              title: const Text('Add Entry'),
-              subtitle: const Text('Log an expense or income'),
-              onTap: () => Navigator.pop(sheetContext, 'entry'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.flag_outlined),
-              title: const Text('Set Goal'),
-              subtitle: const Text('Create a savings target'),
-              onTap: () => Navigator.pop(sheetContext, 'goal'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.tune),
-              title: const Text('Plan Budget'),
-              subtitle: const Text('Cost out a trip, outing, or event'),
-              onTap: () => Navigator.pop(sheetContext, 'budget'),
-            ),
-          ],
-        ),
-      ),
+      builder: (sheetContext) {
+        final l10n = sheetContext.l10n;
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.document_scanner_outlined),
+                title: Text(l10n.quickScanReceipt),
+                subtitle: Text(l10n.quickScanReceiptSubtitle),
+                onTap: () => Navigator.pop(sheetContext, 'scan'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.burst_mode_outlined),
+                title: Text(l10n.quickScanSeveral),
+                subtitle: Text(l10n.quickScanSeveralSubtitle),
+                onTap: () => Navigator.pop(sheetContext, 'batch'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.receipt_long_outlined),
+                title: Text(l10n.quickAddEntry),
+                subtitle: Text(l10n.quickAddEntrySubtitle),
+                onTap: () => Navigator.pop(sheetContext, 'entry'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.flag_outlined),
+                title: Text(l10n.quickSetGoal),
+                subtitle: Text(l10n.quickSetGoalSubtitle),
+                onTap: () => Navigator.pop(sheetContext, 'goal'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.tune),
+                title: Text(l10n.quickPlanBudget),
+                subtitle: Text(l10n.quickPlanBudgetSubtitle),
+                onTap: () => Navigator.pop(sheetContext, 'budget'),
+              ),
+            ],
+          ),
+        );
+      },
     );
 
     if (!context.mounted || action == null) return;
@@ -102,6 +98,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ///
   /// Nothing is written until the user confirms from that screen.
   Future<void> _scanBatch(BuildContext context) async {
+    final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     final history = context.read<FinanceProvider>().transactions;
 
@@ -143,8 +140,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     if (saved != null && saved > 0) {
       messenger.showSnackBar(
-        SnackBar(
-            content: Text('Saved $saved receipt${saved == 1 ? '' : 's'}.')),
+        SnackBar(content: Text(l10n.batchSavedReceipts(saved))),
       );
     }
   }
@@ -155,6 +151,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   /// the user came here to record a purchase, and the camera not cooperating is
   /// no reason to make them start over.
   Future<void> _scanReceipt(BuildContext context) async {
+    final l10n = context.l10n;
     final history = context.read<FinanceProvider>().transactions;
 
     final messenger = ScaffoldMessenger.of(context);
@@ -171,20 +168,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       case ScanFailed(:final reason):
         messenger.showSnackBar(
-          SnackBar(content: Text(_scanFailureMessage(reason))),
+          SnackBar(content: Text(_scanFailureMessage(l10n, reason))),
         );
         await AddEntrySheet.show(context);
     }
   }
 
-  static String _scanFailureMessage(ScanFailure reason) => switch (reason) {
-        ScanFailure.cameraUnavailable =>
-          'Camera unavailable — check the permission in Settings. '
-              'Add the entry by hand for now.',
-        ScanFailure.noTextFound =>
-          'No text found in that photo. Try again in better light, or type it in.',
-        ScanFailure.nothingUseful =>
-          'Could not find an amount on that receipt. Fill it in below.',
+  static String _scanFailureMessage(
+    AppLocalizations l10n,
+    ScanFailure reason,
+  ) =>
+      switch (reason) {
+        ScanFailure.cameraUnavailable => l10n.scanErrorCameraUnavailable,
+        ScanFailure.noTextFound => l10n.scanErrorNoText,
+        ScanFailure.nothingUseful => l10n.scanErrorNothingUseful,
         ScanFailure.cancelled => '',
       };
 
@@ -197,9 +194,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    final l10n = context.l10n;
+    final titles = [
+      l10n.tabDashboard,
+      l10n.tabGoals,
+      l10n.tabPlanner,
+      l10n.tabWorkspace,
+      l10n.tabSettings,
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[_index]),
+        title: Text(titles[_index]),
         titleTextStyle: Theme.of(context).textTheme.headlineSmall,
       ),
       // IndexedStack keeps each tab alive, preserving scroll position the way
@@ -225,31 +231,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+            icon: const Icon(Icons.dashboard_outlined),
+            selectedIcon: const Icon(Icons.dashboard),
+            label: l10n.tabDashboard,
           ),
           NavigationDestination(
-            icon: Icon(Icons.savings_outlined),
-            selectedIcon: Icon(Icons.savings),
-            label: 'Goals',
+            icon: const Icon(Icons.savings_outlined),
+            selectedIcon: const Icon(Icons.savings),
+            label: l10n.tabGoals,
           ),
           NavigationDestination(
-            icon: Icon(Icons.school_outlined),
-            selectedIcon: Icon(Icons.school),
-            label: 'Planner',
+            icon: const Icon(Icons.school_outlined),
+            selectedIcon: const Icon(Icons.school),
+            label: l10n.tabPlanner,
           ),
           NavigationDestination(
-            icon: Icon(Icons.widgets_outlined),
-            selectedIcon: Icon(Icons.widgets),
-            label: 'Workspace',
+            icon: const Icon(Icons.widgets_outlined),
+            selectedIcon: const Icon(Icons.widgets),
+            label: l10n.tabWorkspace,
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: l10n.tabSettings,
           ),
         ],
       ),
@@ -316,9 +322,10 @@ class _BatchProgressDialogState extends State<_BatchProgressDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final total = widget.entries.length;
     return AlertDialog(
-      title: const Text('Reading receipts'),
+      title: Text(l10n.batchReadingReceipts),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -326,7 +333,7 @@ class _BatchProgressDialogState extends State<_BatchProgressDialog> {
             value: total == 0 ? null : _done / total,
           ),
           const SizedBox(height: 16),
-          Text('$_done of $total'),
+          Text(l10n.batchProgress(_done, total)),
         ],
       ),
     );

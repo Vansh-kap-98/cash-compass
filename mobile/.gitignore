@@ -54,3 +54,8 @@ app.*.map.json
 # Dart obfuscation symbol maps. Required to symbolicate crash traces from a
 # release build, but they map obfuscated names back to source — never publish.
 /build/debug-info/
+
+# Report written by `flutter gen-l10n`: keys in app_en.arb with no app_ru.arb
+# translation. A build artifact, not source — but check it, a non-empty file
+# means a string ships in English regardless of the chosen language.
+l10n-untranslated.json

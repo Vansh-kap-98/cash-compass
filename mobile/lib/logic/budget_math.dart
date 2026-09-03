@@ -7,24 +7,31 @@ library;
 
 import '../models/transaction.dart';
 
+/// The everyday purchases each profile is priced against.
+///
+/// An enum rather than a name so the card can be read in any language; the
+/// display name comes from `lib/l10n/presenters.dart`.
+enum StapleKind { lunch, transit, groceries }
+
 /// A cost-of-living profile used by the Location Budget Guidance card.
+///
+/// [key] is both the persisted value and the identifier the presenter maps to
+/// a localised name — it must stay stable, so it is never shown to the user.
 class GeoProfile {
   const GeoProfile({
     required this.key,
-    required this.label,
     required this.multiplier,
     required this.staples,
   });
 
   final String key;
-  final String label;
   final double multiplier;
   final List<GeoStaple> staples;
 }
 
 class GeoStaple {
-  const GeoStaple(this.name, this.baseCost);
-  final String name;
+  const GeoStaple(this.kind, this.baseCost);
+  final StapleKind kind;
   final double baseCost;
 }
 
@@ -32,32 +39,29 @@ class GeoStaple {
 const List<GeoProfile> geoProfiles = [
   GeoProfile(
     key: 'us-city',
-    label: 'US City',
     multiplier: 1,
     staples: [
-      GeoStaple('Lunch', 16),
-      GeoStaple('Transit', 9),
-      GeoStaple('Groceries', 22),
+      GeoStaple(StapleKind.lunch, 16),
+      GeoStaple(StapleKind.transit, 9),
+      GeoStaple(StapleKind.groceries, 22),
     ],
   ),
   GeoProfile(
     key: 'india-metro',
-    label: 'India Metro',
     multiplier: 0.48,
     staples: [
-      GeoStaple('Lunch', 6),
-      GeoStaple('Transit', 2.5),
-      GeoStaple('Groceries', 10),
+      GeoStaple(StapleKind.lunch, 6),
+      GeoStaple(StapleKind.transit, 2.5),
+      GeoStaple(StapleKind.groceries, 10),
     ],
   ),
   GeoProfile(
     key: 'eastern-europe',
-    label: 'Eastern Europe',
     multiplier: 0.72,
     staples: [
-      GeoStaple('Lunch', 11),
-      GeoStaple('Transit', 4.5),
-      GeoStaple('Groceries', 15),
+      GeoStaple(StapleKind.lunch, 11),
+      GeoStaple(StapleKind.transit, 4.5),
+      GeoStaple(StapleKind.groceries, 15),
     ],
   ),
 ];
@@ -131,20 +135,21 @@ double dailyBudget({
 }
 
 /// Verdict for one staple item on the Location Guidance card.
+///
+/// The badge wording is derived from [affordable] by the presenter rather than
+/// stored here, so this stays free of display strings.
 class StapleVerdict {
   const StapleVerdict({
-    required this.name,
+    required this.kind,
     required this.cost,
     required this.healthyLimit,
     required this.affordable,
   });
 
-  final String name;
+  final StapleKind kind;
   final double cost;
   final double healthyLimit;
   final bool affordable;
-
-  String get badge => affordable ? 'On Budget' : 'Trim Needed';
 }
 
 /// Compares each staple against 40% of what is left for the selected day.
@@ -157,7 +162,7 @@ List<StapleVerdict> stapleVerdicts({
   return [
     for (final s in profile.staples)
       StapleVerdict(
-        name: s.name,
+        kind: s.kind,
         cost: s.baseCost * profile.multiplier,
         healthyLimit: healthyLimit,
         affordable: s.baseCost * profile.multiplier <= healthyLimit,
@@ -165,54 +170,60 @@ List<StapleVerdict> stapleVerdicts({
   ];
 }
 
+/// Which of the rule-based daily tips applies.
+///
+/// The card renders these through `lib/l10n/presenters.dart`; this layer only
+/// decides which fire, and in what order.
+enum DailyTip {
+  /// Already past the day's allowance.
+  overBudget,
+
+  /// Under 25% of the allowance left.
+  finalQuarter,
+
+  /// Comfortable headroom remaining.
+  comfortable,
+
+  /// Planned spending alone exceeds the allowance.
+  plannedOverBudget,
+
+  /// The running daily average exceeds the allowance.
+  averageOverBudget,
+
+  /// Filler, so the card always has three lines.
+  categoryCaps,
+}
+
 /// Rule-based tips for the selected day, capped at three.
 ///
 /// Exactly one of the first three fires, then the conditional ones, then a
 /// filler if fewer than three have been produced.
-List<String> dailySuggestions({
+List<DailyTip> dailySuggestions({
   required double selectedDayRemaining,
   required double selectedDayPlanned,
   required double dailyBudget,
   required double averagePerDay,
 }) {
-  final tips = <String>[];
+  final tips = <DailyTip>[];
 
   if (selectedDayRemaining < 0) {
-    tips.add(
-      'You are over today\'s budget. Switch to essential-only purchases for '
-      'the rest of the day.',
-    );
+    tips.add(DailyTip.overBudget);
   } else if (selectedDayRemaining < dailyBudget * 0.25) {
-    tips.add(
-      'You are in the final 25% of your daily budget. Keep only high-priority '
-      'plan items.',
-    );
+    tips.add(DailyTip.finalQuarter);
   } else {
-    tips.add(
-      'You still have comfortable room today. Front-load essentials and delay '
-      'impulse categories.',
-    );
+    tips.add(DailyTip.comfortable);
   }
 
   if (selectedDayPlanned > dailyBudget) {
-    tips.add(
-      'Your planned spend is above budget. Reduce one plan item by around '
-      '20-30%.',
-    );
+    tips.add(DailyTip.plannedOverBudget);
   }
 
   if (averagePerDay > dailyBudget) {
-    tips.add(
-      'Your average daily spend is above your location-adjusted budget. Try a '
-      'three-day low-spend streak.',
-    );
+    tips.add(DailyTip.averageOverBudget);
   }
 
   if (tips.length < 3) {
-    tips.add(
-      'Use category caps for Food and Shopping today to protect tomorrow\'s '
-      'flexibility.',
-    );
+    tips.add(DailyTip.categoryCaps);
   }
 
   return tips.take(3).toList();

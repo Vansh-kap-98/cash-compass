@@ -8,29 +8,44 @@ import '../models/transaction.dart';
 enum Region { india, russia }
 
 extension RegionLabel on Region {
-  String get label => this == Region.india ? 'India' : 'Russia';
+  /// Persisted value, and the one the web app wrote. Never shown to the user —
+  /// the display name is localised in `lib/l10n/presenters.dart`.
   String get id => this == Region.india ? 'India' : 'Russia';
 
   static Region fromId(String? id) =>
       id == 'Russia' ? Region.russia : Region.india;
 }
 
+/// Which calendar entry this is.
+///
+/// The name, category, and note attached to each are display strings and live
+/// in the localisations; this enum is what the logic and the presenter agree on.
+enum FinancialEventKind {
+  winterExam,
+  newYear,
+  stipend,
+  universityExam,
+  diwali,
+  semesterReset,
+}
+
+/// The broad category a [FinancialEventKind] falls into, shown beside its date.
+enum FinancialEventType { academic, holiday, income, festival, studentCosts }
+
 class FinancialEvent {
   const FinancialEvent({
     required this.id,
-    required this.name,
+    required this.kind,
     required this.type,
     required this.start,
     required this.end,
-    required this.note,
   });
 
   final String id;
-  final String name;
-  final String type;
+  final FinancialEventKind kind;
+  final FinancialEventType type;
   final DateTime start;
   final DateTime end;
-  final String note;
 }
 
 /// Builds a dated event, rolling it into next year once it is well past.
@@ -39,12 +54,11 @@ class FinancialEvent {
 /// stays visible rather than jumping eleven months into the future.
 FinancialEvent _event({
   required String id,
-  required String name,
-  required String type,
+  required FinancialEventKind kind,
+  required FinancialEventType type,
   required int month,
   required int day,
   int durationDays = 0,
-  required String note,
   DateTime? now,
 }) {
   final today = now ?? DateTime.now();
@@ -55,11 +69,10 @@ FinancialEvent _event({
   }
   return FinancialEvent(
     id: id,
-    name: name,
+    kind: kind,
     type: type,
     start: start,
     end: start.add(Duration(days: durationDays)),
-    note: note,
   );
 }
 
@@ -69,67 +82,57 @@ List<FinancialEvent> eventsFor(Region region, {DateTime? now}) {
       ? [
           _event(
             id: 'ru-winter',
-            name: 'Winter exam season',
-            type: 'Academic',
+            kind: FinancialEventKind.winterExam,
+            type: FinancialEventType.academic,
             month: 1,
             day: 10,
             durationDays: 18,
-            note: 'Study materials, transport, and late-night food often rise.',
             now: now,
           ),
           _event(
             id: 'ru-new-year',
-            name: 'New Year holidays',
-            type: 'Holiday',
+            kind: FinancialEventKind.newYear,
+            type: FinancialEventType.holiday,
             month: 12,
             day: 29,
             durationDays: 9,
-            note:
-                'Gifting, travel, and social spending cluster around this break.',
             now: now,
           ),
           _event(
             id: 'ru-stipend',
-            name: 'Student stipend cycle',
-            type: 'Income',
+            kind: FinancialEventKind.stipend,
+            type: FinancialEventType.income,
             month: 8,
             day: 5,
-            note: 'A regular stipend date to anchor your monthly plan.',
             now: now,
           ),
         ]
       : [
           _event(
             id: 'in-exams',
-            name: 'University exam window',
-            type: 'Academic',
+            kind: FinancialEventKind.universityExam,
+            type: FinancialEventType.academic,
             month: 7,
             day: 18,
             durationDays: 8,
-            note: 'Printing, travel, and convenience food can increase during '
-                'exam weeks.',
             now: now,
           ),
           _event(
             id: 'in-diwali',
-            name: 'Diwali cluster',
-            type: 'Festival',
+            kind: FinancialEventKind.diwali,
+            type: FinancialEventType.festival,
             month: 11,
             day: 7,
             durationDays: 5,
-            note: 'Gifts, travel, and celebrations can put pressure on '
-                'flexible cash.',
             now: now,
           ),
           _event(
             id: 'in-semester',
-            name: 'Semester reset',
-            type: 'Student costs',
+            kind: FinancialEventKind.semesterReset,
+            type: FinancialEventType.studentCosts,
             month: 8,
             day: 1,
             durationDays: 13,
-            note: 'Books, supplies, and housing deposits often return at the '
-                'start of term.',
             now: now,
           ),
         ];

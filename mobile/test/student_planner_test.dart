@@ -185,7 +185,7 @@ void main() {
   });
 
   group('sign-up validation', () {
-    String? check({
+    AuthError? check({
       String name = 'Sam',
       String email = 'sam@example.com',
       String password = 'password1',
@@ -203,22 +203,22 @@ void main() {
     });
 
     test('rejects a blank name', () {
-      expect(check(name: '   '), contains('name'));
+      expect(check(name: '   '), AuthError.missingName);
     });
 
     test('rejects a malformed email', () {
-      expect(check(email: 'nope'), contains('valid email'));
-      expect(check(email: 'a@b'), contains('valid email'));
+      expect(check(email: 'nope'), AuthError.invalidEmail);
+      expect(check(email: 'a@b'), AuthError.invalidEmail);
     });
 
     test('requires at least eight characters', () {
-      expect(check(password: 'short1'), contains('8 characters'));
+      expect(check(password: 'short1'), AuthError.shortPassword);
     });
 
     test('requires the confirmation to match', () {
       expect(
         check(password: 'password1', confirm: 'password2'),
-        contains('do not match'),
+        AuthError.passwordMismatch,
       );
     });
   });

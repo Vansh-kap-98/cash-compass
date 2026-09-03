@@ -1,5 +1,6 @@
 import 'package:cash_compass/app/theme/app_theme.dart';
 import 'package:cash_compass/app/theme/app_tokens.dart';
+import 'package:cash_compass/l10n/l10n.dart';
 import 'package:cash_compass/models/budget_category.dart';
 import 'package:cash_compass/models/budget_plan.dart';
 import 'package:cash_compass/models/savings_goal.dart';
@@ -9,11 +10,13 @@ import 'package:cash_compass/state/auth_provider.dart';
 import 'package:cash_compass/state/budget_plan_provider.dart';
 import 'package:cash_compass/state/currency_provider.dart';
 import 'package:cash_compass/state/finance_provider.dart';
+import 'package:cash_compass/state/locale_provider.dart';
 import 'package:cash_compass/state/planner_provider.dart';
 import 'package:cash_compass/state/student_planner_provider.dart';
 import 'package:cash_compass/state/theme_provider.dart';
 import 'package:cash_compass/state/workspace_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
@@ -70,6 +73,7 @@ class TestStores {
     required this.budgetPlans,
     required this.students,
     required this.theme,
+    required this.locale,
     required this.auth,
   });
 
@@ -80,6 +84,7 @@ class TestStores {
   final BudgetPlanProvider budgetPlans;
   final StudentPlannerProvider students;
   final ThemeProvider theme;
+  final LocaleProvider locale;
   final AuthProvider auth;
 
   /// Stores with nothing in them — where null and divide-by-zero faults live.
@@ -93,6 +98,7 @@ class TestStores {
       budgetPlans: BudgetPlanProvider(prefs),
       students: StudentPlannerProvider(prefs),
       theme: ThemeProvider(prefs),
+      locale: LocaleProvider(prefs),
       auth: AuthProvider(prefs),
     );
   }
@@ -204,6 +210,7 @@ Widget wrapForTest(
   Widget child, {
   required TestStores stores,
   double textScale = 1.0,
+  Locale locale = const Locale('en'),
 }) {
   return MultiProvider(
     providers: [
@@ -214,10 +221,26 @@ Widget wrapForTest(
       ChangeNotifierProvider.value(value: stores.budgetPlans),
       ChangeNotifierProvider.value(value: stores.students),
       ChangeNotifierProvider.value(value: stores.theme),
+      ChangeNotifierProvider.value(value: stores.locale),
       ChangeNotifierProvider.value(value: stores.auth),
     ],
     child: MaterialApp(
       theme: buildTheme(appThemes[defaultThemeName]!),
+      // The same delegates main.dart installs. Without them every widget
+      // reading `context.l10n` throws, so the harness has to mirror the real
+      // app here or the whole suite tests a tree the app never builds.
+      //
+      // Pinned to a locale rather than left to the test platform's default, so
+      // a finder matching on English text is not at the mercy of the machine
+      // the suite runs on. Pass `locale:` to assert against a translation.
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       home: MediaQuery(
         data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
         child: Scaffold(body: child),
@@ -234,10 +257,11 @@ Future<void> pumpAndExpectClean(
   Widget child, {
   required TestStores stores,
   double textScale = 1.0,
+  Locale locale = const Locale('en'),
   required String reason,
 }) async {
   await tester.pumpWidget(
-    wrapForTest(child, stores: stores, textScale: textScale),
+    wrapForTest(child, stores: stores, textScale: textScale, locale: locale),
   );
 
   // Let the stores' debounced write timers fire. Building the fixtures goes

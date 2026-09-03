@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../app/theme/app_theme.dart';
+import '../l10n/l10n.dart';
 import '../logic/budget_math.dart';
 import '../state/currency_provider.dart';
 import '../state/finance_provider.dart';
@@ -17,6 +18,7 @@ class BudgetRangeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final planner = context.watch<PlannerProvider>();
     final currency = context.watch<CurrencyProvider>();
@@ -50,13 +52,13 @@ class BudgetRangeCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Budgeting window', style: theme.textTheme.titleMedium),
+            Text(l10n.budgetingWindow, style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
                   child: _DateField(
-                    label: 'Start',
+                    label: l10n.fieldStart,
                     value: isoDate(planner.rangeStart),
                     onTap: () => pick(isStart: true),
                   ),
@@ -64,7 +66,7 @@ class BudgetRangeCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _DateField(
-                    label: 'End',
+                    label: l10n.fieldEnd,
                     value: isoDate(planner.rangeEnd),
                     onTap: () => pick(isStart: false),
                   ),
@@ -78,7 +80,8 @@ class BudgetRangeCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Daily budget', style: theme.textTheme.labelMedium),
+                    Text(l10n.dailyBudget,
+                        style: theme.textTheme.labelMedium),
                     const SizedBox(height: 2),
                     Text(
                       currency.formatFromUsd(perDay),
@@ -88,7 +91,7 @@ class BudgetRangeCard extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  'over $days day${days == 1 ? '' : 's'}',
+                  l10n.overDays(days),
                   style: theme.textTheme.bodySmall,
                 ),
               ],
@@ -152,7 +155,7 @@ class _DailyPlannerCardState extends State<DailyPlannerCard> {
 
     if (_titleController.text.trim().isEmpty || typed == null || typed <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Add a plan name and a valid amount.')),
+        SnackBar(content: Text(context.l10n.dailyPlanInvalid)),
       );
       return;
     }
@@ -169,6 +172,7 @@ class _DailyPlannerCardState extends State<DailyPlannerCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final planner = context.watch<PlannerProvider>();
@@ -193,19 +197,19 @@ class _DailyPlannerCardState extends State<DailyPlannerCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Daily plan builder', style: theme.textTheme.titleMedium),
+            Text(l10n.dailyPlanTitle, style: theme.textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
-              'Plan a day, then compare it against your daily budget.',
+              l10n.dailyPlanSubtitle,
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: 14),
             TextField(
               controller: _titleController,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Plan name',
-                hintText: 'Groceries and transit',
+              decoration: InputDecoration(
+                labelText: l10n.dailyPlanName,
+                hintText: l10n.dailyPlanNameHint,
               ),
             ),
             const SizedBox(height: 10),
@@ -217,14 +221,15 @@ class _DailyPlannerCardState extends State<DailyPlannerCard> {
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
-                      labelText: 'Estimate (${currency.currency.code})',
+                      labelText:
+                          l10n.dailyPlanEstimate(currency.currency.code),
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _DateField(
-                    label: 'Plan date',
+                    label: l10n.dailyPlanDate,
                     value: dateIso,
                     onTap: () async {
                       final picked = await showDatePicker(
@@ -244,25 +249,25 @@ class _DailyPlannerCardState extends State<DailyPlannerCard> {
               width: double.infinity,
               child: FilledButton.tonal(
                 onPressed: _add,
-                child: const Text('Add plan'),
+                child: Text(l10n.dailyPlanAdd),
               ),
             ),
             const SizedBox(height: 16),
             _SummaryRow(
-              label: 'Spent that day',
+              label: l10n.dailyPlanSpentThatDay,
               value: currency.formatFromUsd(daySpent),
             ),
             _SummaryRow(
-              label: 'Planned',
+              label: l10n.dailyPlanPlanned,
               value: currency.formatFromUsd(dayPlanned),
             ),
             _SummaryRow(
-              label: 'Daily budget',
+              label: l10n.dailyBudget,
               value: currency.formatFromUsd(perDay),
             ),
             const Divider(height: 20),
             _SummaryRow(
-              label: 'Remaining after plans',
+              label: l10n.dailyPlanRemaining,
               value: currency.formatFromUsd(remainingAfterPlans),
               emphasise: true,
               positive: remainingAfterPlans >= 0,
@@ -278,14 +283,14 @@ class _DailyPlannerCardState extends State<DailyPlannerCard> {
                   subtitle: Text(currency.formatFromUsd(p.estimate)),
                   trailing: IconButton(
                     icon: const Icon(Icons.close),
-                    tooltip: 'Delete plan',
+                    tooltip: l10n.dailyPlanDeleteTooltip,
                     onPressed: () => planner.removePlan(p.id),
                   ),
                 ),
             ] else ...[
               const SizedBox(height: 12),
               Text(
-                'No plans for this day yet.',
+                l10n.dailyPlanEmpty,
                 style: theme.textTheme.bodySmall,
               ),
             ],

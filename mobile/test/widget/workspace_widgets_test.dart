@@ -82,6 +82,39 @@ void main() {
     }
   });
 
+  group('widgets survive Russian', () {
+    // Card heights are fixed but translations are not: Russian runs materially
+    // longer than English almost everywhere ("Можно потратить" for "Safe to
+    // spend", "Коммунальные услуги" for "Utilities"), and a label that wrapped
+    // to one line in English can take two. Small cards in edit mode are the
+    // tightest combination, so that is what this checks — with the text scale
+    // pushed up as well, since a user can have both at once.
+    for (final type in WorkspaceWidgetType.values) {
+      testWidgets('${type.name} · small · edit · ru', (tester) async {
+        await pumpAndExpectClean(
+          tester,
+          card(type, WidgetSize.small, editing: true),
+          stores: TestStores.populated(),
+          locale: const Locale('ru'),
+          reason: '${type.name} overflowed at ${WidgetSize.small.name} in '
+              'Russian',
+        );
+      });
+
+      testWidgets('${type.name} · small · edit · ru · 1.3x text',
+          (tester) async {
+        await pumpAndExpectClean(
+          tester,
+          card(type, WidgetSize.small, editing: true),
+          stores: TestStores.populated(),
+          textScale: 1.3,
+          locale: const Locale('ru'),
+          reason: '${type.name} overflowed in Russian at 1.3x text scale',
+        );
+      });
+    }
+  });
+
   testWidgets('the size toggle does not change the space the body gets',
       (tester) async {
     // Regression guard for the original bug: edit mode added ~24px of header,

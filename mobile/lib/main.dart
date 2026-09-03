@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'app/scroll_behavior.dart';
@@ -12,7 +13,9 @@ import 'services/supabase_service.dart';
 import 'state/auth_provider.dart';
 import 'state/budget_plan_provider.dart';
 import 'state/currency_provider.dart';
+import 'l10n/l10n.dart';
 import 'state/finance_provider.dart';
+import 'state/locale_provider.dart';
 import 'state/planner_provider.dart';
 import 'state/student_planner_provider.dart';
 import 'state/theme_provider.dart';
@@ -30,6 +33,7 @@ Future<void> main() async {
   // over real data. This is the async equivalent of the web app reading
   // localStorage synchronously during its initial render.
   final theme = ThemeProvider(prefs);
+  final locale = LocaleProvider(prefs);
   final currency = CurrencyProvider(prefs);
   final finance = FinanceProvider(prefs);
   final planner = PlannerProvider(prefs);
@@ -40,6 +44,9 @@ Future<void> main() async {
 
   await Future.wait([
     theme.load(),
+    // Awaited with the rest: starting in English and switching a frame later
+    // would flash the wrong language on every launch.
+    locale.load(),
     finance.load(),
     planner.load(),
     workspace.load(),
@@ -55,6 +62,7 @@ Future<void> main() async {
   runApp(
     CashCompassApp(
       theme: theme,
+      locale: locale,
       currency: currency,
       finance: finance,
       planner: planner,
@@ -76,6 +84,7 @@ class CashCompassApp extends StatefulWidget {
   const CashCompassApp({
     super.key,
     required this.theme,
+    required this.locale,
     required this.currency,
     required this.finance,
     required this.planner,
@@ -86,6 +95,7 @@ class CashCompassApp extends StatefulWidget {
   });
 
   final ThemeProvider theme;
+  final LocaleProvider locale;
   final CurrencyProvider currency;
   final FinanceProvider finance;
   final PlannerProvider planner;
@@ -135,6 +145,7 @@ class _CashCompassAppState extends State<CashCompassApp>
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: widget.theme),
+        ChangeNotifierProvider.value(value: widget.locale),
         ChangeNotifierProvider.value(value: widget.currency),
         ChangeNotifierProvider.value(value: widget.finance),
         ChangeNotifierProvider.value(value: widget.planner),
@@ -143,12 +154,25 @@ class _CashCompassAppState extends State<CashCompassApp>
         ChangeNotifierProvider.value(value: widget.students),
         ChangeNotifierProvider.value(value: widget.auth),
       ],
-      // Watching ThemeProvider here means a theme or font change rebuilds
-      // MaterialApp with new ThemeData, which is how the whole app re-skins.
-      child: Consumer<ThemeProvider>(
-        builder: (context, themeState, _) => MaterialApp(
-          title: 'Cash Compass',
+      // Watching both here means a theme, font, or language change rebuilds
+      // MaterialApp — with new ThemeData, or a new locale — which is how the
+      // whole app re-skins and re-words without a restart.
+      child: Consumer2<ThemeProvider, LocaleProvider>(
+        builder: (context, themeState, localeState, _) => MaterialApp(
+          onGenerateTitle: (context) => context.l10n.appTitle,
           debugShowCheckedModeBanner: false,
+          // Null follows the device language; a chosen language overrides it.
+          locale: localeState.locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            // Flutter's own strings — date picker, text-selection menu,
+            // "Cancel" in a system dialog. Without these the app's own text
+            // would be Russian while every framework control stayed English.
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
           // Removes Android's overscroll stretch app-wide; see AppScrollBehavior.
           scrollBehavior: const AppScrollBehavior(),
           theme: buildTheme(

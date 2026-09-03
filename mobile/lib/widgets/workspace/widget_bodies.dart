@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/theme/app_theme.dart';
+import '../../l10n/l10n.dart';
+import '../../l10n/presenters.dart';
 import '../../logic/budget_math.dart';
 import '../../models/transaction.dart';
 import '../../models/workspace_widget.dart';
@@ -90,7 +92,7 @@ class _TodaySnapshot extends StatelessWidget {
     final finance = context.watch<FinanceProvider>();
     final currency = context.watch<CurrencyProvider>();
     return _Metric(
-      label: 'Spent today',
+      label: context.l10n.dashStatSpentToday,
       value: currency.formatFromUsd(finance.spentToday),
     );
   }
@@ -101,6 +103,7 @@ class _BudgetHealth extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final finance = context.watch<FinanceProvider>();
 
@@ -116,7 +119,7 @@ class _BudgetHealth extends StatelessWidget {
 
     if (finance.budgets.isEmpty) {
       return Text(
-        'No category budgets set yet.',
+        l10n.widgetNoCategoryBudgets,
         style: theme.textTheme.bodySmall,
       );
     }
@@ -130,7 +133,7 @@ class _BudgetHealth extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    b.name,
+                    categoryLabel(l10n, b.name),
                     style: theme.textTheme.bodySmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -155,13 +158,14 @@ class _TopCategories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final finance = context.watch<FinanceProvider>();
     final currency = context.watch<CurrencyProvider>();
     final top = finance.expensesByCategory().take(5).toList();
 
     if (top.isEmpty) {
-      return Text('No expenses yet.', style: theme.textTheme.bodySmall);
+      return Text(l10n.chartNoExpenses, style: theme.textTheme.bodySmall);
     }
 
     return _ScrollingBody(
@@ -173,7 +177,7 @@ class _TopCategories extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    e.key,
+                    categoryLabel(l10n, e.key),
                     style: theme.textTheme.bodySmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -200,7 +204,7 @@ class _GoalProgress extends StatelessWidget {
     final goals = context.watch<FinanceProvider>().goals;
 
     if (goals.isEmpty) {
-      return Text('No goals yet.', style: theme.textTheme.bodySmall);
+      return Text(context.l10n.widgetNoGoals, style: theme.textTheme.bodySmall);
     }
 
     return _ScrollingBody(
@@ -269,7 +273,7 @@ class _SafeToSpend extends StatelessWidget {
     if (finance.manualBalance == null) {
       return Center(
         child: Text(
-          'Set your balance on the Dashboard to see a daily allowance.',
+          context.l10n.widgetSetBalanceFirst,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodySmall,
         ),
@@ -306,7 +310,8 @@ class _SafeToSpend extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Safe to spend', style: theme.textTheme.bodySmall),
+              Text(context.l10n.widgetSafeToSpendLabel,
+                  style: theme.textTheme.bodySmall),
               const SizedBox(height: 2),
               FittedBox(
                 child: Text(
@@ -329,6 +334,7 @@ class _SubStashJar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final finance = context.watch<FinanceProvider>();
     final currency = context.watch<CurrencyProvider>();
@@ -380,7 +386,7 @@ class _SubStashJar extends StatelessWidget {
               // instead of demanding its natural height.
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Sub-stash', style: theme.textTheme.bodySmall),
+                Text(l10n.widgetSubStash, style: theme.textTheme.bodySmall),
                 FittedBox(
                   child: Text(
                     currency.formatFromUsd(total),
@@ -391,7 +397,7 @@ class _SubStashJar extends StatelessWidget {
                 const SizedBox(height: 4),
                 if (finance.goals.isNotEmpty)
                   Text(
-                    'Boosts "${finance.goals.first.name}"',
+                    l10n.widgetBoostsGoal(finance.goals.first.name),
                     style: theme.textTheme.bodySmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -412,7 +418,9 @@ class _SubStashJar extends StatelessWidget {
                               );
                         },
                   child: Text(
-                    'Boost ${currency.formatAmount(5, decimalDigits: 0)}',
+                    l10n.widgetBoostAmount(
+                      currency.formatAmount(5, decimalDigits: 0),
+                    ),
                   ),
                 ),
               ],
@@ -498,9 +506,13 @@ class _QuickEntryPadState extends State<_QuickEntryPad> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final finance = context.watch<FinanceProvider>();
     final currency = context.watch<CurrencyProvider>();
 
+    // These are stored category keys, not labels — `add` writes one straight
+    // onto the transaction, so they stay English here and are translated only
+    // where they are shown.
     var categories =
         finance.expensesByCategory().take(3).map((e) => e.key).toList();
     if (categories.isEmpty) categories = ['Food', 'Transport', 'Shopping'];
@@ -511,7 +523,7 @@ class _QuickEntryPadState extends State<_QuickEntryPad> {
         // The web app returned silently here, so tapping a category with an
         // empty box did nothing at all and looked broken.
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Enter an amount above zero first.')),
+          SnackBar(content: Text(l10n.widgetEnterAmountFirst)),
         );
         return;
       }
@@ -525,7 +537,11 @@ class _QuickEntryPadState extends State<_QuickEntryPad> {
       _controller.clear();
       FocusScope.of(context).unfocus();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Added to $category.')),
+        SnackBar(
+          content: Text(
+            l10n.widgetAddedToCategory(categoryLabel(l10n, category)),
+          ),
+        ),
       );
     }
 
@@ -536,7 +552,7 @@ class _QuickEntryPadState extends State<_QuickEntryPad> {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             isDense: true,
-            hintText: 'Amount',
+            hintText: l10n.widgetAmountHint,
             prefixText: '${currency.currency.symbol} ',
           ),
         ),
@@ -547,7 +563,7 @@ class _QuickEntryPadState extends State<_QuickEntryPad> {
           children: [
             for (final c in categories)
               ActionChip(
-                label: Text(c),
+                label: Text(categoryLabel(l10n, c)),
                 visualDensity: VisualDensity.compact,
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 onPressed: () => add(c),
@@ -565,13 +581,14 @@ class _WasteAuditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final subs = context.watch<FinanceProvider>().subscriptions;
 
     if (subs.isEmpty) {
       return Text(
-        'No recurring charges detected yet.',
+        l10n.widgetNoRecurring,
         style: theme.textTheme.bodySmall,
       );
     }
@@ -581,8 +598,7 @@ class _WasteAuditor extends StatelessWidget {
     return _ScrollingBody(
       children: [
         Text(
-          '${currency.formatFromUsd(annual)} a year across '
-          '${subs.length} subscription${subs.length == 1 ? '' : 's'}.',
+          l10n.widgetWasteAnnual(currency.formatFromUsd(annual), subs.length),
           style: theme.textTheme.bodySmall,
         ),
         const SizedBox(height: 6),
@@ -595,7 +611,7 @@ class _WasteAuditor extends StatelessWidget {
                   child: Text(s.name, style: theme.textTheme.bodySmall),
                 ),
                 Text(
-                  '${currency.formatFromUsd(s.averageAmount)}/mo',
+                  l10n.perMonth(currency.formatFromUsd(s.averageAmount)),
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.error),
                 ),
@@ -613,6 +629,7 @@ class _RoommateSync extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final store = context.watch<BudgetPlanProvider>();
@@ -620,7 +637,7 @@ class _RoommateSync extends StatelessWidget {
     final shared = store.plans.where((p) => p.people > 1).toList();
     if (shared.isEmpty) {
       return Text(
-        'No split plans yet. Finalise a budget with more than one person.',
+        l10n.widgetNoSplitPlans,
         style: theme.textTheme.bodySmall,
       );
     }
@@ -645,8 +662,10 @@ class _RoommateSync extends StatelessWidget {
                       ),
                       Text(
                         plan.settledWith.contains('all')
-                            ? 'Settled'
-                            : 'Owed ${currency.formatFromUsd(plan.owedToYou)}',
+                            ? l10n.labelSettled
+                            : l10n.widgetOwed(
+                                currency.formatFromUsd(plan.owedToYou),
+                              ),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: plan.settledWith.contains('all')
                               ? theme.colorScheme.primary
@@ -661,7 +680,9 @@ class _RoommateSync extends StatelessWidget {
                       .read<BudgetPlanProvider>()
                       .toggleSettled(plan.id, 'all'),
                   child: Text(
-                    plan.settledWith.contains('all') ? 'Undo' : 'Settle',
+                    plan.settledWith.contains('all')
+                        ? l10n.actionUndo
+                        : l10n.actionSettle,
                   ),
                 ),
               ],
@@ -718,7 +739,7 @@ class _MediaWidgetState extends State<_MediaWidget> {
         child: OutlinedButton.icon(
           onPressed: _pick,
           icon: const Icon(Icons.add_photo_alternate_outlined),
-          label: const Text('Choose image'),
+          label: Text(context.l10n.widgetChooseImage),
         ),
       );
     }
@@ -766,8 +787,8 @@ class _MangaStatus extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               goals.isEmpty
-                  ? 'Add a goal to start tracking'
-                  : 'Savings progress ${capped.round()}%',
+                  ? context.l10n.widgetAddGoalToTrack
+                  : context.l10n.widgetSavingsProgress(capped.round()),
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -780,13 +801,13 @@ class _MangaStatus extends StatelessWidget {
 class _AsciiFortune extends StatelessWidget {
   const _AsciiFortune();
 
-  static const _fortunes = [
-    '💰 A penny saved is a penny earned',
-    '📈 Small steps lead to big gains',
-    '🎯 Goals achieved with patience',
-    '💡 Smart spending = Happy future',
-    '🚀 Invest in yourself today',
-  ];
+  static List<String> _fortunes(AppLocalizations l10n) => [
+        l10n.fortunePennySaved,
+        l10n.fortuneSmallSteps,
+        l10n.fortuneGoalsPatience,
+        l10n.fortuneSmartSpending,
+        l10n.fortuneInvestYourself,
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -795,7 +816,8 @@ class _AsciiFortune extends StatelessWidget {
     // letter of the weekday name, which made one of the five unreachable.
     final now = DateTime.now();
     final dayOfYear = now.difference(DateTime(now.year, 1, 1)).inDays;
-    final fortune = _fortunes[dayOfYear % _fortunes.length];
+    final fortunes = _fortunes(context.l10n);
+    final fortune = fortunes[dayOfYear % fortunes.length];
 
     return Center(
       child: Text(

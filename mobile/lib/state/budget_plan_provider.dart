@@ -8,6 +8,12 @@ import '../models/json_utils.dart';
 import '../services/prefs.dart';
 import 'finance_provider.dart' show isoDate;
 
+/// Why a draft could not be finalised.
+///
+/// Returned instead of a sentence so the wording can be localised at the call
+/// site — see `lib/l10n/presenters.dart`.
+enum BudgetPlanError { nothingToFinalise, noTitle, noItems, badDates }
+
 /// Finalised budget plans plus the in-progress draft.
 ///
 /// The web app let you drag the planner panel around and minimise it to a tab
@@ -79,23 +85,23 @@ class BudgetPlanProvider extends ChangeNotifier {
   }
 
   /// Reasons a draft cannot be finalised yet, empty when it is ready.
-  static String? validationError(BudgetPlan plan) {
-    if (plan.title.trim().isEmpty) return 'Add a plan title before finalising.';
+  static BudgetPlanError? validationError(BudgetPlan plan) {
+    if (plan.title.trim().isEmpty) return BudgetPlanError.noTitle;
     if (plan.items.isEmpty) {
-      return 'Add at least one item to generate a bill.';
+      return BudgetPlanError.noItems;
     }
     final to = plan.dateTo;
     if (to != null && to.isNotEmpty && to.compareTo(plan.dateFrom) < 0) {
-      return 'End date cannot be before the start date.';
+      return BudgetPlanError.badDates;
     }
     return null;
   }
 
-  /// Moves the draft into the finalised list. Returns an error string when the
-  /// plan isn't ready, so the caller can surface it.
-  String? finalizeDraft() {
+  /// Moves the draft into the finalised list. Returns the reason when the plan
+  /// isn't ready, so the caller can surface it in the active language.
+  BudgetPlanError? finalizeDraft() {
     final current = draft;
-    if (current == null) return 'Nothing to finalise.';
+    if (current == null) return BudgetPlanError.nothingToFinalise;
 
     final error = validationError(current);
     if (error != null) return error;

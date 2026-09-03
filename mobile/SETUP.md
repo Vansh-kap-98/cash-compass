@@ -180,6 +180,37 @@ In the running terminal: `r` hot-reloads (state preserved), `R` hot-restarts
 (state wiped), `q` quits. Hot reload is the Vite HMR equivalent; changes to
 `main()` or to enum shapes need a full restart.
 
+## 5b. Adding or changing a user-facing string
+
+The app ships in English and Russian, and no user-facing string is written
+inline any more. Adding one is three steps:
+
+1. Add the key to `lib/l10n/app_en.arb`, with a `@key` block naming any
+   placeholders. Counted phrases use ICU plurals.
+2. Add the same key to `lib/l10n/app_ru.arb`. Russian needs `one`/`few`/`many`
+   where English needs only `one`/`other` — 1 день, 2 дня, 5 дней.
+3. Read it as `context.l10n.yourKey`. `flutter run` and `flutter build`
+   regenerate `lib/l10n/gen/` on the way past; `flutter gen-l10n` does it alone.
+
+`flutter gen-l10n` writes `l10n-untranslated.json` (gitignored). Generation
+still succeeds when it is non-empty — that file is a report, not a gate — so
+check it: anything listed there ships in English no matter which language the
+user picked. `test/localization_test.dart` fails the suite on that, and on a
+Russian plural missing its `few`/`many` cases.
+
+Two rules that are easy to get wrong:
+
+**Stored values are not display strings.** Categories (`'Groceries'`), theme
+ids, and region ids are persisted and shared with the web app's JSON. They stay
+English on disk and are translated only where they are shown, by the mappers in
+`lib/l10n/presenters.dart`. Never translate the value being written.
+
+**`lib/logic/` holds no words.** Those files are pure Dart with no Flutter
+import, so they return a descriptor — an enum, or a small class carrying the
+figures — and `presenters.dart` turns it into a sentence. That is what lets one
+rule read correctly in a language where a count changes the noun ending, and it
+keeps the rules unit-testable without a widget harness.
+
 ## 6. Build an installable APK
 
 A plain `flutter build apk --release` produces a debug-key-signed, unobfuscated

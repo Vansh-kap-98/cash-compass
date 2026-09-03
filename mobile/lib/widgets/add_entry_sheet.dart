@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../app/theme/app_theme.dart';
+import '../l10n/l10n.dart';
+import '../l10n/presenters.dart';
 import '../logic/receipt_parser.dart';
 import '../models/transaction.dart';
 import '../state/currency_provider.dart';
@@ -52,7 +54,11 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
 
   /// Set when the scanned amount was converted from another currency, so the
   /// user can see the figure on screen is not the figure on the paper.
-  String? _convertedFrom;
+  ///
+  /// Held as the raw figures rather than a sentence: the sheet can outlive a
+  /// language change, and a frozen English hint under a Russian field would be
+  /// the one line that gave the game away.
+  ({double amount, String code, bool converted})? _conversionNote;
 
   /// True once the user edits a scanned field, so its "check this" hint can be
   /// dropped — the value is theirs now, not the OCR's.
@@ -93,11 +99,9 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
       if (detected != null &&
           detected != currency.currency.code &&
           currency.knowsRate(detected)) {
-        _convertedFrom = '${amount.toStringAsFixed(2)} $detected converted to '
-            '${currency.currency.code}';
+        _conversionNote = (amount: amount, code: detected, converted: true);
       } else if (detected != null && !currency.knowsRate(detected)) {
-        _convertedFrom = 'Receipt is in $detected — no exchange rate '
-            'available, so this is unconverted';
+        _conversionNote = (amount: amount, code: detected, converted: false);
       }
     }
 
@@ -121,8 +125,25 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
 
   /// Hint text for a field the OCR was unsure about, or null when it was
   /// confident, hand-typed, or already corrected.
-  String? _reviewHint(String field, FieldConfidence confidence) =>
-      _needsReview(field, confidence) ? 'Scanned — please check' : null;
+  String? _reviewHint(
+    AppLocalizations l10n,
+    String field,
+    FieldConfidence confidence,
+  ) =>
+      _needsReview(field, confidence) ? l10n.scannedPleaseCheck : null;
+
+  /// The currency note under the amount field, in the active language.
+  String? _conversionHint(AppLocalizations l10n) {
+    final note = _conversionNote;
+    if (note == null) return null;
+    return note.converted
+        ? l10n.entryConvertedFrom(
+            note.amount.toStringAsFixed(2),
+            note.code,
+            context.read<CurrencyProvider>().currency.code,
+          )
+        : l10n.entryNoRate(note.code);
+  }
 
   void _markConfirmed(String field) {
     if (_confirmed.contains(field)) return;
@@ -165,17 +186,18 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
   }
 
   void _save() {
+    final l10n = context.l10n;
     final name = _nameController.text.trim();
     final typed = double.tryParse(_amountController.text.trim());
 
     if (name.isEmpty || typed == null || !typed.isFinite || typed <= 0) {
-      const message = 'Please provide a name and a valid amount.';
+      final message = l10n.entryInvalid;
       setState(() => _error = message);
       // Also surfaced as a snack bar: the inline error sits at the end of a
       // long scrolling form, so tapping Save from the top would otherwise look
       // like nothing happened at all.
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(message)),
+        SnackBar(content: Text(message)),
       );
       return;
     }
@@ -209,8 +231,10 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
       SnackBar(
         content: Text(
           _recurrence == Recurrence.none
-              ? 'Entry saved.'
-              : 'Recurring ${_recurrence.name} entry added.',
+              ? l10n.entrySaved
+              : l10n.entrySavedRecurring(
+                  recurrenceLabel(l10n, _recurrence).toLowerCase(),
+                ),
         ),
       ),
     );
@@ -218,17 +242,17 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
 
     return SheetScaffold(
-      title: _fromScan ? 'Check Receipt' : 'Add Entry',
+      title: _fromScan ? l10n.entrySheetTitleCheck : l10n.entrySheetTitleAdd,
       subtitle: _fromScan
-          ? 'Read from your receipt. Anything marked "please check" was a '
-              'guess — correct it before saving.'
-          : 'Log an expense or income. Mark recurring charges to track them.',
+          ? l10n.entrySheetSubtitleCheck
+          : l10n.entrySheetSubtitleAdd,
       onSubmit: _save,
-      submitLabel: 'Save Entry',
+      submitLabel: l10n.entrySheetSubmit,
       children: [
         if (_receipt?.suggestsSubscription ?? false) ...[
           // Surfaced before saving, not after: once the entry is in, the Waste
@@ -246,8 +270,7 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'This looks like a recurring charge. Set to monthly — '
-                      'change it below if that is wrong.',
+                      l10n.entryRecurringHint,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSecondaryContainer,
                       ),
@@ -260,16 +283,16 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
           const SizedBox(height: 16),
         ],
         SegmentedButton<TransactionType>(
-          segments: const [
+          segments: [
             ButtonSegment(
               value: TransactionType.expense,
-              label: Text('Expense'),
-              icon: Icon(Icons.arrow_downward),
+              label: Text(l10n.entryTypeExpense),
+              icon: const Icon(Icons.arrow_downward),
             ),
             ButtonSegment(
               value: TransactionType.income,
-              label: Text('Income'),
-              icon: Icon(Icons.arrow_upward),
+              label: Text(l10n.entryTypeIncome),
+              icon: const Icon(Icons.arrow_upward),
             ),
           ],
           selected: {_type},
@@ -281,9 +304,10 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
           textCapitalization: TextCapitalization.sentences,
           onChanged: (_) => _markConfirmed('name'),
           decoration: InputDecoration(
-            labelText: 'Name',
-            hintText: 'e.g. Grocery run',
+            labelText: l10n.entryFieldName,
+            hintText: l10n.entryFieldNameHint,
             helperText: _reviewHint(
+              l10n,
               'name',
               _receipt?.merchantConfidence ?? FieldConfidence.none,
             ),
@@ -295,14 +319,15 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           onChanged: (_) => _markConfirmed('amount'),
           decoration: InputDecoration(
-            labelText: 'Amount (${currency.currency.code})',
+            labelText: l10n.entryFieldAmount(currency.currency.code),
             prefixText: '${currency.currency.symbol} ',
             hintText: '0.00',
             helperText: _reviewHint(
+                  l10n,
                   'amount',
                   _receipt?.amountConfidence ?? FieldConfidence.none,
                 ) ??
-                _convertedFrom,
+                _conversionHint(l10n),
           ),
         ),
         const SizedBox(height: 12),
@@ -312,10 +337,16 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
               child: DropdownButtonFormField<String>(
                 initialValue: _category,
                 isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Category'),
+                decoration:
+                    InputDecoration(labelText: l10n.entryFieldCategory),
                 items: [
+                  // The value stays the stored English key; only the label is
+                  // translated, so switching language never rewrites data.
                   for (final c in _categories)
-                    DropdownMenuItem(value: c, child: Text(c)),
+                    DropdownMenuItem(
+                      value: c,
+                      child: Text(categoryLabel(l10n, c)),
+                    ),
                 ],
                 onChanged: (c) {
                   if (c != null) setState(() => _category = c);
@@ -329,7 +360,8 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
                 // Matches the input border this ripples over.
                 borderRadius: Theme.of(context).radii.controlBorder,
                 child: InputDecorator(
-                  decoration: const InputDecoration(labelText: 'Date'),
+                  decoration:
+                      InputDecoration(labelText: l10n.entryFieldDate),
                   child: Text(isoDate(_date)),
                 ),
               ),
@@ -337,7 +369,7 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
           ],
         ),
         const SizedBox(height: 16),
-        Text('Is this recurring?', style: theme.textTheme.labelLarge),
+        Text(l10n.entryRecurringQuestion, style: theme.textTheme.labelLarge),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -345,7 +377,7 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
           children: [
             for (final r in Recurrence.values)
               ChoiceChip(
-                label: Text(r.label),
+                label: Text(recurrenceLabel(l10n, r)),
                 selected: _recurrence == r,
                 onSelected: (_) => setState(() => _recurrence = r),
               ),
@@ -356,10 +388,8 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: _unplanned,
-            title: const Text('Unplanned / spontaneous'),
-            subtitle: const Text(
-              'Optional context to make insights more useful, never judgmental.',
-            ),
+            title: Text(l10n.entryUnplanned),
+            subtitle: Text(l10n.entryUnplannedSubtitle),
             onChanged: (v) => setState(() {
               _unplanned = v;
               if (!v) _reasonTags.clear();
@@ -367,7 +397,7 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
           ),
           if (_unplanned) ...[
             Text(
-              'What influenced this? Optional',
+              l10n.entryReasonPrompt,
               style: theme.textTheme.labelMedium,
             ),
             const SizedBox(height: 8),
@@ -377,7 +407,7 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
               children: [
                 for (final tag in ReasonTag.values)
                   FilterChip(
-                    label: Text(tag.label),
+                    label: Text(reasonTagLabel(l10n, tag)),
                     selected: _reasonTags.contains(tag),
                     onSelected: (on) => setState(() {
                       if (on) {
@@ -396,9 +426,9 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
           controller: _noteController,
           maxLines: 2,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(
-            labelText: 'Note',
-            hintText: 'Any details about this entry',
+          decoration: InputDecoration(
+            labelText: l10n.entryFieldNote,
+            hintText: l10n.entryFieldNoteHint,
           ),
         ),
         if (_error != null) ...[

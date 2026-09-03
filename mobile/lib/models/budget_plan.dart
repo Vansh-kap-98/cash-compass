@@ -3,14 +3,6 @@ import 'json_utils.dart';
 /// What kind of thing is being budgeted for.
 enum BudgetPlanType { trip, outing, event }
 
-extension BudgetPlanTypeLabel on BudgetPlanType {
-  String get label => switch (this) {
-        BudgetPlanType.trip => 'Trip',
-        BudgetPlanType.outing => 'Outing',
-        BudgetPlanType.event => 'Event',
-      };
-}
-
 /// One estimated cost inside a plan. [estimate] is in USD.
 class BudgetLineItem {
   const BudgetLineItem({

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../app/theme/app_theme.dart';
+import '../l10n/l10n.dart';
+import '../l10n/presenters.dart';
 import '../logic/receipt_batch_queue.dart';
 import '../logic/receipt_parser.dart';
 import '../models/transaction.dart';
@@ -168,8 +170,9 @@ class _ReceiptBatchReviewScreenState extends State<ReceiptBatchReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Review receipts')),
+      appBar: AppBar(title: Text(l10n.batchReviewTitle)),
       body: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
         itemCount: _entries.length,
@@ -193,8 +196,8 @@ class _ReceiptBatchReviewScreenState extends State<ReceiptBatchReviewScreen> {
             onPressed: _savableCount == 0 ? null : _saveAll,
             child: Text(
               _savableCount == 0
-                  ? 'Nothing to save'
-                  : 'Save $_savableCount receipt${_savableCount == 1 ? '' : 's'}',
+                  ? l10n.batchNothingToSave
+                  : l10n.batchSaveCount(_savableCount),
             ),
           ),
         ),
@@ -228,6 +231,7 @@ class _ReceiptRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final receipt = entry.receipt;
@@ -252,15 +256,15 @@ class _ReceiptRow extends StatelessWidget {
                       children: [
                         if (failed)
                           Text(
-                            'Could not read this one',
+                            l10n.batchCouldNotRead,
                             style: theme.textTheme.bodyMedium
                                 ?.copyWith(color: theme.colorScheme.error),
                           )
                         else ...[
                           TextField(
                             controller: name,
-                            decoration: const InputDecoration(
-                              labelText: 'Merchant',
+                            decoration: InputDecoration(
+                              labelText: l10n.batchFieldMerchant,
                               isDense: true,
                             ),
                           ),
@@ -271,9 +275,11 @@ class _ReceiptRow extends StatelessWidget {
                               decimal: true,
                             ),
                             decoration: InputDecoration(
-                              labelText: 'Amount (${currency.currency.code})',
+                              labelText: l10n
+                                  .entryFieldAmount(currency.currency.code),
                               isDense: true,
-                              helperText: _amountHint(receipt, currency),
+                              helperText:
+                                  _amountHint(l10n, receipt, currency),
                             ),
                           ),
                         ],
@@ -293,7 +299,7 @@ class _ReceiptRow extends StatelessWidget {
                   if (entry.dateIsFallback)
                     Expanded(
                       child: Text(
-                        'no photo date',
+                        l10n.batchNoPhotoDate,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -310,24 +316,28 @@ class _ReceiptRow extends StatelessWidget {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.refresh),
-                      tooltip: 'Read this one again',
+                      tooltip: l10n.batchRetryTooltip,
                     ),
                   TextButton(
                     onPressed: onSkipToggle,
-                    child: Text(entry.skipped ? 'Include' : 'Skip'),
+                    child: Text(
+                      entry.skipped ? l10n.actionInclude : l10n.actionSkip,
+                    ),
                   ),
                 ],
               ),
               if (entry.isDuplicate)
-                const _Banner(
+                _Banner(
                   icon: Icons.copy_all_outlined,
-                  text: 'Looks like a repeat of an earlier receipt in this '
-                      'batch. Skip it if you picked the same photo twice.',
+                  text: l10n.batchDuplicateWarning,
                 ),
               if (receipt?.discrepancy != null)
                 _Banner(
                   icon: Icons.help_outline,
-                  text: receipt!.discrepancy!,
+                  text: receiptDiscrepancyMessage(
+                    l10n,
+                    receipt!.discrepancy!,
+                  ),
                 ),
             ],
           ),
@@ -337,7 +347,11 @@ class _ReceiptRow extends StatelessWidget {
   }
 
   /// Explains the amount when it is not simply what the receipt printed.
-  String? _amountHint(ParsedReceipt? receipt, CurrencyProvider currency) {
+  String? _amountHint(
+    AppLocalizations l10n,
+    ParsedReceipt? receipt,
+    CurrencyProvider currency,
+  ) {
     if (receipt == null) return null;
     final detected = receipt.currencyCode;
     final raw = receipt.amount;
@@ -346,9 +360,9 @@ class _ReceiptRow extends StatelessWidget {
         raw != null &&
         detected != currency.currency.code &&
         currency.knowsRate(detected)) {
-      return '${raw.toStringAsFixed(2)} $detected converted';
+      return l10n.batchAmountConverted(raw.toStringAsFixed(2), detected);
     }
-    if (receipt.amountConfidence.needsReview) return 'Scanned — please check';
+    if (receipt.amountConfidence.needsReview) return l10n.scannedPleaseCheck;
     return null;
   }
 }

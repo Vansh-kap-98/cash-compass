@@ -1,13 +1,18 @@
 name: cash_compass
 description: Cash Compass — personal finance dashboard for Android.
 publish_to: "none"
-version: 0.1.0+6
+version: 0.1.0+8
 
 environment:
   sdk: ">=3.5.0 <4.0.0"
 
 dependencies:
   flutter:
+    sdk: flutter
+
+  # Material/Cupertino strings and date symbols for every supported locale.
+  # Required for the Russian language option; see lib/l10n/.
+  flutter_localizations:
     sdk: flutter
 
   # State management — the direct analogue of the app's React Contexts.
@@ -62,3 +67,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # Generates AppLocalizations from lib/l10n/*.arb. Configured in l10n.yaml.
+  generate: true

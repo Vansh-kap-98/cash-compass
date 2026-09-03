@@ -1,0 +1,849 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Cash Compass",
+  "@appTitle": {
+    "description": "Application name. Not translated — it is the product name."
+  },
+
+  "tabDashboard": "Dashboard",
+  "tabGoals": "Goals",
+  "tabPlanner": "Planner",
+  "tabWorkspace": "Workspace",
+  "tabSettings": "Settings",
+
+  "actionCancel": "Cancel",
+  "actionSave": "Save",
+  "actionAdd": "Add",
+  "actionClear": "Clear",
+  "actionDone": "Done",
+  "actionRemove": "Remove",
+  "actionContinue": "Continue",
+  "actionReset": "Reset",
+  "actionDiscard": "Discard",
+  "actionKeep": "Keep",
+  "actionSkip": "Skip",
+  "actionInclude": "Include",
+  "actionUndo": "Undo",
+  "actionSettle": "Settle",
+  "labelSettled": "Settled",
+
+  "authTagline": "Live balance and budget signals, on your terms.",
+  "authFieldName": "Name",
+  "authFieldEmail": "Email",
+  "authFieldPassword": "Password",
+  "authFieldConfirmPassword": "Confirm password",
+  "authPasswordHelper": "At least 8 characters",
+  "authWorking": "Working…",
+  "authCreateAccount": "Create account",
+  "authSignIn": "Sign in",
+  "authHaveAccount": "Already have an account? Sign in",
+  "authNeedAccount": "Need an account? Sign up",
+  "authNoBackend": "This build has no account backend configured. Demo mode works fully offline.",
+  "authContinueWithoutAccount": "Continue without an account",
+  "authDemoDialogTitle": "Continue without an account?",
+  "authDemoDialogBody": "Demo mode starts from a clean slate — any data already on this device will be cleared. Nothing is sent anywhere.",
+
+  "authErrorNoSupabase": "Accounts are unavailable — this build has no Supabase config. Use demo mode.",
+  "authErrorMissingCredentials": "Enter your email and password.",
+  "authErrorSignInFailed": "Could not sign in. Please try again.",
+  "authErrorSignUpFailed": "Could not create the account. Please try again.",
+  "authErrorConfirmEmail": "Check your email to confirm your account, then sign in.",
+  "authErrorMissingName": "Enter your name.",
+  "authErrorInvalidEmail": "Enter a valid email address.",
+  "authErrorShortPassword": "Password must be at least 8 characters.",
+  "authErrorPasswordMismatch": "Passwords do not match.",
+
+  "quickScanReceipt": "Scan Receipt",
+  "quickScanReceiptSubtitle": "Read the amount from a photo",
+  "quickScanSeveral": "Scan Several",
+  "quickScanSeveralSubtitle": "Pick receipts from your gallery",
+  "quickAddEntry": "Add Entry",
+  "quickAddEntrySubtitle": "Log an expense or income",
+  "quickSetGoal": "Set Goal",
+  "quickSetGoalSubtitle": "Create a savings target",
+  "quickPlanBudget": "Plan Budget",
+  "quickPlanBudgetSubtitle": "Cost out a trip, outing, or event",
+
+  "scanErrorCameraUnavailable": "Camera unavailable — check the permission in Settings. Add the entry by hand for now.",
+  "scanErrorNoText": "No text found in that photo. Try again in better light, or type it in.",
+  "scanErrorNothingUseful": "Could not find an amount on that receipt. Fill it in below.",
+
+  "batchReadingReceipts": "Reading receipts",
+  "batchProgress": "{done} of {total}",
+  "@batchProgress": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "batchSavedReceipts": "{count, plural, one{Saved {count} receipt.} other{Saved {count} receipts.}}",
+  "@batchSavedReceipts": {
+    "description": "Snack bar after a batch of scanned receipts is written.",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "batchReviewTitle": "Review receipts",
+  "batchNothingToSave": "Nothing to save",
+  "batchSaveCount": "{count, plural, one{Save {count} receipt} other{Save {count} receipts}}",
+  "@batchSaveCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "batchCouldNotRead": "Could not read this one",
+  "batchFieldMerchant": "Merchant",
+  "batchNoPhotoDate": "no photo date",
+  "batchRetryTooltip": "Read this one again",
+  "batchDuplicateWarning": "Looks like a repeat of an earlier receipt in this batch. Skip it if you picked the same photo twice.",
+  "batchAmountConverted": "{amount} {code} converted",
+  "@batchAmountConverted": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "code": { "type": "String" }
+    }
+  },
+  "scannedPleaseCheck": "Scanned — please check",
+
+  "receiptDiscrepancyCash": "Labelled total {labelled} disagrees with cash − change {computed}. Using the arithmetic.",
+  "@receiptDiscrepancyCash": {
+    "placeholders": {
+      "labelled": { "type": "String" },
+      "computed": { "type": "String" }
+    }
+  },
+  "receiptDiscrepancyItems": "Total {labelled} does not match the items ({itemSum}) — please confirm.",
+  "@receiptDiscrepancyItems": {
+    "placeholders": {
+      "labelled": { "type": "String" },
+      "itemSum": { "type": "String" }
+    }
+  },
+
+  "dashTotalBalance": "Total balance",
+  "dashSnapshotHint": "This snapshot drives the whole dashboard.",
+  "dashStatAvailable": "Available",
+  "dashStatSpentToday": "Spent today",
+  "dashStatTotalSpent": "Total spent",
+  "dashStatAveragePerDay": "Average / day",
+  "dashRecentActivity": "Recent activity",
+  "dashNoEntries": "No entries yet. Add one with the + button.",
+
+  "budgetingWindow": "Budgeting window",
+  "fieldStart": "Start",
+  "fieldEnd": "End",
+  "dailyBudget": "Daily budget",
+  "overDays": "{count, plural, one{over {count} day} other{over {count} days}}",
+  "@overDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "smartCardsTitle": "Smart cards",
+  "smartCardsWatching": "Smart cards are on watch. Discretionary spending is comfortable today.",
+  "smartCardsSpent": "You have spent {amount} on small extras today — {percent}% of your daily limit.",
+  "@smartCardsSpent": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "percent": { "type": "int" }
+    }
+  },
+  "smartCardsAnnualised": "At this rate that is {amount} a year.",
+  "@smartCardsAnnualised": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "smartCardsDivert": "Diverting it to \"{goal}\" would get you there sooner.",
+  "@smartCardsDivert": {
+    "placeholders": {
+      "goal": { "type": "String" }
+    }
+  },
+
+  "spendingPatternTitle": "Spending pattern",
+  "spendingPatternNight": "{count, plural, one{Your spontaneous spending clusters around {weekday} nights — mostly {tag} purchases ({count} so far).} other{Your spontaneous spending clusters around {weekday} nights — mostly {tag} purchases ({count} so far).}}",
+  "@spendingPatternNight": {
+    "description": "Detected weekday cluster for evening spending. The plural wrapper exists so Russian can decline the count.",
+    "placeholders": {
+      "weekday": { "type": "String" },
+      "tag": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "spendingPatternDay": "{count, plural, one{Your spontaneous spending clusters around {weekday} daytimes — mostly {tag} purchases ({count} so far).} other{Your spontaneous spending clusters around {weekday} daytimes — mostly {tag} purchases ({count} so far).}}",
+  "@spendingPatternDay": {
+    "placeholders": {
+      "weekday": { "type": "String" },
+      "tag": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+
+  "weekdayMonday": "Monday",
+  "weekdayTuesday": "Tuesday",
+  "weekdayWednesday": "Wednesday",
+  "weekdayThursday": "Thursday",
+  "weekdayFriday": "Friday",
+  "weekdaySaturday": "Saturday",
+  "weekdaySunday": "Sunday",
+
+  "smartSuggestionsTitle": "Smart suggestions",
+  "suggestionWatchCategoryTitle": "Watch {category}",
+  "@suggestionWatchCategoryTitle": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "suggestionWatchCategoryBody": "It is your largest category this month. Trimming 10% would free about {amount}.",
+  "@suggestionWatchCategoryBody": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "suggestionBudgetAlertTitle": "{category} budget alert",
+  "@suggestionBudgetAlertTitle": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "suggestionBudgetAlertBody": "You have used {percent}% of this month's limit.",
+  "@suggestionBudgetAlertBody": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+  "suggestionAuditSubsTitle": "Audit your subscriptions",
+  "suggestionAuditSubsBody": "Recurring charges detected: {names}.",
+  "@suggestionAuditSubsBody": {
+    "placeholders": {
+      "names": { "type": "String" }
+    }
+  },
+  "suggestionTrackTitle": "Track for 7 days",
+  "suggestionTrackBody": "Add a week of entries and personalised suggestions will appear here.",
+
+  "recurringChargesTitle": "Recurring charges",
+  "recurringChargesSubtitle": "Detected from a monthly cadence in your history.",
+  "recurringChargesEmpty": "Nothing detected yet. Recurring charges appear after a couple of monthly repeats.",
+  "subscriptionCharges": "{count, plural, one{{count} charge · last {date}} few{{count} charges · last {date}} many{{count} charges · last {date}} other{{count} charges · last {date}}}",
+  "@subscriptionCharges": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "date": { "type": "String" }
+    }
+  },
+  "perYear": "{amount}/yr",
+  "@perYear": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+
+  "financialCalendarTitle": "Financial calendar",
+  "financialCalendarSubtitle": "Events that can change your spending velocity.",
+  "regionIndia": "India",
+  "regionRussia": "Russia",
+  "eventComingSoon": "{name} is coming soon",
+  "@eventComingSoon": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "eventForecast": "Spending usually rises during this window. Projected {projected} per active day — about {increase} above your usual.",
+  "@eventForecast": {
+    "placeholders": {
+      "projected": { "type": "String" },
+      "increase": { "type": "String" }
+    }
+  },
+  "eventNoHistory": "Estimated from your overall average — no history for this window yet.",
+  "eventToday": "Today",
+  "eventDaysShort": "{count}d",
+  "@eventDaysShort": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "eventWinterExamName": "Winter exam season",
+  "eventWinterExamNote": "Study materials, transport, and late-night food often rise.",
+  "eventNewYearName": "New Year holidays",
+  "eventNewYearNote": "Gifting, travel, and social spending cluster around this break.",
+  "eventStipendName": "Student stipend cycle",
+  "eventStipendNote": "A regular stipend date to anchor your monthly plan.",
+  "eventUniExamName": "University exam window",
+  "eventUniExamNote": "Printing, travel, and convenience food can increase during exam weeks.",
+  "eventDiwaliName": "Diwali cluster",
+  "eventDiwaliNote": "Gifts, travel, and celebrations can put pressure on flexible cash.",
+  "eventSemesterName": "Semester reset",
+  "eventSemesterNote": "Books, supplies, and housing deposits often return at the start of term.",
+
+  "eventTypeAcademic": "Academic",
+  "eventTypeHoliday": "Holiday",
+  "eventTypeIncome": "Income",
+  "eventTypeFestival": "Festival",
+  "eventTypeStudentCosts": "Student costs",
+
+  "locationGuidanceTitle": "Location guidance",
+  "locationGuidanceSubtitle": "Typical local costs against what is left for today.",
+  "fieldRegion": "Region",
+  "geoUsCity": "US City",
+  "geoIndiaMetro": "India Metro",
+  "geoEasternEurope": "Eastern Europe",
+  "stapleLunch": "Lunch",
+  "stapleTransit": "Transit",
+  "stapleGroceries": "Groceries",
+  "stapleCost": "Typical {cost} · suggested max {limit}",
+  "@stapleCost": {
+    "placeholders": {
+      "cost": { "type": "String" },
+      "limit": { "type": "String" }
+    }
+  },
+  "badgeOnBudget": "On Budget",
+  "badgeTrimNeeded": "Trim Needed",
+
+  "suggestionsTodayTitle": "Suggestions for today",
+  "tipOverBudget": "You are over today's budget. Switch to essential-only purchases for the rest of the day.",
+  "tipFinalQuarter": "You are in the final 25% of your daily budget. Keep only high-priority plan items.",
+  "tipComfortable": "You still have comfortable room today. Front-load essentials and delay impulse categories.",
+  "tipPlannedOverBudget": "Your planned spend is above budget. Reduce one plan item by around 20-30%.",
+  "tipAverageOverBudget": "Your average daily spend is above your location-adjusted budget. Try a three-day low-spend streak.",
+  "tipCategoryCaps": "Use category caps for Food and Shopping today to protect tomorrow's flexibility.",
+
+  "dailyPlanTitle": "Daily plan builder",
+  "dailyPlanSubtitle": "Plan a day, then compare it against your daily budget.",
+  "dailyPlanName": "Plan name",
+  "dailyPlanNameHint": "Groceries and transit",
+  "dailyPlanEstimate": "Estimate ({code})",
+  "@dailyPlanEstimate": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+  "dailyPlanDate": "Plan date",
+  "dailyPlanAdd": "Add plan",
+  "dailyPlanInvalid": "Add a plan name and a valid amount.",
+  "dailyPlanSpentThatDay": "Spent that day",
+  "dailyPlanPlanned": "Planned",
+  "dailyPlanRemaining": "Remaining after plans",
+  "dailyPlanEmpty": "No plans for this day yet.",
+  "dailyPlanDeleteTooltip": "Delete plan",
+
+  "dayRecordsTitle": "All day records",
+  "dayRecordsEmpty": "No records yet. Add entries to start building history.",
+
+  "goalsEmptyTitle": "No savings goals yet.",
+  "goalsEmptyBody": "Use the + button to create one.",
+  "goalsGuidanceTitle": "Personalised guidance",
+  "goalAmountOf": "{current} of {target}",
+  "@goalAmountOf": {
+    "placeholders": {
+      "current": { "type": "String" },
+      "target": { "type": "String" }
+    }
+  },
+  "goalAddAmount": "Add {amount}",
+  "@goalAddAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+
+  "goalInsightEmpty": "Add a few expenses and personalised guidance will appear here.",
+  "goalInsightTopShare": "{category} is {percent}% of your spending. A 10% trim there moves your goals faster than cutting anywhere else.",
+  "@goalInsightTopShare": {
+    "placeholders": {
+      "category": { "type": "String" },
+      "percent": { "type": "int" }
+    }
+  },
+  "goalInsightTopTwo": "Together, {first} and {second} account for {percent}% of outgoings.",
+  "@goalInsightTopTwo": {
+    "placeholders": {
+      "first": { "type": "String" },
+      "second": { "type": "String" },
+      "percent": { "type": "int" }
+    }
+  },
+  "goalInsightAutomate": "Automating a transfer on the day you get paid protects savings before spending starts.",
+  "goalInsightReviewWeekly": "Reviewing one category a week is more sustainable than cutting everything at once.",
+
+  "chartTopCategories": "Top categories",
+  "chartNoExpenses": "No expenses yet.",
+  "chartIncomeVsExpenses": "Income vs expenses",
+  "chartLastSixMonths": "Last six months",
+  "chartNotEnoughHistory": "Not enough history yet.",
+  "chartLegendIncome": "Income",
+  "chartLegendExpenses": "Expenses",
+
+  "monthJan": "Jan",
+  "monthFeb": "Feb",
+  "monthMar": "Mar",
+  "monthApr": "Apr",
+  "monthMay": "May",
+  "monthJun": "Jun",
+  "monthJul": "Jul",
+  "monthAug": "Aug",
+  "monthSep": "Sep",
+  "monthOct": "Oct",
+  "monthNov": "Nov",
+  "monthDec": "Dec",
+
+  "entrySheetTitleAdd": "Add Entry",
+  "entrySheetTitleCheck": "Check Receipt",
+  "entrySheetSubtitleAdd": "Log an expense or income. Mark recurring charges to track them.",
+  "entrySheetSubtitleCheck": "Read from your receipt. Anything marked \"please check\" was a guess — correct it before saving.",
+  "entrySheetSubmit": "Save Entry",
+  "entryRecurringHint": "This looks like a recurring charge. Set to monthly — change it below if that is wrong.",
+  "entryTypeExpense": "Expense",
+  "entryTypeIncome": "Income",
+  "entryFieldName": "Name",
+  "entryFieldNameHint": "e.g. Grocery run",
+  "entryFieldAmount": "Amount ({code})",
+  "@entryFieldAmount": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+  "entryFieldCategory": "Category",
+  "entryFieldDate": "Date",
+  "entryFieldNote": "Note",
+  "entryFieldNoteHint": "Any details about this entry",
+  "entryRecurringQuestion": "Is this recurring?",
+  "entryUnplanned": "Unplanned / spontaneous",
+  "entryUnplannedSubtitle": "Optional context to make insights more useful, never judgmental.",
+  "entryReasonPrompt": "What influenced this? Optional",
+  "entryInvalid": "Please provide a name and a valid amount.",
+  "entrySaved": "Entry saved.",
+  "entrySavedRecurring": "Recurring {cadence} entry added.",
+  "@entrySavedRecurring": {
+    "placeholders": {
+      "cadence": { "type": "String" }
+    }
+  },
+  "entryConvertedFrom": "{amount} {code} converted to {target}",
+  "@entryConvertedFrom": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "code": { "type": "String" },
+      "target": { "type": "String" }
+    }
+  },
+  "entryNoRate": "Receipt is in {code} — no exchange rate available, so this is unconverted",
+  "@entryNoRate": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+
+  "recurrenceNone": "One-time",
+  "recurrenceDaily": "Daily",
+  "recurrenceWeekly": "Weekly",
+  "recurrenceBiweekly": "Biweekly",
+  "recurrenceMonthly": "Monthly",
+  "recurrenceYearly": "Yearly",
+
+  "reasonEmotional": "Emotional purchase",
+  "reasonSocial": "Social",
+  "reasonDiscount": "Discount / sale",
+  "reasonImpulse": "Impulse",
+
+  "reasonAdjEmotional": "emotional",
+  "@reasonAdjEmotional": {
+    "description": "Adjective form used inside the spending-pattern sentence, e.g. \"mostly emotional purchases\"."
+  },
+  "reasonAdjSocial": "social",
+  "reasonAdjDiscount": "discount",
+  "reasonAdjImpulse": "impulse",
+
+  "categoryIncome": "Income",
+  "categorySalary": "Salary",
+  "categoryFreelance": "Freelance",
+  "categoryGroceries": "Groceries",
+  "categoryTransport": "Transport",
+  "categoryHousing": "Housing",
+  "categoryUtilities": "Utilities",
+  "categoryEntertainment": "Entertainment",
+  "categoryFood": "Food",
+  "categoryShopping": "Shopping",
+  "categoryHealth": "Health",
+  "categoryTravel": "Travel",
+  "categoryEducation": "Education",
+  "categorySavings": "Savings",
+  "categoryInvestment": "Investment",
+  "categoryBusiness": "Business",
+  "categoryGift": "Gift",
+  "categoryOther": "Other",
+
+  "goalSheetTitle": "Set Savings Goal",
+  "goalSheetSubtitle": "Define how much to save and by when. We'll show you the daily target.",
+  "goalSheetSubmit": "Create Goal",
+  "goalFieldIcon": "Icon",
+  "goalFieldName": "Goal name",
+  "goalFieldNameHint": "Emergency fund",
+  "goalFieldTarget": "Target ({code})",
+  "@goalFieldTarget": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+  "goalFieldSaved": "Already saved",
+  "goalTimeframe": "Timeframe",
+  "goalFieldDays": "Days",
+  "goalMinimumDays": "minimum 7",
+  "goalInvalid": "Add a goal name and target amount.",
+  "goalCreated": "Goal created.",
+  "goalReachIn": "{count, plural, one{To reach your goal in {count} day:} few{To reach your goal in {count} days:} many{To reach your goal in {count} days:} other{To reach your goal in {count} days:}}",
+  "@goalReachIn": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "goalPerDay": "{amount} / day",
+  "@goalPerDay": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "goalPerWeekMonth": "{week} / week · {month} / month",
+  "@goalPerWeekMonth": {
+    "placeholders": {
+      "week": { "type": "String" },
+      "month": { "type": "String" }
+    }
+  },
+  "goalCurrentGoals": "Current goals",
+
+  "periodOneMonth": "1 Month",
+  "periodThreeMonths": "3 Months",
+  "periodSixMonths": "6 Months",
+  "periodOneYear": "1 Year",
+  "periodTwoYears": "2 Years",
+  "periodCustom": "Custom",
+
+  "plannerSurvivalTitle": "Survival calculator",
+  "plannerSurvivalSubtitle": "Your daily spendable cash after essentials.",
+  "plannerDailySpendable": "Daily spendable",
+  "plannerHorizon": "{count, plural, one{Planning horizon — {count} day} few{Planning horizon — {count} days} many{Planning horizon — {count} days} other{Planning horizon — {count} days}}",
+  "@plannerHorizon": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "plannerUpcomingBills": "Upcoming must-pay bills ({code})",
+  "@plannerUpcomingBills": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+  "plannerIncomeStreams": "Income streams",
+  "plannerFieldSource": "Source",
+  "plannerFieldAmount": "Amount",
+  "plannerFixedCosts": "Fixed costs",
+  "plannerFieldBill": "Bill",
+  "plannerAddFixedCost": "Add fixed cost",
+
+  "zoneGreen": "Green Zone",
+  "zoneTight": "Tight Zone",
+  "zoneCritical": "Critical Zone",
+
+  "cadenceOneTime": "One-time",
+  "cadenceWeekly": "Weekly",
+  "cadenceMonthly": "Monthly",
+
+  "plannerSocialTitle": "Social budgeting",
+  "plannerSocialSubtitle": "See the impact of nights out before you commit.",
+  "plannerFieldEvent": "Event",
+  "plannerFieldLow": "Low",
+  "plannerFieldRealistic": "Realistic",
+  "plannerFieldStretch": "Stretch",
+  "plannerAddPlan": "Add plan",
+  "plannerSocialImpact": "If every realistic plan happens, your daily spendable becomes {amount}.",
+  "@plannerSocialImpact": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "plannerYourShare": "{date} · your share {amount}",
+  "@plannerYourShare": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "plannerYourShareSplit": "{date} · your share {amount} of {count}",
+  "@plannerYourShareSplit": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "amount": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "plannerRange": "Range {low} – {high}",
+  "@plannerRange": {
+    "placeholders": {
+      "low": { "type": "String" },
+      "high": { "type": "String" }
+    }
+  },
+
+  "plannerRunwayTitle": "Loan runway",
+  "plannerRunwaySubtitle": "Make a lump sum last the whole semester.",
+  "plannerLumpSum": "Lump sum",
+  "plannerSafetyBuffer": "Safety buffer",
+  "plannerRunwayWeeks": "Remaining runway: {weeks} weeks",
+  "@plannerRunwayWeeks": {
+    "placeholders": {
+      "weeks": { "type": "String" }
+    }
+  },
+  "plannerSemesterWeeksLeft": "{weeks} semester weeks left.",
+  "@plannerSemesterWeeksLeft": {
+    "placeholders": {
+      "weeks": { "type": "String" }
+    }
+  },
+  "plannerWillRunOut": " At this pace the money runs out first.",
+  "plannerWeeklyBurn": "Weekly burn",
+  "plannerSuggestedCap": "Suggested cap",
+
+  "plannerStreakTitle": "Bloom streaks",
+  "plannerStreakSubtitle": "Stay within your plan three days running to earn a badge.",
+  "plannerCurrentStreak": "Current streak",
+  "plannerStreakDays": "{count, plural, one{{count} day} few{{count} days} many{{count} days} other{{count} days}}",
+  "@plannerStreakDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "plannerStreakBadge": "3-day bloom streak 🌸",
+  "plannerMarkedOnTrack": "Marked on track today",
+  "plannerMarkOnTrack": "Mark today on track",
+  "plannerStreakFooter": "No penalties. Missed days just restart softly.",
+
+  "budgetPlannerTitle": "Budget planner",
+  "budgetDiscardTooltip": "Discard draft",
+  "budgetDiscardDialogTitle": "Discard this plan?",
+  "budgetDiscardDialogBody": "The draft and its items will be deleted.",
+  "budgetTypeTrip": "Trip",
+  "budgetTypeOuting": "Outing",
+  "budgetTypeEvent": "Event",
+  "budgetFieldTitle": "Plan title",
+  "budgetFieldTitleHint": "e.g. Goa weekend",
+  "budgetFieldFrom": "From",
+  "budgetFieldTo": "To (optional)",
+  "budgetSplittingBetween": "Splitting between",
+  "budgetItems": "Items",
+  "budgetFieldItem": "Item",
+  "budgetFieldCost": "Cost ({code})",
+  "@budgetFieldCost": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+  "budgetAddItemTooltip": "Add item",
+  "budgetItemsEmpty": "Add items above to see the breakdown.",
+  "budgetTotal": "Total",
+  "budgetPerPerson": "Per person ({count})",
+  "@budgetPerPerson": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "budgetFinalise": "Finalise bill",
+  "budgetFinalised": "Budget finalised.",
+  "budgetItemInvalid": "Add an item name and a cost above zero.",
+  "budgetErrorNothing": "Nothing to finalise.",
+  "budgetErrorNoTitle": "Add a plan title before finalising.",
+  "budgetErrorNoItems": "Add at least one item to generate a bill.",
+  "budgetErrorBadDates": "End date cannot be before the start date.",
+  "budgetReceiptsTitle": "Finalised bills",
+  "budgetReceiptSummary": "{count, plural, one{{type} · {from} · {count} item} few{{type} · {from} · {count} items} many{{type} · {from} · {count} items} other{{type} · {from} · {count} items}}",
+  "@budgetReceiptSummary": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "from": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "budgetReceiptSummaryRange": "{count, plural, one{{type} · {from} → {to} · {count} item} few{{type} · {from} → {to} · {count} items} many{{type} · {from} → {to} · {count} items} other{{type} · {from} → {to} · {count} items}}",
+  "@budgetReceiptSummaryRange": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "from": { "type": "String" },
+      "to": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "budgetEach": "{amount} each",
+  "@budgetEach": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "budgetDeleteTooltip": "Delete bill",
+
+  "workspaceEmptyTitle": "Build your workspace",
+  "workspaceEmptyBody": "Add the cards you want to see at a glance.",
+  "workspaceAddWidget": "Add widget",
+  "workspaceAddWidgetTitle": "Add a widget",
+  "workspaceTitle": "Workspace",
+  "workspaceDragToReorder": "Drag to reorder",
+  "workspaceEditLayout": "Edit layout",
+  "workspaceResize": "Resize",
+  "workspaceClearTitle": "Clear workspace?",
+  "workspaceClearBody": "Every widget is removed, including any images you added.",
+
+  "sizeSmall": "S",
+  "sizeMedium": "M",
+  "sizeLarge": "L",
+
+  "widgetTodaySnapshot": "Today Snapshot",
+  "widgetBudgetHealth": "Budget Health",
+  "widgetTopCategories": "Top Categories",
+  "widgetGoalProgress": "Goal Progress",
+  "widgetSafeToSpend": "Safe-to-Spend",
+  "widgetSubStashJar": "Sub-Stash Jar",
+  "widgetBurnRateLine": "Burn-Rate Line",
+  "widgetQuickEntryPad": "Quick-Entry Pad",
+  "widgetWasteAuditor": "Waste Auditor",
+  "widgetRoommateSync": "Roommate Sync",
+  "widgetMedia": "Image",
+  "widgetMangaStatus": "Manga Status",
+  "widgetAsciiFortune": "ASCII Fortune",
+  "widgetChibiMascot": "Chibi Mascot",
+  "widgetGrowthGem": "Growth Gem",
+
+  "widgetNoCategoryBudgets": "No category budgets set yet.",
+  "widgetNoGoals": "No goals yet.",
+  "widgetSetBalanceFirst": "Set your balance on the Dashboard to see a daily allowance.",
+  "widgetSafeToSpendLabel": "Safe to spend",
+  "widgetSubStash": "Sub-stash",
+  "widgetBoostsGoal": "Boosts \"{goal}\"",
+  "@widgetBoostsGoal": {
+    "placeholders": {
+      "goal": { "type": "String" }
+    }
+  },
+  "widgetBoostAmount": "Boost {amount}",
+  "@widgetBoostAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "widgetEnterAmountFirst": "Enter an amount above zero first.",
+  "widgetAddedToCategory": "Added to {category}.",
+  "@widgetAddedToCategory": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "widgetAmountHint": "Amount",
+  "widgetNoRecurring": "No recurring charges detected yet.",
+  "widgetNoSplitPlans": "No split plans yet. Finalise a budget with more than one person.",
+  "widgetOwed": "Owed {amount}",
+  "@widgetOwed": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "widgetChooseImage": "Choose image",
+  "widgetWasteAnnual": "{count, plural, one{{amount} a year across {count} subscription.} other{{amount} a year across {count} subscriptions.}}",
+  "@widgetWasteAnnual": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "perMonth": "{amount}/mo",
+  "@perMonth": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "fortunePennySaved": "\ud83d\udcb0 A penny saved is a penny earned",
+  "@fortunePennySaved": {
+    "description": "One of five rotating aphorisms on the ASCII Fortune widget. Translate for sense, not literally \u2014 an equivalent saying in the target language reads better than a transliteration."
+  },
+  "fortuneSmallSteps": "\ud83d\udcc8 Small steps lead to big gains",
+  "fortuneGoalsPatience": "\ud83c\udfaf Goals achieved with patience",
+  "fortuneSmartSpending": "\ud83d\udca1 Smart spending = happy future",
+  "fortuneInvestYourself": "\ud83d\ude80 Invest in yourself today",
+  "widgetAddGoalToTrack": "Add a goal to start tracking",
+  "widgetSavingsProgress": "Savings progress {percent}%",
+  "@widgetSavingsProgress": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+
+  "settingsCurrency": "Currency",
+  "settingsUsingFallbackRates": "Using fallback rates.",
+  "settingsRatesUpdated": "Rates updated {when}.",
+  "@settingsRatesUpdated": {
+    "placeholders": {
+      "when": { "type": "String" }
+    }
+  },
+  "settingsRefreshing": "Refreshing…",
+  "settingsRefreshRates": "Refresh rates",
+  "settingsTheme": "Theme",
+  "settingsTypography": "Typography",
+  "settingsLanguage": "Language",
+  "settingsLanguageSubtitle": "Applies everywhere in the app straight away.",
+  "settingsLanguageSystem": "System default",
+  "settingsFontDefault": "Default",
+  "settingsFontEditorial": "Editorial",
+  "settingsFontMono": "Mono",
+  "settingsTextSize": "Text size — {percent}%",
+  "@settingsTextSize": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+  "settingsAccount": "Account",
+  "settingsDemoMode": "Demo mode — data stays on this device.",
+  "settingsSignedInAs": "Signed in as {name}",
+  "@settingsSignedInAs": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "settingsLeaveDemo": "Leave demo mode",
+  "settingsSignOut": "Sign out",
+  "settingsData": "Data",
+  "settingsResetAll": "Reset all finance data",
+  "settingsResetTitle": "Reset everything?",
+  "settingsResetBody": "This permanently deletes all transactions, goals, and budgets on this device. It cannot be undone.",
+  "settingsDeveloper": "Developer",
+  "settingsDeveloperBody": "Debug build only. Loads a deterministic dataset so every widget has something real to show.",
+  "settingsLoadSample": "Load sample data",
+  "settingsSampleLoaded": "Sample data loaded.",
+  "settingsSampleCleared": "Sample data cleared.",
+
+  "relativeJustNow": "just now",
+  "relativeMinutesAgo": "{count}m ago",
+  "@relativeMinutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "relativeHoursAgo": "{count}h ago",
+  "@relativeHoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "relativeDaysAgo": "{count}d ago",
+  "@relativeDaysAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "themeSoftBloom": "Soft Bloom"
+}
