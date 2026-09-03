@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
+import '../../l10n/presenters.dart';
 import '../../models/workspace_widget.dart';
 import '../../state/workspace_provider.dart';
 import '../../widgets/workspace/widget_bodies.dart';
@@ -26,22 +28,28 @@ class _WorkspaceTabState extends State<WorkspaceTab> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (sheetContext) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 20, 20, 8),
-              child: Text('Add a widget', style: TextStyle(fontSize: 20)),
-            ),
-            for (final type in WorkspaceWidgetType.values)
-              ListTile(
-                title: Text(type.label),
-                onTap: () => Navigator.pop(sheetContext, type),
+      builder: (sheetContext) {
+        final l10n = sheetContext.l10n;
+        return SafeArea(
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+                child: Text(
+                  l10n.workspaceAddWidgetTitle,
+                  style: const TextStyle(fontSize: 20),
+                ),
               ),
-          ],
-        ),
-      ),
+              for (final type in WorkspaceWidgetType.values)
+                ListTile(
+                  title: Text(workspaceWidgetLabel(l10n, type)),
+                  onTap: () => Navigator.pop(sheetContext, type),
+                ),
+            ],
+          ),
+        );
+      },
     );
 
     if (chosen != null && mounted) {
@@ -50,21 +58,20 @@ class _WorkspaceTabState extends State<WorkspaceTab> {
   }
 
   Future<void> _confirmClear() async {
+    final l10n = context.l10n;
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Clear workspace?'),
-        content: const Text(
-          'Every widget is removed, including any images you added.',
-        ),
+        title: Text(l10n.workspaceClearTitle),
+        content: Text(l10n.workspaceClearBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Clear'),
+            child: Text(l10n.actionClear),
           ),
         ],
       ),
@@ -76,6 +83,7 @@ class _WorkspaceTabState extends State<WorkspaceTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final store = context.watch<WorkspaceProvider>();
 
@@ -92,10 +100,11 @@ class _WorkspaceTabState extends State<WorkspaceTab> {
                 color: theme.colorScheme.outline,
               ),
               const SizedBox(height: 16),
-              Text('Build your workspace', style: theme.textTheme.titleMedium),
+              Text(l10n.workspaceEmptyTitle,
+                  style: theme.textTheme.titleMedium),
               const SizedBox(height: 6),
               Text(
-                'Add the cards you want to see at a glance.',
+                l10n.workspaceEmptyBody,
                 style: theme.textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),
@@ -103,7 +112,7 @@ class _WorkspaceTabState extends State<WorkspaceTab> {
               FilledButton.icon(
                 onPressed: _openPicker,
                 icon: const Icon(Icons.add),
-                label: const Text('Add widget'),
+                label: Text(l10n.workspaceAddWidget),
               ),
             ],
           ),
@@ -118,23 +127,24 @@ class _WorkspaceTabState extends State<WorkspaceTab> {
           child: Row(
             children: [
               Text(
-                _editing ? 'Drag to reorder' : 'Workspace',
+                _editing ? l10n.workspaceDragToReorder : l10n.workspaceTitle,
                 style: theme.textTheme.titleMedium,
               ),
               const Spacer(),
               if (_editing)
                 TextButton(
                   onPressed: _confirmClear,
-                  child: const Text('Clear'),
+                  child: Text(l10n.actionClear),
                 ),
               IconButton(
                 icon: Icon(_editing ? Icons.check : Icons.tune),
-                tooltip: _editing ? 'Done' : 'Edit layout',
+                tooltip:
+                    _editing ? l10n.actionDone : l10n.workspaceEditLayout,
                 onPressed: () => setState(() => _editing = !_editing),
               ),
               IconButton(
                 icon: const Icon(Icons.add),
-                tooltip: 'Add widget',
+                tooltip: l10n.workspaceAddWidget,
                 onPressed: _openPicker,
               ),
             ],
@@ -220,6 +230,7 @@ class WorkspaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final store = context.read<WorkspaceProvider>();
 
@@ -241,7 +252,7 @@ class WorkspaceCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        widget.type.label,
+                        workspaceWidgetLabel(l10n, widget.type),
                         style: theme.textTheme.labelMedium,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -250,15 +261,15 @@ class WorkspaceCard extends StatelessWidget {
                     if (editing) ...[
                       // Cycles S -> M -> L, replacing the desktop resize handle.
                       _HeaderButton(
-                        tooltip: 'Resize',
+                        tooltip: l10n.workspaceResize,
                         onPressed: () => store.cycleSize(widget.id),
                         child: Text(
-                          widget.size.label,
+                          widgetSizeLabel(l10n, widget.size),
                           style: theme.textTheme.labelLarge,
                         ),
                       ),
                       _HeaderButton(
-                        tooltip: 'Remove',
+                        tooltip: l10n.actionRemove,
                         onPressed: () => store.remove(widget.id),
                         child: const Icon(Icons.close, size: 16),
                       ),

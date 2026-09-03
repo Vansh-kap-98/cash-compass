@@ -23,26 +23,6 @@ enum WorkspaceWidgetType {
   growthGem,
 }
 
-extension WorkspaceWidgetTypeLabel on WorkspaceWidgetType {
-  String get label => switch (this) {
-        WorkspaceWidgetType.todaySnapshot => 'Today Snapshot',
-        WorkspaceWidgetType.budgetHealth => 'Budget Health',
-        WorkspaceWidgetType.topCategories => 'Top Categories',
-        WorkspaceWidgetType.goalProgress => 'Goal Progress',
-        WorkspaceWidgetType.safeToSpend => 'Safe-to-Spend',
-        WorkspaceWidgetType.subStashJar => 'Sub-Stash Jar',
-        WorkspaceWidgetType.burnRateLine => 'Burn-Rate Line',
-        WorkspaceWidgetType.quickEntryPad => 'Quick-Entry Pad',
-        WorkspaceWidgetType.wasteAuditor => 'Waste Auditor',
-        WorkspaceWidgetType.roommateSync => 'Roommate Sync',
-        WorkspaceWidgetType.media => 'Image',
-        WorkspaceWidgetType.mangaStatus => 'Manga Status',
-        WorkspaceWidgetType.asciiFortune => 'ASCII Fortune',
-        WorkspaceWidgetType.chibiMascot => 'Chibi Mascot',
-        WorkspaceWidgetType.growthGem => 'Growth Gem',
-      };
-}
-
 /// Card height, replacing the web app's 12-column drag-resize.
 ///
 /// Pixel-precise resize handles need a mouse; a three-state toggle is the
@@ -54,12 +34,6 @@ extension WidgetSizeHeight on WidgetSize {
         WidgetSize.small => 130,
         WidgetSize.medium => 210,
         WidgetSize.large => 320,
-      };
-
-  String get label => switch (this) {
-        WidgetSize.small => 'S',
-        WidgetSize.medium => 'M',
-        WidgetSize.large => 'L',
       };
 
   WidgetSize get next => switch (this) {

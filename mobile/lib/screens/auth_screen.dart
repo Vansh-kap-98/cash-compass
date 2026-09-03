@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
+import '../l10n/presenters.dart';
 import '../state/auth_provider.dart';
 import '../state/budget_plan_provider.dart';
 import '../state/finance_provider.dart';
@@ -25,7 +27,10 @@ class _AuthScreenState extends State<AuthScreen> {
 
   bool _isSignUp = false;
   bool _busy = false;
-  String? _message;
+
+  /// The last failure, kept as a value rather than a rendered sentence so it
+  /// re-reads correctly if the language changes while the form is open.
+  AuthFailure? _failure;
 
   @override
   void dispose() {
@@ -40,10 +45,10 @@ class _AuthScreenState extends State<AuthScreen> {
     final auth = context.read<AuthProvider>();
     setState(() {
       _busy = true;
-      _message = null;
+      _failure = null;
     });
 
-    final error = _isSignUp
+    final failure = _isSignUp
         ? await auth.signUp(
             name: _name.text,
             email: _email.text,
@@ -55,11 +60,12 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!mounted) return;
     setState(() {
       _busy = false;
-      _message = error;
+      _failure = failure;
     });
   }
 
   Future<void> _continueAsDemo() async {
+    final l10n = context.l10n;
     final auth = context.read<AuthProvider>();
     final finance = context.read<FinanceProvider>();
     final planner = context.read<PlannerProvider>();
@@ -68,19 +74,16 @@ class _AuthScreenState extends State<AuthScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Continue without an account?'),
-        content: const Text(
-          'Demo mode starts from a clean slate — any data already on this '
-          'device will be cleared. Nothing is sent anywhere.',
-        ),
+        title: Text(l10n.authDemoDialogTitle),
+        content: Text(l10n.authDemoDialogBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Continue'),
+            child: Text(l10n.actionContinue),
           ),
         ],
       ),
@@ -97,8 +100,10 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final auth = context.watch<AuthProvider>();
+    final failure = _failure;
 
     return Scaffold(
       body: SafeArea(
@@ -117,13 +122,13 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Cash Compass',
+                    l10n.appTitle,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Live balance and budget signals, on your terms.',
+                    l10n.authTagline,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodySmall,
                   ),
@@ -132,7 +137,8 @@ class _AuthScreenState extends State<AuthScreen> {
                     TextField(
                       controller: _name,
                       textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(labelText: 'Name'),
+                      decoration:
+                          InputDecoration(labelText: l10n.authFieldName),
                     ),
                     const SizedBox(height: 12),
                   ],
@@ -140,15 +146,15 @@ class _AuthScreenState extends State<AuthScreen> {
                     controller: _email,
                     keyboardType: TextInputType.emailAddress,
                     autocorrect: false,
-                    decoration: const InputDecoration(labelText: 'Email'),
+                    decoration: InputDecoration(labelText: l10n.authFieldEmail),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _password,
                     obscureText: true,
                     decoration: InputDecoration(
-                      labelText: 'Password',
-                      helperText: _isSignUp ? 'At least 8 characters' : null,
+                      labelText: l10n.authFieldPassword,
+                      helperText: _isSignUp ? l10n.authPasswordHelper : null,
                     ),
                   ),
                   if (_isSignUp) ...[
@@ -156,14 +162,15 @@ class _AuthScreenState extends State<AuthScreen> {
                     TextField(
                       controller: _confirm,
                       obscureText: true,
-                      decoration:
-                          const InputDecoration(labelText: 'Confirm password'),
+                      decoration: InputDecoration(
+                        labelText: l10n.authFieldConfirmPassword,
+                      ),
                     ),
                   ],
-                  if (_message != null) ...[
+                  if (failure != null) ...[
                     const SizedBox(height: 14),
                     Text(
-                      _message!,
+                      authFailureMessage(l10n, failure),
                       style: theme.textTheme.bodySmall
                           ?.copyWith(color: theme.colorScheme.error),
                     ),
@@ -173,10 +180,10 @@ class _AuthScreenState extends State<AuthScreen> {
                     onPressed: _busy ? null : _submit,
                     child: Text(
                       _busy
-                          ? 'Working…'
+                          ? l10n.authWorking
                           : _isSignUp
-                              ? 'Create account'
-                              : 'Sign in',
+                              ? l10n.authCreateAccount
+                              : l10n.authSignIn,
                     ),
                   ),
                   TextButton(
@@ -184,19 +191,16 @@ class _AuthScreenState extends State<AuthScreen> {
                         ? null
                         : () => setState(() {
                               _isSignUp = !_isSignUp;
-                              _message = null;
+                              _failure = null;
                             }),
                     child: Text(
-                      _isSignUp
-                          ? 'Already have an account? Sign in'
-                          : 'Need an account? Sign up',
+                      _isSignUp ? l10n.authHaveAccount : l10n.authNeedAccount,
                     ),
                   ),
                   if (!auth.canUseSupabase) ...[
                     const SizedBox(height: 8),
                     Text(
-                      'This build has no account backend configured. '
-                      'Demo mode works fully offline.',
+                      l10n.authNoBackend,
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodySmall,
                     ),
@@ -206,7 +210,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   const SizedBox(height: 8),
                   OutlinedButton(
                     onPressed: _busy ? null : _continueAsDemo,
-                    child: const Text('Continue without an account'),
+                    child: Text(l10n.authContinueWithoutAccount),
                   ),
                 ],
               ),

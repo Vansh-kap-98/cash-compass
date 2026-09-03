@@ -24,6 +24,10 @@ final RegExp travelGoalPattern =
 // ---------------------------------------------------------------- behaviour
 
 /// A detected pattern in unplanned spending, e.g. Friday nights.
+///
+/// Carries the weekday as a number rather than a name, and no sentence: the
+/// wording is a presentation concern and lives in the localisations. See
+/// `lib/l10n/presenters.dart`.
 class BehaviorInsight {
   const BehaviorInsight({
     required this.weekday,
@@ -32,25 +36,12 @@ class BehaviorInsight {
     required this.count,
   });
 
-  final String weekday;
+  /// ISO weekday, 1 = Monday through 7 = Sunday, matching [DateTime.weekday].
+  final int weekday;
   final ReasonTag tag;
   final bool isNight;
   final int count;
-
-  String get message => 'Your spontaneous spending clusters around $weekday'
-      '${isNight ? ' nights' : ' daytimes'} — '
-      'mostly ${tag.name} purchases ($count so far).';
 }
-
-const _weekdayNames = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday',
-];
 
 /// Night is 18:00 onwards or before 05:00, matching the web app.
 bool _isNightHour(int hour) => hour >= 18 || hour < 5;
@@ -64,7 +55,7 @@ BehaviorInsight? behaviorInsight(List<FinanceTransaction> transactions) {
   // The previous version allocated a fresh BehaviorInsight for every tag on
   // every matching transaction just to increment a number.
   final counts = <String, int>{};
-  final meta = <String, ({String weekday, ReasonTag tag, bool night})>{};
+  final meta = <String, ({int weekday, ReasonTag tag, bool night})>{};
   var spontaneousCount = 0;
 
   for (final t in transactions) {
@@ -81,7 +72,7 @@ BehaviorInsight? behaviorInsight(List<FinanceTransaction> transactions) {
         ? int.tryParse(stamp.substring(11, 13)) ?? 0
         : 0;
 
-    final weekday = _weekdayNames[day.weekday - 1];
+    final weekday = day.weekday;
     final night = _isNightHour(hour);
 
     for (final tag in t.reasonTags) {
@@ -114,11 +105,49 @@ BehaviorInsight? behaviorInsight(List<FinanceTransaction> transactions) {
 
 // ------------------------------------------------------------- suggestions
 
-/// One entry in the Smart Suggestions list.
-class Suggestion {
-  const Suggestion(this.title, this.body);
-  final String title;
-  final String body;
+/// One entry in the Smart Suggestions list, as data.
+///
+/// The rules below decide *which* suggestion fires and with what figures; the
+/// wording is localised at render time by `lib/l10n/presenters.dart`. Amounts
+/// stay in USD like everything else in this layer, so the presenter can format
+/// them in whichever currency is active — the previous version baked
+/// "… USD" into the sentence and showed a dollar figure to someone working in
+/// rupees.
+sealed class Suggestion {
+  const Suggestion();
+}
+
+/// The largest expense category this month, and what a 10% trim would free.
+class WatchCategorySuggestion extends Suggestion {
+  const WatchCategorySuggestion({
+    required this.category,
+    required this.savingUsd,
+  });
+
+  final String category;
+  final double savingUsd;
+}
+
+/// A category budget at or past 80% of its monthly limit.
+class BudgetAlertSuggestion extends Suggestion {
+  const BudgetAlertSuggestion({
+    required this.category,
+    required this.percentUsed,
+  });
+
+  final String category;
+  final int percentUsed;
+}
+
+/// Merchant names matching [subscriptionPattern], at most three.
+class AuditSubscriptionsSuggestion extends Suggestion {
+  const AuditSubscriptionsSuggestion(this.names);
+  final List<String> names;
+}
+
+/// The neutral fallback, so the card is never empty.
+class TrackForSevenDaysSuggestion extends Suggestion {
+  const TrackForSevenDaysSuggestion();
 }
 
 /// Up to three rule-based suggestions.
@@ -149,10 +178,9 @@ List<Suggestion> smartSuggestions({
   if (byCategory.isNotEmpty) {
     final top = byCategory.entries.reduce((a, b) => b.value > a.value ? b : a);
     final saving = top.value * 0.1;
-    suggestions.add(Suggestion(
-      'Watch ${top.key}',
-      'It is your largest category this month. Trimming 10% would free about '
-          '${saving.toStringAsFixed(2)} USD.',
+    suggestions.add(WatchCategorySuggestion(
+      category: top.key,
+      savingUsd: saving,
     ));
   }
 
@@ -160,10 +188,9 @@ List<Suggestion> smartSuggestions({
     final spent = byCategory[budget.name] ?? 0;
     if (budget.monthlyLimit <= 0) continue;
     if (spent / budget.monthlyLimit >= 0.8) {
-      suggestions.add(Suggestion(
-        '${budget.name} budget alert',
-        'You have used ${(spent / budget.monthlyLimit * 100).round()}% of this '
-            'month\'s limit.',
+      suggestions.add(BudgetAlertSuggestion(
+        category: budget.name,
+        percentUsed: (spent / budget.monthlyLimit * 100).round(),
       ));
       break;
     }
@@ -179,17 +206,11 @@ List<Suggestion> smartSuggestions({
     if (subscriptionPattern.hasMatch(t.name)) subs.add(t.name);
   }
   if (subs.isNotEmpty) {
-    suggestions.add(Suggestion(
-      'Audit your subscriptions',
-      'Recurring charges detected: ${subs.take(3).join(', ')}.',
-    ));
+    suggestions.add(AuditSubscriptionsSuggestion(subs.take(3).toList()));
   }
 
   if (suggestions.isEmpty) {
-    suggestions.add(const Suggestion(
-      'Track for 7 days',
-      'Add a week of entries and personalised suggestions will appear here.',
-    ));
+    suggestions.add(const TrackForSevenDaysSuggestion());
   }
 
   return suggestions.take(3).toList();
@@ -268,10 +289,53 @@ String _todayIso() {
 
 // ------------------------------------------------------------ goal insights
 
+/// One line of narrative guidance on the Goals tab, as data.
+///
+/// Same split as [Suggestion]: the rule picks the line and its numbers, the
+/// presenter supplies the words.
+sealed class GoalInsight {
+  const GoalInsight();
+}
+
+/// Shown until there is enough history for the rules below to say anything.
+class GoalInsightEmpty extends GoalInsight {
+  const GoalInsightEmpty();
+}
+
+/// The largest category and its share of all spending.
+class GoalInsightTopShare extends GoalInsight {
+  const GoalInsightTopShare({required this.category, required this.percent});
+  final String category;
+  final int percent;
+}
+
+/// The two largest categories and their combined share.
+class GoalInsightTopTwo extends GoalInsight {
+  const GoalInsightTopTwo({
+    required this.first,
+    required this.second,
+    required this.percent,
+  });
+
+  final String first;
+  final String second;
+  final int percent;
+}
+
+/// Standing advice, shown regardless of the figures.
+class GoalInsightAutomate extends GoalInsight {
+  const GoalInsightAutomate();
+}
+
+/// Standing advice, shown regardless of the figures.
+class GoalInsightReviewWeekly extends GoalInsight {
+  const GoalInsightReviewWeekly();
+}
+
 /// Narrative suggestions derived from the top spending categories.
 ///
 /// Port of the four template strings in `GoalsInsights.tsx`.
-List<String> goalInsights(List<FinanceTransaction> transactions) {
+List<GoalInsight> goalInsights(List<FinanceTransaction> transactions) {
   final byCategory = <String, double>{};
   var total = 0.0;
   for (final t in transactions) {
@@ -280,26 +344,26 @@ List<String> goalInsights(List<FinanceTransaction> transactions) {
     total += t.amount;
   }
   if (byCategory.isEmpty || total <= 0) {
-    return const [
-      'Add a few expenses and personalised guidance will appear here.',
-    ];
+    return const [GoalInsightEmpty()];
   }
 
   final sorted = byCategory.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value));
   final top = sorted.first;
   final second = sorted.length > 1 ? sorted[1] : null;
-  final topShare = (top.value / total * 100).round();
 
   return [
-    '${top.key} is $topShare% of your spending. A 10% trim there moves your '
-        'goals faster than cutting anywhere else.',
+    GoalInsightTopShare(
+      category: top.key,
+      percent: (top.value / total * 100).round(),
+    ),
     if (second != null)
-      'Together, ${top.key} and ${second.key} account for '
-          '${((top.value + second.value) / total * 100).round()}% of outgoings.',
-    'Automating a transfer on the day you get paid protects savings before '
-        'spending starts.',
-    'Reviewing one category a week is more sustainable than cutting everything '
-        'at once.',
+      GoalInsightTopTwo(
+        first: top.key,
+        second: second.key,
+        percent: ((top.value + second.value) / total * 100).round(),
+      ),
+    const GoalInsightAutomate(),
+    const GoalInsightReviewWeekly(),
   ];
 }

@@ -431,26 +431,74 @@ not persisted), `AuthShell.eyebrow` (accepted, never rendered),
 
 ## 11. Soft Bloom token divergences (mobile)
 
-The Dart Soft Bloom token set in [app_tokens.dart](lib/app/theme/app_tokens.dart)
-no longer transcribes `frontend/src/index.css` `:root` verbatim. Four values
-diverge, recorded here rather than changed silently. The identity is unchanged —
-warm cream ground, plum primary, white cards.
+Mobile's Soft Bloom no longer transcribes `frontend/src/index.css` `:root`. It
+uses a four-swatch palette supplied on 2026-09-03, plus six derived values.
+**The web app is unchanged and is no longer the source for this theme** — if
+Soft Bloom is ever restyled on the web, port these values across rather than the
+other way round.
 
-| Token | Web | Mobile | Why |
-| --- | --- | --- | --- |
-| `primary` | `270 20% 72%` | `272 44% 42%` | White on the web value measures **2.20:1**. WCAG AA needs 4.5:1, so every filled button in the app failed. Text buttons drew primary on the cream ground at **1.99:1**. Now 7.56:1 and 6.84:1. |
-| `accent` | `0 0% 100%` | `20 82% 42%` | The web accent is pure white, identical to `card` — so the theme had no accent at all and nothing could be emphasised. Burnt amber reads against both cream and white. |
-| `accentForeground` | `268 18% 28%` | `0 0% 100%` | Follows `accent` going dark. |
-| `destructive` | `0 70% 55%` | `0 72% 46%` | 4.39:1 on white, marginally under AA. Now 5.60:1. |
+### The supplied swatches
 
-Two tokens are also **added**, with no web equivalent in the Dart port:
-`accentContainer` (`24 90% 94%`) and `onAccentContainer` (`20 70% 24%`). The web
-has the same pair as `--theme-accent-soft` / `--theme-accent-deep` but they were
-never transcribed, which is part of why `accent` sat unused. They map to
-`ColorScheme.tertiaryContainer` / `onTertiaryContainer`.
+| Name | Hex | Role in the app |
+| --- | --- | --- |
+| Floral White | `#F7F4EA` | `background` — the page ground |
+| Lavender | `#DED9E2` | `secondary`, `input` — chip grounds, field fills |
+| Periwinkle | `#C0B9DD` | `accentContainer` — the emphasised stat tile |
+| Wisteria Blue | `#80A1D4` | `primaryContainer` — filled buttons, selected chips |
 
-**The web app is unchanged.** If Soft Bloom is ever restyled on the web, these
-are the values to port back, not the other way round.
+### The derived values, and why each is needed
+
+A four-tint palette cannot dress a whole UI: it has no ink, no white, and no
+error colour.
+
+| Token | Value | Reason |
+| --- | --- | --- |
+| `card` | `#FFFFFF` | Cards must lift off the ground; the set has no white |
+| `foreground` | `#232743` | Ink, at the family's hue (232°). 13.2:1 on the ground |
+| `mutedForeground` | `#5A5F7C` | Same hue, 5.68:1 |
+| `primary` | `#3B619B` | Wisteria darkened — see below |
+| `accent` | `#5F4CA9` | Periwinkle deepened — same reason |
+| `border` | `#D1C9D9` | Between Lavender and the ground |
+| `destructive` | `#CA2121` | An error colour is semantic, not brand |
+
+### Why there are two blues
+
+**Wisteria Blue cannot carry text.** White on `#80A1D4` measures **2.64:1** —
+under the 4.5:1 body floor and under the 3:1 large-text floor. Dark ink on it
+measures 5.52:1, which is fine, but `colorScheme.primary` is read as *ink* at
+fifteen call sites in this app: links, icons, chart series, the selected tab,
+income amounts, the auth screen. A single pale brand colour cannot do both jobs.
+
+So the roles are split, at the same hue (216°) so they read as one colour:
+
+- `primary` `#3B619B` — anything drawn **as type or a line**. 5.66:1 on the
+  ground, 6.23:1 on a card.
+- `primaryContainer` `#80A1D4` — anything **filled**, with `onPrimaryContainer`
+  `#232743` on top. 5.52:1.
+
+`accent` / `accentContainer` split the same way at 252°.
+
+### Measured pairings
+
+foreground on ground **13.23:1** · foreground on card 14.56:1 ·
+mutedForeground on ground 5.68:1 · primary as ink on ground 5.66:1 ·
+primary as ink on card 6.23:1 · white on primary 6.23:1 ·
+ink on Wisteria fill 5.52:1 · ink on Lavender 10.49:1 ·
+ink on Periwinkle 7.78:1 · accent as ink on card 6.79:1 ·
+white on accent 6.79:1 · white on destructive 5.60:1 ·
+accent value on Periwinkle (large text) 3.63:1.
+
+All sixteen pairings clear WCAG AA for their use.
+
+### Chart series
+
+`_sliceColor` in `financial_charts.dart` no longer draws from `secondary` and
+`outline`: under this palette both resolve to pale lavenders **1.16:1** apart
+and 1.36:1 against the white card, so three of five slices were invisible. The
+series is now the four brand tones plus the error red, ordered so no
+neighbouring pair is close in both lightness and hue — three adjacencies clear
+2.5:1, and the two that are close in lightness are 144° apart in hue. The donut
+also carries a text legend, so colour is not the sole carrier.
 
 ### Radius is a scale, not a per-component value
 

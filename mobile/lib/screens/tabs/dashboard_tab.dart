@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
+import '../../l10n/presenters.dart';
 import '../../state/currency_provider.dart';
 import '../../state/finance_provider.dart';
 import '../../widgets/daily_planner_card.dart';
@@ -113,6 +115,7 @@ class _BalanceSnapshotCardState extends State<_BalanceSnapshotCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currencyStore = context.watch<CurrencyProvider>();
     final currency = currencyStore.currency;
@@ -137,7 +140,8 @@ class _BalanceSnapshotCardState extends State<_BalanceSnapshotCard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Total balance', style: theme.textTheme.titleMedium),
+                Text(l10n.dashTotalBalance,
+                    style: theme.textTheme.titleMedium),
                 ActionChip(
                   label: Text(currency.code),
                   onPressed: () =>
@@ -163,7 +167,7 @@ class _BalanceSnapshotCardState extends State<_BalanceSnapshotCard> {
             ),
             const SizedBox(height: 8),
             Text(
-              'This snapshot drives the whole dashboard.',
+              l10n.dashSnapshotHint,
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -178,16 +182,36 @@ class _StatGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final finance = context.watch<FinanceProvider>();
     final currency = context.watch<CurrencyProvider>();
 
     // The first three read cached aggregates. The daily average needs a group-
     // by-day pass, which is O(n) once per build rather than per card.
-    final stats = <({String label, double value})>[
-      (label: 'Available', value: finance.availableBalance),
-      (label: 'Spent today', value: finance.spentToday),
-      (label: 'Total spent', value: finance.totalSpent),
-      (label: 'Average / day', value: finance.averagePerDay),
+    //
+    // `emphasis` is carried per row rather than compared against the label,
+    // which stopped identifying the right tile once the labels were translated.
+    final stats = <({String label, double value, bool emphasis})>[
+      (
+        label: l10n.dashStatAvailable,
+        value: finance.availableBalance,
+        emphasis: true,
+      ),
+      (
+        label: l10n.dashStatSpentToday,
+        value: finance.spentToday,
+        emphasis: false,
+      ),
+      (
+        label: l10n.dashStatTotalSpent,
+        value: finance.totalSpent,
+        emphasis: false,
+      ),
+      (
+        label: l10n.dashStatAveragePerDay,
+        value: finance.averagePerDay,
+        emphasis: false,
+      ),
     ];
 
     return GridView.count(
@@ -205,7 +229,7 @@ class _StatGrid extends StatelessWidget {
             // Four equal tiles said all four figures matter equally. They do
             // not: `availableBalance` is the one every other surface on the
             // page reads, so it carries the accent and the others recede.
-            emphasis: stat.label == 'Available',
+            emphasis: stat.emphasis,
           ),
       ],
     );
@@ -271,6 +295,7 @@ class _RecentTransactions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     // Selecting on `revision` rather than on the list itself: the store mutates
     // `transactions` in place, so a list-valued selector would compare equal to
@@ -287,11 +312,12 @@ class _RecentTransactions extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Recent activity', style: theme.textTheme.titleMedium),
+            Text(l10n.dashRecentActivity,
+                style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             if (recent.isEmpty)
               Text(
-                'No entries yet. Add one with the + button.',
+                l10n.dashNoEntries,
                 style: theme.textTheme.bodySmall,
               )
             else
@@ -304,7 +330,9 @@ class _RecentTransactions extends StatelessWidget {
                     style: const TextStyle(fontSize: 24),
                   ),
                   title: Text(t.name),
-                  subtitle: Text('${t.category} · ${t.date}'),
+                  subtitle: Text(
+                    '${categoryLabel(l10n, t.category)} · ${t.date}',
+                  ),
                   trailing: Text(
                     '${t.isExpense ? '−' : '+'}'
                     '${currency.formatFromUsd(t.amount)}',

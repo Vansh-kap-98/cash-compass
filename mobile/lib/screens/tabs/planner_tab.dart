@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/l10n.dart';
+import '../../l10n/presenters.dart';
 import '../../logic/student_planner.dart';
 import '../../state/currency_provider.dart';
 import '../../state/finance_provider.dart';
@@ -58,6 +60,7 @@ class _SurvivalCardState extends State<_SurvivalCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final finance = context.watch<FinanceProvider>();
@@ -80,8 +83,8 @@ class _SurvivalCardState extends State<_SurvivalCard> {
     };
 
     return _Section(
-      title: 'Survival calculator',
-      subtitle: 'Your daily spendable cash after essentials.',
+      title: l10n.plannerSurvivalTitle,
+      subtitle: l10n.plannerSurvivalSubtitle,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -89,7 +92,8 @@ class _SurvivalCardState extends State<_SurvivalCard> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Daily spendable', style: theme.textTheme.bodySmall),
+                Text(l10n.plannerDailySpendable,
+                    style: theme.textTheme.bodySmall),
                 const SizedBox(height: 2),
                 Text(
                   currency.formatFromUsd(result.dailySpendable),
@@ -99,14 +103,14 @@ class _SurvivalCardState extends State<_SurvivalCard> {
               ],
             ),
             Chip(
-              label: Text(result.zone.label),
+              label: Text(survivalZoneLabel(l10n, result.zone)),
               backgroundColor: zoneColour.withValues(alpha: 0.18),
             ),
           ],
         ),
         const SizedBox(height: 14),
         Text(
-          'Planning horizon — ${planner.horizonDays} days',
+          l10n.plannerHorizon(planner.horizonDays),
           style: theme.textTheme.labelLarge,
         ),
         Slider(
@@ -118,7 +122,7 @@ class _SurvivalCardState extends State<_SurvivalCard> {
           onChanged: (v) => planner.setHorizon(v.round()),
         ),
         _LabelledField(
-          label: 'Upcoming must-pay bills (${currency.currency.code})',
+          label: l10n.plannerUpcomingBills(currency.currency.code),
           initial: planner.upcomingBills == 0
               ? ''
               : currency.convertFromUsd(planner.upcomingBills).toString(),
@@ -127,7 +131,7 @@ class _SurvivalCardState extends State<_SurvivalCard> {
           ),
         ),
         const Divider(height: 24),
-        Text('Income streams', style: theme.textTheme.labelLarge),
+        Text(l10n.plannerIncomeStreams, style: theme.textTheme.labelLarge),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -135,9 +139,9 @@ class _SurvivalCardState extends State<_SurvivalCard> {
               flex: 3,
               child: TextField(
                 controller: _incomeName,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   isDense: true,
-                  labelText: 'Source',
+                  labelText: l10n.plannerFieldSource,
                 ),
               ),
             ),
@@ -148,9 +152,9 @@ class _SurvivalCardState extends State<_SurvivalCard> {
                 controller: _incomeAmount,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   isDense: true,
-                  labelText: 'Amount',
+                  labelText: l10n.plannerFieldAmount,
                 ),
               ),
             ),
@@ -165,7 +169,10 @@ class _SurvivalCardState extends State<_SurvivalCard> {
                 decoration: const InputDecoration(isDense: true),
                 items: [
                   for (final c in IncomeCadence.values)
-                    DropdownMenuItem(value: c, child: Text(c.label)),
+                    DropdownMenuItem(
+                      value: c,
+                      child: Text(incomeCadenceLabel(l10n, c)),
+                    ),
                 ],
                 onChanged: (c) {
                   if (c != null) setState(() => _cadence = c);
@@ -185,7 +192,7 @@ class _SurvivalCardState extends State<_SurvivalCard> {
                 _incomeName.clear();
                 _incomeAmount.clear();
               },
-              child: const Text('Add'),
+              child: Text(l10n.actionAdd),
             ),
           ],
         ),
@@ -196,7 +203,8 @@ class _SurvivalCardState extends State<_SurvivalCard> {
             dense: true,
             title: Text(s.name),
             subtitle: Text(
-              '${currency.formatFromUsd(s.amount)} · ${s.cadence.label}',
+              '${currency.formatFromUsd(s.amount)} · '
+              '${incomeCadenceLabel(l10n, s.cadence)}',
             ),
             trailing: IconButton(
               icon: const Icon(Icons.close),
@@ -206,7 +214,7 @@ class _SurvivalCardState extends State<_SurvivalCard> {
         const Divider(height: 24),
         Row(
           children: [
-            Text('Fixed costs', style: theme.textTheme.labelLarge),
+            Text(l10n.plannerFixedCosts, style: theme.textTheme.labelLarge),
             const Spacer(),
             Text(
               currency.formatFromUsd(result.fixedCostsTotal),
@@ -221,9 +229,9 @@ class _SurvivalCardState extends State<_SurvivalCard> {
               flex: 3,
               child: TextField(
                 controller: _costName,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   isDense: true,
-                  labelText: 'Bill',
+                  labelText: l10n.plannerFieldBill,
                 ),
               ),
             ),
@@ -234,9 +242,9 @@ class _SurvivalCardState extends State<_SurvivalCard> {
                 controller: _costAmount,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   isDense: true,
-                  labelText: 'Amount',
+                  labelText: l10n.plannerFieldAmount,
                 ),
               ),
             ),
@@ -258,7 +266,7 @@ class _SurvivalCardState extends State<_SurvivalCard> {
               _costName.clear();
               _costAmount.clear();
             },
-            child: const Text('Add fixed cost'),
+            child: Text(l10n.plannerAddFixedCost),
           ),
         ),
         for (final c in planner.fixedCosts)
@@ -306,6 +314,7 @@ class _SocialCardState extends State<_SocialCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final finance = context.watch<FinanceProvider>();
@@ -327,15 +336,15 @@ class _SocialCardState extends State<_SocialCard> {
     );
 
     return _Section(
-      title: 'Social budgeting',
-      subtitle: 'See the impact of nights out before you commit.',
+      title: l10n.plannerSocialTitle,
+      subtitle: l10n.plannerSocialSubtitle,
       children: [
         TextField(
           controller: _title,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             isDense: true,
-            labelText: 'Event',
+            labelText: l10n.plannerFieldEvent,
           ),
         ),
         const SizedBox(height: 8),
@@ -346,9 +355,9 @@ class _SocialCardState extends State<_SocialCard> {
                 controller: _low,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   isDense: true,
-                  labelText: 'Low',
+                  labelText: l10n.plannerFieldLow,
                 ),
               ),
             ),
@@ -358,9 +367,9 @@ class _SocialCardState extends State<_SocialCard> {
                 controller: _realistic,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   isDense: true,
-                  labelText: 'Realistic',
+                  labelText: l10n.plannerFieldRealistic,
                 ),
               ),
             ),
@@ -370,9 +379,9 @@ class _SocialCardState extends State<_SocialCard> {
                 controller: _stretch,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   isDense: true,
-                  labelText: 'Stretch',
+                  labelText: l10n.plannerFieldStretch,
                 ),
               ),
             ),
@@ -393,9 +402,9 @@ class _SocialCardState extends State<_SocialCard> {
                   if (picked != null) setState(() => _date = picked);
                 },
                 child: InputDecorator(
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     isDense: true,
-                    labelText: 'Date',
+                    labelText: l10n.entryFieldDate,
                   ),
                   child: Text(isoDate(_date)),
                 ),
@@ -438,14 +447,13 @@ class _SocialCardState extends State<_SocialCard> {
               _stretch.clear();
               setState(() => _split = 1);
             },
-            child: const Text('Add plan'),
+            child: Text(l10n.plannerAddPlan),
           ),
         ),
         if (planner.socialPlans.isNotEmpty) ...[
           const SizedBox(height: 12),
           Text(
-            'If every realistic plan happens, your daily spendable becomes '
-            '${currency.formatFromUsd(after)}.',
+            l10n.plannerSocialImpact(currency.formatFromUsd(after)),
             style: theme.textTheme.bodySmall,
           ),
           for (final p in planner.socialPlans)
@@ -455,11 +463,18 @@ class _SocialCardState extends State<_SocialCard> {
               dense: true,
               title: Text(p.title),
               subtitle: Text(
-                '${p.date} · your share '
-                '${currency.formatFromUsd(p.yourShare)}'
-                '${p.splitCount > 1 ? ' of ${p.splitCount}' : ''}\n'
-                'Range ${currency.formatFromUsd(p.lowEstimate)}'
-                ' – ${currency.formatFromUsd(p.stretchEstimate)}',
+                '${p.splitCount > 1 ? l10n.plannerYourShareSplit(
+                    p.date,
+                    currency.formatFromUsd(p.yourShare),
+                    p.splitCount,
+                  ) : l10n.plannerYourShare(
+                    p.date,
+                    currency.formatFromUsd(p.yourShare),
+                  )}\n'
+                '${l10n.plannerRange(
+                  currency.formatFromUsd(p.lowEstimate),
+                  currency.formatFromUsd(p.stretchEstimate),
+                )}',
               ),
               isThreeLine: true,
               trailing: IconButton(
@@ -480,6 +495,7 @@ class _RunwayCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final finance = context.watch<FinanceProvider>();
@@ -492,14 +508,14 @@ class _RunwayCard extends StatelessWidget {
     );
 
     return _Section(
-      title: 'Loan runway',
-      subtitle: 'Make a lump sum last the whole semester.',
+      title: l10n.plannerRunwayTitle,
+      subtitle: l10n.plannerRunwaySubtitle,
       children: [
         Row(
           children: [
             Expanded(
               child: _LabelledField(
-                label: 'Lump sum',
+                label: l10n.plannerLumpSum,
                 initial:
                     currency.convertFromUsd(planner.loanLumpSum).toString(),
                 onSubmitted: (v) => planner.setLoan(
@@ -510,7 +526,7 @@ class _RunwayCard extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: _LabelledField(
-                label: 'Safety buffer',
+                label: l10n.plannerSafetyBuffer,
                 initial: currency
                     .convertFromUsd(planner.loanSafetyBuffer)
                     .toString(),
@@ -523,7 +539,7 @@ class _RunwayCard extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         Text(
-          'Remaining runway: ${result.runwayWeeks.toStringAsFixed(1)} weeks',
+          l10n.plannerRunwayWeeks(result.runwayWeeks.toStringAsFixed(1)),
           style: theme.textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
@@ -537,8 +553,10 @@ class _RunwayCard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          '${result.weeksRemaining.toStringAsFixed(1)} semester weeks left.'
-          '${result.willRunOut ? ' At this pace the money runs out first.' : ''}',
+          l10n.plannerSemesterWeeksLeft(
+                result.weeksRemaining.toStringAsFixed(1),
+              ) +
+              (result.willRunOut ? l10n.plannerWillRunOut : ''),
           style: theme.textTheme.bodySmall,
         ),
         const SizedBox(height: 12),
@@ -546,13 +564,13 @@ class _RunwayCard extends StatelessWidget {
           children: [
             Expanded(
               child: _MiniStat(
-                label: 'Weekly burn',
+                label: l10n.plannerWeeklyBurn,
                 value: currency.formatFromUsd(result.burnRatePerWeek),
               ),
             ),
             Expanded(
               child: _MiniStat(
-                label: 'Suggested cap',
+                label: l10n.plannerSuggestedCap,
                 value: currency.formatFromUsd(result.recommendedWeeklyCap),
               ),
             ),
@@ -570,29 +588,31 @@ class _StreakCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final planner = context.watch<StudentPlannerProvider>();
     final streak = currentStreak(planner.streakDates);
 
     return _Section(
-      title: 'Bloom streaks',
-      subtitle: 'Stay within your plan three days running to earn a badge.',
+      title: l10n.plannerStreakTitle,
+      subtitle: l10n.plannerStreakSubtitle,
       children: [
         Row(
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Current streak', style: theme.textTheme.bodySmall),
+                Text(l10n.plannerCurrentStreak,
+                    style: theme.textTheme.bodySmall),
                 Text(
-                  '$streak day${streak == 1 ? '' : 's'}',
+                  l10n.plannerStreakDays(streak),
                   style: theme.textTheme.headlineSmall
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
             ),
             const Spacer(),
-            if (streak >= 3) const Chip(label: Text('3-day bloom streak 🌸')),
+            if (streak >= 3) Chip(label: Text(l10n.plannerStreakBadge)),
           ],
         ),
         const SizedBox(height: 12),
@@ -602,14 +622,14 @@ class _StreakCard extends StatelessWidget {
             onPressed: planner.toggleTodayOnTrack,
             child: Text(
               planner.isOnTrackToday
-                  ? 'Marked on track today'
-                  : 'Mark today on track',
+                  ? l10n.plannerMarkedOnTrack
+                  : l10n.plannerMarkOnTrack,
             ),
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          'No penalties. Missed days just restart softly.',
+          l10n.plannerStreakFooter,
           style: theme.textTheme.bodySmall,
         ),
       ],

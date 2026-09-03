@@ -14,7 +14,7 @@ void main() {
     double? amount = 12.00,
     String? merchant = 'Corner Market',
     String? currencyCode,
-    String? discrepancy,
+    ReceiptDiscrepancy? discrepancy,
     FieldConfidence confidence = FieldConfidence.high,
   }) =>
       ParsedReceipt(
@@ -269,7 +269,10 @@ void main() {
         entry(
           'a',
           parsed: receipt(
-            discrepancy: 'Total 95.00 does not match the items (20.00)',
+            discrepancy: const ItemSumDiscrepancy(
+              labelled: 95,
+              itemSum: 20,
+            ),
           ),
         ),
       ]);

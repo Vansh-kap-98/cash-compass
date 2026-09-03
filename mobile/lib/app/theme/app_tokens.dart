@@ -20,6 +20,8 @@ class AppTokens {
     required this.popoverForeground,
     required this.primary,
     required this.primaryForeground,
+    this.primaryContainer,
+    this.onPrimaryContainer,
     required this.secondary,
     required this.secondaryForeground,
     required this.muted,
@@ -55,6 +57,17 @@ class AppTokens {
   final Color popoverForeground;
   final Color primary;
   final Color primaryForeground;
+
+  /// The filled-surface pair for the brand colour, when the brand colour itself
+  /// is too light to carry text.
+  ///
+  /// [primary] is what the app draws *as ink* -- links, icons, chart series,
+  /// the selected tab -- so it has to clear 4.5:1 on a light ground. A pale
+  /// brand colour cannot do both jobs, so it lives here and fills surfaces
+  /// instead, with [onPrimaryContainer] on top of it. Optional: a theme that
+  /// omits the pair falls back to [primary]/[primaryForeground].
+  final Color? primaryContainer;
+  final Color? onPrimaryContainer;
   final Color secondary;
   final Color secondaryForeground;
   final Color muted;
@@ -101,52 +114,81 @@ class AppTokens {
 Color hsl(double h, double s, double l) =>
     HSLColor.fromAHSL(1.0, h, s / 100, l / 100).toColor();
 
-/// Ported from `frontend/src/index.css` lines 10-52, with four **deliberate
-/// divergences** from the web values. See `PARITY_SPEC.md` §11.
+/// Builds an opaque [Color] from a `0xRRGGBB` literal.
 ///
-/// The identity is unchanged — warm cream ground, plum primary, white cards.
-/// What changed is that three of the web's tokens were unusable in practice:
+/// Used where a value came from a supplied palette as an exact hex rather than
+/// from the web stylesheet -- round-tripping those through HSL drifts them by a
+/// digit or two, and a palette handed over as hex should stay that hex.
+Color hex(int rgb) => Color(0xFF000000 | rgb);
+
+/// Soft Bloom.
 ///
-/// | Token | Web | Here | Why |
-/// | --- | --- | --- | --- |
-/// | `primary` | `270 20% 72%` | `272 44% 42%` | White-on-lavender measured **2.20:1**. WCAG AA needs 4.5:1. Now 7.56:1. |
-/// | `accent` | `0 0% 100%` | `20 82% 42%` | The web's accent is pure white — identical to `card`, so nothing could ever be accented. Now a burnt amber that reads against both cream and white. |
-/// | `accentForeground` | `268 18% 28%` | `0 0% 100%` | Follows `accent` going dark. |
-/// | `destructive` | `0 70% 55%` | `0 72% 46%` | Was 4.39:1 on white — marginally under AA. Now 5.60:1. |
+/// The palette is the four-swatch set supplied on 2026-09-03 -- Floral White,
+/// Lavender, Periwinkle, Wisteria Blue -- which replaces the plum/amber scheme
+/// ported from `frontend/src/index.css`. The web app is unchanged; the
+/// divergence is recorded in `PARITY_SPEC.md` §11.
 ///
-/// `ring` tracks `primary`, as it does on the web.
+/// The four supplied swatches are used at their exact hex. Six further values
+/// are **derived**, because a four-tint palette cannot dress a whole UI on its
+/// own -- it has no ink, no white, and no error colour:
 ///
-/// Every pairing below is measured, not estimated:
-/// foreground on background 10.9:1 · mutedForeground on background 5.44:1 ·
-/// primary on background 6.84:1 · white on primary 7.56:1 ·
-/// white on accent 4.75:1 · white on destructive 5.60:1.
+/// | Role | Value | Where it comes from |
+/// | --- | --- | --- |
+/// | `background` | `#F7F4EA` | **Floral White**, supplied |
+/// | `secondary`, `input` | `#DED9E2` | **Lavender**, supplied |
+/// | `accentContainer` | `#C0B9DD` | **Periwinkle**, supplied |
+/// | `primaryContainer` | `#80A1D4` | **Wisteria Blue**, supplied |
+/// | `card` | `#FFFFFF` | derived -- the set has no white, and cards must lift off the ground |
+/// | `foreground` | `#232743` | derived ink at the family's hue (232°) |
+/// | `mutedForeground` | `#5A5F7C` | derived, same hue |
+/// | `primary` | `#3B619B` | **Wisteria darkened**, same hue (216°) |
+/// | `accent` | `#5F4CA9` | **Periwinkle deepened**, same hue (252°) |
+/// | `border` | `#D1C9D9` | derived between Lavender and the ground |
+/// | `destructive` | `#CA2121` | kept -- an error colour is semantic, not brand |
+///
+/// **Why the two blues.** Wisteria Blue cannot carry text: white on it measures
+/// **2.64:1**, under both the 4.5:1 body floor and the 3:1 large-text floor.
+/// `colorScheme.primary` is read as *ink* at fifteen call sites in this app --
+/// links, icons, chart series, the selected tab, income amounts -- so `primary`
+/// is the darkened Wisteria that clears 5.67:1, and the supplied Wisteria fills
+/// buttons and selected chips as `primaryContainer` with dark ink on it. Same
+/// hue, so they read as one colour; only one of them is legible as type.
+///
+/// Every pairing is measured, not estimated:
+/// foreground on background **13.2:1** · mutedForeground on background 5.68:1 ·
+/// primary on background 5.67:1 · white on primary 6.23:1 ·
+/// ink on Wisteria fill 5.52:1 · ink on Lavender 10.5:1 ·
+/// ink on Periwinkle 7.79:1 · white on accent 6.80:1 ·
+/// white on destructive 5.60:1.
 const _softBloomName = 'soft-bloom';
 
 final AppTokens softBloomTokens = AppTokens(
   name: _softBloomName,
   label: 'Soft Bloom',
-  background: hsl(46, 45, 94), // #F7F3E9 warm cream
-  foreground: hsl(268, 18, 24), // #3C3248 ink
-  card: hsl(0, 0, 100),
-  cardForeground: hsl(268, 18, 24),
-  popover: hsl(0, 0, 100),
-  popoverForeground: hsl(268, 18, 24),
-  primary: hsl(272, 44, 42), // #6E3C9A plum
-  primaryForeground: hsl(0, 0, 100),
-  secondary: hsl(270, 16, 87), // #DDD9E3 lilac chip ground
-  secondaryForeground: hsl(268, 18, 28),
-  muted: hsl(46, 20, 96),
-  mutedForeground: hsl(268, 12, 42), // #6A5E78
-  accent: hsl(20, 82, 42), // #C34E13 burnt amber
-  accentForeground: hsl(0, 0, 100),
-  accentContainer: hsl(24, 90, 94), // #FDEDE2 warm tint
-  onAccentContainer: hsl(20, 70, 24), // #683512
-  destructive: hsl(0, 72, 46), // #CA2121
-  destructiveForeground: hsl(0, 0, 100),
-  border: hsl(270, 14, 84), // #D6CFDD
-  input: hsl(270, 14, 88),
-  ring: hsl(272, 44, 42),
-  radius: 24, // 1.5rem — cards, sheets, dialogs
+  background: hex(0xF7F4EA), // Floral White
+  foreground: hex(0x232743), // derived ink
+  card: hex(0xFFFFFF),
+  cardForeground: hex(0x232743),
+  popover: hex(0xFFFFFF),
+  popoverForeground: hex(0x232743),
+  primary: hex(0x3B619B), // Wisteria, darkened so it works as type
+  primaryForeground: hex(0xFFFFFF),
+  primaryContainer: hex(0x80A1D4), // Wisteria Blue
+  onPrimaryContainer: hex(0x232743),
+  secondary: hex(0xDED9E2), // Lavender
+  secondaryForeground: hex(0x232743),
+  muted: hex(0xF7F5F9),
+  mutedForeground: hex(0x5A5F7C),
+  accent: hex(0x5F4CA9), // Periwinkle, deepened so it works as type
+  accentForeground: hex(0xFFFFFF),
+  accentContainer: hex(0xC0B9DD), // Periwinkle
+  onAccentContainer: hex(0x232743),
+  destructive: hex(0xCA2121),
+  destructiveForeground: hex(0xFFFFFF),
+  border: hex(0xD1C9D9),
+  input: hex(0xDED9E2), // Lavender
+  ring: hex(0x3B619B),
+  radius: 24, // cards, sheets, dialogs
   radiusControl: 14, // buttons, inputs, chips
   radiusSmall: 8, // thumbnails, swatches, bars
   headingFont: 'Outfit',

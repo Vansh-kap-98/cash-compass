@@ -130,6 +130,10 @@ ThemeData _buildTheme(AppTokens t, FontPack fontPack) {
     brightness: ThemeData.estimateBrightnessForColor(t.background),
     primary: t.primary,
     onPrimary: t.primaryForeground,
+    // The supplied brand colour is too light to be type, so it fills surfaces
+    // here while `primary` stays the darkened, legible version. See AppTokens.
+    primaryContainer: t.primaryContainer ?? t.primary,
+    onPrimaryContainer: t.onPrimaryContainer ?? t.primaryForeground,
     secondary: t.secondary,
     onSecondary: t.secondaryForeground,
     // `accent` had no slot in the ColorScheme, so nothing in the widget tree
@@ -271,8 +275,10 @@ ThemeData _buildTheme(AppTokens t, FontPack fontPack) {
     // rather than smuggled in as an off-grid 14.
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: t.primary,
-        foregroundColor: t.primaryForeground,
+        // Filled surfaces carry the supplied Wisteria with dark ink on it --
+        // white on that blue is 2.64:1, so the label has to be the dark one.
+        backgroundColor: t.primaryContainer ?? t.primary,
+        foregroundColor: t.onPrimaryContainer ?? t.primaryForeground,
         disabledBackgroundColor: t.secondary,
         disabledForegroundColor: t.mutedForeground,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -306,19 +312,21 @@ ThemeData _buildTheme(AppTokens t, FontPack fontPack) {
     // states legible instead of only the unselected one.
     chipTheme: ChipThemeData(
       backgroundColor: t.secondary,
-      selectedColor: t.primary,
-      checkmarkColor: t.primaryForeground,
+      selectedColor: t.primaryContainer ?? t.primary,
+      checkmarkColor: t.onPrimaryContainer ?? t.primaryForeground,
       labelStyle: WidgetStateTextStyle.resolveWith(
         (states) => TextStyle(
           color: states.contains(WidgetState.selected)
-              ? t.primaryForeground
+              ? (t.onPrimaryContainer ?? t.primaryForeground)
               : t.secondaryForeground,
           fontWeight: FontWeight.w500,
         ),
       ),
       side: WidgetStateBorderSide.resolveWith(
         (states) => BorderSide(
-          color: states.contains(WidgetState.selected) ? t.primary : t.border,
+          color: states.contains(WidgetState.selected)
+              ? (t.primaryContainer ?? t.primary)
+              : t.border,
         ),
       ),
       shape: const StadiumBorder(),

@@ -24,6 +24,10 @@ abstract final class PrefsKeys {
   static const studentPlanner = 'cash-compass-student-planner-v1';
   static const dateRange = 'cash-compass-range-v1';
   static const uiSettings = 'cash-compass-ui-settings-v1';
+
+  /// Chosen interface language. Absent means "follow the device", which is the
+  /// state every existing install upgrades into.
+  static const language = 'cash-compass-language-v1';
   static const exchangeRates = 'cash-compass-exchange-rates-v1';
   static const fixedLiabilities = 'cash-compass-fixed-liabilities-v1';
   static const region = 'cash-compass-region';

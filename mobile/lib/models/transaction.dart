@@ -56,26 +56,6 @@ const List<String> incomeCategories = [
 /// background work, which is out of scope.
 enum Recurrence { none, daily, weekly, biweekly, monthly, yearly }
 
-extension RecurrenceLabel on Recurrence {
-  String get label => switch (this) {
-        Recurrence.none => 'One-time',
-        Recurrence.daily => 'Daily',
-        Recurrence.weekly => 'Weekly',
-        Recurrence.biweekly => 'Biweekly',
-        Recurrence.monthly => 'Monthly',
-        Recurrence.yearly => 'Yearly',
-      };
-}
-
-extension ReasonTagLabel on ReasonTag {
-  String get label => switch (this) {
-        ReasonTag.emotional => 'Emotional purchase',
-        ReasonTag.social => 'Social',
-        ReasonTag.discount => 'Discount / sale',
-        ReasonTag.impulse => 'Impulse',
-      };
-}
-
 /// A single income or expense entry.
 ///
 /// [amount] is always stored in USD, matching the web app: the active currency

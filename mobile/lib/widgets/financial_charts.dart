@@ -2,6 +2,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
+import '../l10n/presenters.dart';
 import '../models/transaction.dart';
 import '../state/currency_provider.dart';
 import '../state/finance_provider.dart';
@@ -16,6 +18,7 @@ class CategoryDonut extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final finance = context.watch<FinanceProvider>();
@@ -29,13 +32,13 @@ class CategoryDonut extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Top categories', style: theme.textTheme.titleMedium),
+            Text(l10n.chartTopCategories, style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             if (top.isEmpty || total <= 0)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Text(
-                  'No expenses yet.',
+                  l10n.chartNoExpenses,
                   style: theme.textTheme.bodySmall,
                 ),
               )
@@ -75,7 +78,7 @@ class CategoryDonut extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          top[i].key,
+                          categoryLabel(l10n, top[i].key),
                           style: theme.textTheme.bodyMedium,
                         ),
                       ),
@@ -96,13 +99,31 @@ class CategoryDonut extends StatelessWidget {
 }
 
 /// Derives a readable series of slice colours from the theme.
+///
+/// Ordered so that *adjacent* entries alternate dark and light. The brand
+/// palette is one blue-violet family, so hue alone separates slices poorly --
+/// deep blue and deep violet are only 36° apart and sit at 1.09:1, near enough
+/// to identical lightness to merge.
+///
+/// Three of the five are dark, so with five slices in a ring two darks have to
+/// touch somewhere. The order puts both weak-lightness adjacencies against the
+/// red -- 216° of hue away from the blues -- so no neighbouring pair is close
+/// in *both* lightness and hue. The three all-brand adjacencies clear 2.5:1.
+///
+/// Beyond five categories the family genuinely runs out of separation, which is
+/// what the lightness nudge below is for.
+///
+/// `secondary` and `outline` used to be two of the five. Under this palette
+/// they resolve to two pale lavenders 1.16:1 apart and 1.36:1 against the white
+/// card behind them -- three of five slices were effectively invisible.
 Color _sliceColor(ThemeData theme, int index) {
+  final scheme = theme.colorScheme;
   final base = [
-    theme.colorScheme.primary,
-    theme.colorScheme.secondary,
-    theme.colorScheme.error,
-    theme.colorScheme.tertiary,
-    theme.colorScheme.outline,
+    scheme.primary, // deep blue
+    scheme.tertiaryContainer, // light periwinkle
+    scheme.tertiary, // deep violet
+    scheme.primaryContainer, // mid wisteria
+    scheme.error, // red
   ];
   final color = base[index % base.length];
   // Nudge lightness so repeated colours stay distinguishable if the palette
@@ -121,6 +142,7 @@ class MonthlyBars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final finance = context.watch<FinanceProvider>();
@@ -137,15 +159,16 @@ class MonthlyBars extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Income vs expenses', style: theme.textTheme.titleMedium),
+            Text(l10n.chartIncomeVsExpenses,
+                style: theme.textTheme.titleMedium),
             const SizedBox(height: 4),
-            Text('Last six months', style: theme.textTheme.bodySmall),
+            Text(l10n.chartLastSixMonths, style: theme.textTheme.bodySmall),
             const SizedBox(height: 16),
             if (maxValue <= 0)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Text(
-                  'Not enough history yet.',
+                  l10n.chartNotEnoughHistory,
                   style: theme.textTheme.bodySmall,
                 ),
               )
@@ -180,7 +203,7 @@ class MonthlyBars extends StatelessWidget {
                             return Padding(
                               padding: const EdgeInsets.only(top: 6),
                               child: Text(
-                                months[i].label,
+                                shortMonthName(l10n, months[i].month),
                                 style: theme.textTheme.bodySmall,
                               ),
                             );
@@ -224,12 +247,12 @@ class MonthlyBars extends StatelessWidget {
               children: [
                 _LegendDot(
                   color: theme.colorScheme.primary,
-                  label: 'Income',
+                  label: l10n.chartLegendIncome,
                 ),
                 const SizedBox(width: 16),
                 _LegendDot(
                   color: theme.colorScheme.error,
-                  label: 'Expenses',
+                  label: l10n.chartLegendExpenses,
                 ),
               ],
             ),
@@ -264,23 +287,21 @@ class _LegendDot extends StatelessWidget {
 }
 
 class _MonthTotals {
-  const _MonthTotals(this.label, this.income, this.expense);
-  final String label;
+  const _MonthTotals(this.month, this.income, this.expense);
+
+  /// 1-12. The axis label is resolved from this at paint time, so the chart
+  /// re-reads in the active language without rebucketing.
+  final int month;
   final double income;
   final double expense;
 }
-
-const _monthLabels = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', //
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-];
 
 /// Buckets the last six calendar months, oldest first.
 List<_MonthTotals> _lastSixMonths(List<FinanceTransaction> transactions) {
   final now = DateTime.now();
   final buckets = <String, ({double income, double expense})>{};
   final order = <String>[];
-  final labels = <String, String>{};
+  final months = <String, int>{};
 
   for (var i = 5; i >= 0; i--) {
     final m = DateTime(now.year, now.month - i, 1);
@@ -289,7 +310,7 @@ List<_MonthTotals> _lastSixMonths(List<FinanceTransaction> transactions) {
     final key = '${m.year.toString().padLeft(4, '0')}-'
         '${m.month.toString().padLeft(2, '0')}';
     order.add(key);
-    labels[key] = _monthLabels[m.month - 1];
+    months[key] = m.month;
     buckets[key] = (income: 0, expense: 0);
   }
 
@@ -307,6 +328,6 @@ List<_MonthTotals> _lastSixMonths(List<FinanceTransaction> transactions) {
 
   return [
     for (final key in order)
-      _MonthTotals(labels[key]!, buckets[key]!.income, buckets[key]!.expense),
+      _MonthTotals(months[key]!, buckets[key]!.income, buckets[key]!.expense),
   ];
 }

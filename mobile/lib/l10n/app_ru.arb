@@ -1,0 +1,838 @@
+{
+  "@@locale": "ru",
+
+  "appTitle": "Cash Compass",
+
+  "tabDashboard": "Обзор",
+  "tabGoals": "Цели",
+  "tabPlanner": "Планировщик",
+  "tabWorkspace": "Рабочий стол",
+  "tabSettings": "Настройки",
+
+  "actionCancel": "Отмена",
+  "actionSave": "Сохранить",
+  "actionAdd": "Добавить",
+  "actionClear": "Очистить",
+  "actionDone": "Готово",
+  "actionRemove": "Удалить",
+  "actionContinue": "Продолжить",
+  "actionReset": "Сбросить",
+  "actionDiscard": "Удалить",
+  "actionKeep": "Оставить",
+  "actionSkip": "Пропустить",
+  "actionInclude": "Вернуть",
+  "actionUndo": "Отменить",
+  "actionSettle": "Рассчитаться",
+  "labelSettled": "Рассчитано",
+
+  "authTagline": "Баланс и подсказки по бюджету — на ваших условиях.",
+  "authFieldName": "Имя",
+  "authFieldEmail": "Эл. почта",
+  "authFieldPassword": "Пароль",
+  "authFieldConfirmPassword": "Повторите пароль",
+  "authPasswordHelper": "Не менее 8 символов",
+  "authWorking": "Подождите…",
+  "authCreateAccount": "Создать аккаунт",
+  "authSignIn": "Войти",
+  "authHaveAccount": "Уже есть аккаунт? Войти",
+  "authNeedAccount": "Нет аккаунта? Зарегистрироваться",
+  "authNoBackend": "В этой сборке не настроен сервер аккаунтов. Демо-режим работает полностью офлайн.",
+  "authContinueWithoutAccount": "Продолжить без аккаунта",
+  "authDemoDialogTitle": "Продолжить без аккаунта?",
+  "authDemoDialogBody": "Демо-режим начинается с чистого листа — все данные на этом устройстве будут удалены. Ничего никуда не отправляется.",
+
+  "authErrorNoSupabase": "Аккаунты недоступны — в этой сборке нет настроек Supabase. Используйте демо-режим.",
+  "authErrorMissingCredentials": "Введите почту и пароль.",
+  "authErrorSignInFailed": "Не удалось войти. Попробуйте ещё раз.",
+  "authErrorSignUpFailed": "Не удалось создать аккаунт. Попробуйте ещё раз.",
+  "authErrorConfirmEmail": "Подтвердите аккаунт по ссылке из письма, затем войдите.",
+  "authErrorMissingName": "Введите имя.",
+  "authErrorInvalidEmail": "Введите корректный адрес эл. почты.",
+  "authErrorShortPassword": "Пароль должен быть не короче 8 символов.",
+  "authErrorPasswordMismatch": "Пароли не совпадают.",
+
+  "quickScanReceipt": "Сканировать чек",
+  "quickScanReceiptSubtitle": "Считать сумму с фотографии",
+  "quickScanSeveral": "Сканировать несколько",
+  "quickScanSeveralSubtitle": "Выбрать чеки из галереи",
+  "quickAddEntry": "Добавить запись",
+  "quickAddEntrySubtitle": "Записать расход или доход",
+  "quickSetGoal": "Поставить цель",
+  "quickSetGoalSubtitle": "Создать цель по накоплениям",
+  "quickPlanBudget": "Спланировать бюджет",
+  "quickPlanBudgetSubtitle": "Рассчитать поездку, вылазку или мероприятие",
+
+  "scanErrorCameraUnavailable": "Камера недоступна — проверьте разрешение в настройках. Пока добавьте запись вручную.",
+  "scanErrorNoText": "На фотографии не найдено текста. Попробуйте при лучшем освещении или введите вручную.",
+  "scanErrorNothingUseful": "Не удалось найти сумму на чеке. Заполните её ниже.",
+
+  "batchReadingReceipts": "Читаем чеки",
+  "batchProgress": "{done} из {total}",
+  "@batchProgress": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "batchSavedReceipts": "{count, plural, one{Сохранён {count} чек.} few{Сохранено {count} чека.} many{Сохранено {count} чеков.} other{Сохранено {count} чека.}}",
+  "@batchSavedReceipts": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "batchReviewTitle": "Проверка чеков",
+  "batchNothingToSave": "Нечего сохранять",
+  "batchSaveCount": "{count, plural, one{Сохранить {count} чек} few{Сохранить {count} чека} many{Сохранить {count} чеков} other{Сохранить {count} чека}}",
+  "@batchSaveCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "batchCouldNotRead": "Не удалось прочитать этот чек",
+  "batchFieldMerchant": "Магазин",
+  "batchNoPhotoDate": "нет даты съёмки",
+  "batchRetryTooltip": "Прочитать ещё раз",
+  "batchDuplicateWarning": "Похоже на повтор другого чека в этой партии. Пропустите его, если вы выбрали одно фото дважды.",
+  "batchAmountConverted": "{amount} {code} — пересчитано",
+  "@batchAmountConverted": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "code": { "type": "String" }
+    }
+  },
+  "scannedPleaseCheck": "Распознано — проверьте",
+
+  "receiptDiscrepancyCash": "Указанный итог {labelled} расходится с расчётом «наличные − сдача» ({computed}). Используем расчёт.",
+  "@receiptDiscrepancyCash": {
+    "placeholders": {
+      "labelled": { "type": "String" },
+      "computed": { "type": "String" }
+    }
+  },
+  "receiptDiscrepancyItems": "Итог {labelled} не сходится с суммой позиций ({itemSum}) — проверьте, пожалуйста.",
+  "@receiptDiscrepancyItems": {
+    "placeholders": {
+      "labelled": { "type": "String" },
+      "itemSum": { "type": "String" }
+    }
+  },
+
+  "dashTotalBalance": "Общий баланс",
+  "dashSnapshotHint": "От этой суммы считается весь обзор.",
+  "dashStatAvailable": "Доступно",
+  "dashStatSpentToday": "Потрачено сегодня",
+  "dashStatTotalSpent": "Потрачено всего",
+  "dashStatAveragePerDay": "В среднем в день",
+  "dashRecentActivity": "Последние операции",
+  "dashNoEntries": "Записей пока нет. Добавьте первую кнопкой +.",
+
+  "budgetingWindow": "Период бюджета",
+  "fieldStart": "Начало",
+  "fieldEnd": "Конец",
+  "dailyBudget": "Бюджет на день",
+  "overDays": "{count, plural, one{на {count} день} few{на {count} дня} many{на {count} дней} other{на {count} дня}}",
+  "@overDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "smartCardsTitle": "Умные карточки",
+  "smartCardsWatching": "Умные карточки следят за тратами. Сегодня с необязательными расходами всё спокойно.",
+  "smartCardsSpent": "Сегодня вы потратили {amount} на мелочи — это {percent}% дневного лимита.",
+  "@smartCardsSpent": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "percent": { "type": "int" }
+    }
+  },
+  "smartCardsAnnualised": "В таком темпе это {amount} за год.",
+  "@smartCardsAnnualised": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "smartCardsDivert": "Если направить их на «{goal}», цель приблизится.",
+  "@smartCardsDivert": {
+    "placeholders": {
+      "goal": { "type": "String" }
+    }
+  },
+
+  "spendingPatternTitle": "Закономерность трат",
+  "spendingPatternNight": "{count, plural, one{Спонтанные траты чаще всего случаются {weekday} вечером — в основном {tag} покупки (пока {count}).} few{Спонтанные траты чаще всего случаются {weekday} вечером — в основном {tag} покупки (пока {count}).} many{Спонтанные траты чаще всего случаются {weekday} вечером — в основном {tag} покупки (пока {count}).} other{Спонтанные траты чаще всего случаются {weekday} вечером — в основном {tag} покупки (пока {count}).}}",
+  "@spendingPatternNight": {
+    "placeholders": {
+      "weekday": { "type": "String" },
+      "tag": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "spendingPatternDay": "{count, plural, one{Спонтанные траты чаще всего случаются {weekday} днём — в основном {tag} покупки (пока {count}).} few{Спонтанные траты чаще всего случаются {weekday} днём — в основном {tag} покупки (пока {count}).} many{Спонтанные траты чаще всего случаются {weekday} днём — в основном {tag} покупки (пока {count}).} other{Спонтанные траты чаще всего случаются {weekday} днём — в основном {tag} покупки (пока {count}).}}",
+  "@spendingPatternDay": {
+    "placeholders": {
+      "weekday": { "type": "String" },
+      "tag": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+
+  "weekdayMonday": "по понедельникам",
+  "weekdayTuesday": "по вторникам",
+  "weekdayWednesday": "по средам",
+  "weekdayThursday": "по четвергам",
+  "weekdayFriday": "по пятницам",
+  "weekdaySaturday": "по субботам",
+  "weekdaySunday": "по воскресеньям",
+
+  "smartSuggestionsTitle": "Умные подсказки",
+  "suggestionWatchCategoryTitle": "Следите за категорией «{category}»",
+  "@suggestionWatchCategoryTitle": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "suggestionWatchCategoryBody": "Это ваша самая крупная категория в этом месяце. Сокращение на 10% освободит около {amount}.",
+  "@suggestionWatchCategoryBody": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "suggestionBudgetAlertTitle": "Внимание: бюджет «{category}»",
+  "@suggestionBudgetAlertTitle": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "suggestionBudgetAlertBody": "Вы израсходовали {percent}% лимита на этот месяц.",
+  "@suggestionBudgetAlertBody": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+  "suggestionAuditSubsTitle": "Проверьте подписки",
+  "suggestionAuditSubsBody": "Найдены регулярные списания: {names}.",
+  "@suggestionAuditSubsBody": {
+    "placeholders": {
+      "names": { "type": "String" }
+    }
+  },
+  "suggestionTrackTitle": "Ведите записи 7 дней",
+  "suggestionTrackBody": "Добавьте записи за неделю — и здесь появятся персональные подсказки.",
+
+  "recurringChargesTitle": "Регулярные списания",
+  "recurringChargesSubtitle": "Найдены по ежемесячной периодичности в вашей истории.",
+  "recurringChargesEmpty": "Пока ничего не найдено. Регулярные списания появятся после нескольких месячных повторов.",
+  "subscriptionCharges": "{count, plural, one{{count} списание · последнее {date}} few{{count} списания · последнее {date}} many{{count} списаний · последнее {date}} other{{count} списания · последнее {date}}}",
+  "@subscriptionCharges": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "date": { "type": "String" }
+    }
+  },
+  "perYear": "{amount}/год",
+  "@perYear": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+
+  "financialCalendarTitle": "Финансовый календарь",
+  "financialCalendarSubtitle": "События, которые могут изменить темп ваших трат.",
+  "regionIndia": "Индия",
+  "regionRussia": "Россия",
+  "eventComingSoon": "Скоро: {name}",
+  "@eventComingSoon": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "eventForecast": "В этот период траты обычно растут. Прогноз — {projected} в день, примерно на {increase} больше обычного.",
+  "@eventForecast": {
+    "placeholders": {
+      "projected": { "type": "String" },
+      "increase": { "type": "String" }
+    }
+  },
+  "eventNoHistory": "Оценка по вашему общему среднему — истории за этот период пока нет.",
+  "eventToday": "Сегодня",
+  "eventDaysShort": "{count} дн.",
+  "@eventDaysShort": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "eventWinterExamName": "Зимняя сессия",
+  "eventWinterExamNote": "Учебные материалы, транспорт и поздние перекусы часто дорожают.",
+  "eventNewYearName": "Новогодние праздники",
+  "eventNewYearNote": "Подарки, поездки и встречи с друзьями приходятся на эти каникулы.",
+  "eventStipendName": "Стипендиальный цикл",
+  "eventStipendNote": "Регулярная дата стипендии — опора для месячного плана.",
+  "eventUniExamName": "Экзаменационная неделя",
+  "eventUniExamNote": "Печать, дорога и еда навынос обычно дорожают в сессию.",
+  "eventDiwaliName": "Дивали",
+  "eventDiwaliNote": "Подарки, поездки и праздники нагружают свободные деньги.",
+  "eventSemesterName": "Начало семестра",
+  "eventSemesterNote": "Книги, канцелярия и залог за жильё часто возвращаются к началу семестра.",
+
+  "eventTypeAcademic": "Учёба",
+  "eventTypeHoliday": "Праздники",
+  "eventTypeIncome": "Доход",
+  "eventTypeFestival": "Фестиваль",
+  "eventTypeStudentCosts": "Студенческие расходы",
+
+  "locationGuidanceTitle": "Подсказки по региону",
+  "locationGuidanceSubtitle": "Типичные местные цены в сравнении с остатком на сегодня.",
+  "fieldRegion": "Регион",
+  "geoUsCity": "Город в США",
+  "geoIndiaMetro": "Мегаполис Индии",
+  "geoEasternEurope": "Восточная Европа",
+  "stapleLunch": "Обед",
+  "stapleTransit": "Проезд",
+  "stapleGroceries": "Продукты",
+  "stapleCost": "Обычно {cost} · рекомендуемый максимум {limit}",
+  "@stapleCost": {
+    "placeholders": {
+      "cost": { "type": "String" },
+      "limit": { "type": "String" }
+    }
+  },
+  "badgeOnBudget": "В бюджете",
+  "badgeTrimNeeded": "Нужно урезать",
+
+  "suggestionsTodayTitle": "Подсказки на сегодня",
+  "tipOverBudget": "Вы превысили дневной бюджет. До конца дня покупайте только самое необходимое.",
+  "tipFinalQuarter": "У вас осталось меньше 25% дневного бюджета. Оставьте только самые важные пункты плана.",
+  "tipComfortable": "Запас на сегодня комфортный. Сначала закройте необходимое, импульсивное отложите.",
+  "tipPlannedOverBudget": "Запланированные траты выше бюджета. Сократите один пункт плана примерно на 20–30%.",
+  "tipAverageOverBudget": "Средние дневные траты выше бюджета с учётом региона. Попробуйте три дня экономии подряд.",
+  "tipCategoryCaps": "Поставьте сегодня лимиты на «Питание» и «Покупки» — это сохранит запас на завтра.",
+
+  "dailyPlanTitle": "План на день",
+  "dailyPlanSubtitle": "Составьте план дня и сравните его с дневным бюджетом.",
+  "dailyPlanName": "Название плана",
+  "dailyPlanNameHint": "Продукты и проезд",
+  "dailyPlanEstimate": "Оценка ({code})",
+  "@dailyPlanEstimate": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+  "dailyPlanDate": "Дата плана",
+  "dailyPlanAdd": "Добавить план",
+  "dailyPlanInvalid": "Укажите название плана и корректную сумму.",
+  "dailyPlanSpentThatDay": "Потрачено в этот день",
+  "dailyPlanPlanned": "Запланировано",
+  "dailyPlanRemaining": "Остаток после планов",
+  "dailyPlanEmpty": "На этот день планов пока нет.",
+  "dailyPlanDeleteTooltip": "Удалить план",
+
+  "dayRecordsTitle": "Все дни",
+  "dayRecordsEmpty": "Записей пока нет. Добавьте траты, чтобы начать историю.",
+
+  "goalsEmptyTitle": "Целей по накоплениям пока нет.",
+  "goalsEmptyBody": "Создайте первую кнопкой +.",
+  "goalsGuidanceTitle": "Персональные рекомендации",
+  "goalAmountOf": "{current} из {target}",
+  "@goalAmountOf": {
+    "placeholders": {
+      "current": { "type": "String" },
+      "target": { "type": "String" }
+    }
+  },
+  "goalAddAmount": "Добавить {amount}",
+  "@goalAddAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+
+  "goalInsightEmpty": "Добавьте несколько трат — и здесь появятся персональные рекомендации.",
+  "goalInsightTopShare": "На «{category}» приходится {percent}% ваших трат. Сокращение здесь на 10% приблизит цели быстрее, чем экономия где-либо ещё.",
+  "@goalInsightTopShare": {
+    "placeholders": {
+      "category": { "type": "String" },
+      "percent": { "type": "int" }
+    }
+  },
+  "goalInsightTopTwo": "Вместе «{first}» и «{second}» составляют {percent}% расходов.",
+  "@goalInsightTopTwo": {
+    "placeholders": {
+      "first": { "type": "String" },
+      "second": { "type": "String" },
+      "percent": { "type": "int" }
+    }
+  },
+  "goalInsightAutomate": "Автоперевод в день зарплаты защищает накопления до того, как начнутся траты.",
+  "goalInsightReviewWeekly": "Разбирать по одной категории в неделю проще, чем урезать всё сразу.",
+
+  "chartTopCategories": "Основные категории",
+  "chartNoExpenses": "Трат пока нет.",
+  "chartIncomeVsExpenses": "Доходы и расходы",
+  "chartLastSixMonths": "Последние шесть месяцев",
+  "chartNotEnoughHistory": "Пока мало данных.",
+  "chartLegendIncome": "Доходы",
+  "chartLegendExpenses": "Расходы",
+
+  "monthJan": "янв",
+  "monthFeb": "фев",
+  "monthMar": "мар",
+  "monthApr": "апр",
+  "monthMay": "май",
+  "monthJun": "июн",
+  "monthJul": "июл",
+  "monthAug": "авг",
+  "monthSep": "сен",
+  "monthOct": "окт",
+  "monthNov": "ноя",
+  "monthDec": "дек",
+
+  "entrySheetTitleAdd": "Новая запись",
+  "entrySheetTitleCheck": "Проверьте чек",
+  "entrySheetSubtitleAdd": "Запишите расход или доход. Отметьте регулярные списания, чтобы следить за ними.",
+  "entrySheetSubtitleCheck": "Считано с чека. Всё, что помечено «проверьте», — предположение; исправьте перед сохранением.",
+  "entrySheetSubmit": "Сохранить запись",
+  "entryRecurringHint": "Похоже на регулярное списание. Поставили «Ежемесячно» — измените ниже, если это не так.",
+  "entryTypeExpense": "Расход",
+  "entryTypeIncome": "Доход",
+  "entryFieldName": "Название",
+  "entryFieldNameHint": "напр. Поход в магазин",
+  "entryFieldAmount": "Сумма ({code})",
+  "@entryFieldAmount": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+  "entryFieldCategory": "Категория",
+  "entryFieldDate": "Дата",
+  "entryFieldNote": "Заметка",
+  "entryFieldNoteHint": "Любые подробности об этой записи",
+  "entryRecurringQuestion": "Это повторяется?",
+  "entryUnplanned": "Незапланированная / спонтанная",
+  "entryUnplannedSubtitle": "Необязательный контекст: он делает подсказки полезнее и никогда не осуждает.",
+  "entryReasonPrompt": "Что на это повлияло? Необязательно",
+  "entryInvalid": "Укажите название и корректную сумму.",
+  "entrySaved": "Запись сохранена.",
+  "entrySavedRecurring": "Добавлена регулярная запись ({cadence}).",
+  "@entrySavedRecurring": {
+    "placeholders": {
+      "cadence": { "type": "String" }
+    }
+  },
+  "entryConvertedFrom": "{amount} {code} пересчитано в {target}",
+  "@entryConvertedFrom": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "code": { "type": "String" },
+      "target": { "type": "String" }
+    }
+  },
+  "entryNoRate": "Чек в валюте {code} — курса нет, поэтому сумма без пересчёта",
+  "@entryNoRate": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+
+  "recurrenceNone": "Разово",
+  "recurrenceDaily": "Ежедневно",
+  "recurrenceWeekly": "Еженедельно",
+  "recurrenceBiweekly": "Раз в две недели",
+  "recurrenceMonthly": "Ежемесячно",
+  "recurrenceYearly": "Ежегодно",
+
+  "reasonEmotional": "Эмоциональная покупка",
+  "reasonSocial": "Компания",
+  "reasonDiscount": "Скидка / распродажа",
+  "reasonImpulse": "Импульс",
+
+  "reasonAdjEmotional": "эмоциональные",
+  "reasonAdjSocial": "совместные",
+  "reasonAdjDiscount": "скидочные",
+  "reasonAdjImpulse": "импульсивные",
+
+  "categoryIncome": "Доход",
+  "categorySalary": "Зарплата",
+  "categoryFreelance": "Фриланс",
+  "categoryGroceries": "Продукты",
+  "categoryTransport": "Транспорт",
+  "categoryHousing": "Жильё",
+  "categoryUtilities": "Коммунальные услуги",
+  "categoryEntertainment": "Развлечения",
+  "categoryFood": "Питание",
+  "categoryShopping": "Покупки",
+  "categoryHealth": "Здоровье",
+  "categoryTravel": "Путешествия",
+  "categoryEducation": "Образование",
+  "categorySavings": "Сбережения",
+  "categoryInvestment": "Инвестиции",
+  "categoryBusiness": "Бизнес",
+  "categoryGift": "Подарок",
+  "categoryOther": "Другое",
+
+  "goalSheetTitle": "Цель по накоплениям",
+  "goalSheetSubtitle": "Укажите сумму и срок — мы посчитаем, сколько откладывать в день.",
+  "goalSheetSubmit": "Создать цель",
+  "goalFieldIcon": "Значок",
+  "goalFieldName": "Название цели",
+  "goalFieldNameHint": "Подушка безопасности",
+  "goalFieldTarget": "Цель ({code})",
+  "@goalFieldTarget": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+  "goalFieldSaved": "Уже накоплено",
+  "goalTimeframe": "Срок",
+  "goalFieldDays": "Дней",
+  "goalMinimumDays": "минимум 7",
+  "goalInvalid": "Укажите название цели и сумму.",
+  "goalCreated": "Цель создана.",
+  "goalReachIn": "{count, plural, one{Чтобы достичь цели за {count} день:} few{Чтобы достичь цели за {count} дня:} many{Чтобы достичь цели за {count} дней:} other{Чтобы достичь цели за {count} дня:}}",
+  "@goalReachIn": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "goalPerDay": "{amount} в день",
+  "@goalPerDay": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "goalPerWeekMonth": "{week} в неделю · {month} в месяц",
+  "@goalPerWeekMonth": {
+    "placeholders": {
+      "week": { "type": "String" },
+      "month": { "type": "String" }
+    }
+  },
+  "goalCurrentGoals": "Текущие цели",
+
+  "periodOneMonth": "1 месяц",
+  "periodThreeMonths": "3 месяца",
+  "periodSixMonths": "6 месяцев",
+  "periodOneYear": "1 год",
+  "periodTwoYears": "2 года",
+  "periodCustom": "Свой срок",
+
+  "plannerSurvivalTitle": "Калькулятор выживания",
+  "plannerSurvivalSubtitle": "Сколько можно тратить в день после обязательных расходов.",
+  "plannerDailySpendable": "Доступно в день",
+  "plannerHorizon": "{count, plural, one{Горизонт планирования — {count} день} few{Горизонт планирования — {count} дня} many{Горизонт планирования — {count} дней} other{Горизонт планирования — {count} дня}}",
+  "@plannerHorizon": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "plannerUpcomingBills": "Обязательные платежи впереди ({code})",
+  "@plannerUpcomingBills": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+  "plannerIncomeStreams": "Источники дохода",
+  "plannerFieldSource": "Источник",
+  "plannerFieldAmount": "Сумма",
+  "plannerFixedCosts": "Постоянные расходы",
+  "plannerFieldBill": "Платёж",
+  "plannerAddFixedCost": "Добавить постоянный расход",
+
+  "zoneGreen": "Зелёная зона",
+  "zoneTight": "Ограниченная зона",
+  "zoneCritical": "Критическая зона",
+
+  "cadenceOneTime": "Разово",
+  "cadenceWeekly": "Еженедельно",
+  "cadenceMonthly": "Ежемесячно",
+
+  "plannerSocialTitle": "Бюджет на встречи",
+  "plannerSocialSubtitle": "Оцените, как вечер с друзьями скажется на бюджете, до того как согласиться.",
+  "plannerFieldEvent": "Событие",
+  "plannerFieldLow": "Минимум",
+  "plannerFieldRealistic": "Реально",
+  "plannerFieldStretch": "Максимум",
+  "plannerAddPlan": "Добавить план",
+  "plannerSocialImpact": "Если все реалистичные планы состоятся, в день останется {amount}.",
+  "@plannerSocialImpact": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "plannerYourShare": "{date} · ваша доля {amount}",
+  "@plannerYourShare": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "plannerYourShareSplit": "{date} · ваша доля {amount} из {count}",
+  "@plannerYourShareSplit": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "amount": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "plannerRange": "Диапазон {low} – {high}",
+  "@plannerRange": {
+    "placeholders": {
+      "low": { "type": "String" },
+      "high": { "type": "String" }
+    }
+  },
+
+  "plannerRunwayTitle": "Запас по займу",
+  "plannerRunwaySubtitle": "Растяните разовую сумму на весь семестр.",
+  "plannerLumpSum": "Разовая сумма",
+  "plannerSafetyBuffer": "Неприкосновенный запас",
+  "plannerRunwayWeeks": "Хватит ещё на {weeks} нед.",
+  "@plannerRunwayWeeks": {
+    "placeholders": {
+      "weeks": { "type": "String" }
+    }
+  },
+  "plannerSemesterWeeksLeft": "До конца семестра {weeks} нед.",
+  "@plannerSemesterWeeksLeft": {
+    "placeholders": {
+      "weeks": { "type": "String" }
+    }
+  },
+  "plannerWillRunOut": " При таком темпе деньги закончатся раньше.",
+  "plannerWeeklyBurn": "Расход в неделю",
+  "plannerSuggestedCap": "Рекомендуемый лимит",
+
+  "plannerStreakTitle": "Серии успеха",
+  "plannerStreakSubtitle": "Продержитесь в рамках плана три дня подряд и получите значок.",
+  "plannerCurrentStreak": "Текущая серия",
+  "plannerStreakDays": "{count, plural, one{{count} день} few{{count} дня} many{{count} дней} other{{count} дня}}",
+  "@plannerStreakDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "plannerStreakBadge": "3 дня подряд 🌸",
+  "plannerMarkedOnTrack": "Сегодня отмечено",
+  "plannerMarkOnTrack": "Отметить сегодняшний день",
+  "plannerStreakFooter": "Никаких штрафов. Пропущенные дни просто мягко обнуляют серию.",
+
+  "budgetPlannerTitle": "Планировщик бюджета",
+  "budgetDiscardTooltip": "Удалить черновик",
+  "budgetDiscardDialogTitle": "Удалить этот план?",
+  "budgetDiscardDialogBody": "Черновик и все его позиции будут удалены.",
+  "budgetTypeTrip": "Поездка",
+  "budgetTypeOuting": "Вылазка",
+  "budgetTypeEvent": "Мероприятие",
+  "budgetFieldTitle": "Название плана",
+  "budgetFieldTitleHint": "напр. Выходные в Сочи",
+  "budgetFieldFrom": "С",
+  "budgetFieldTo": "По (необязательно)",
+  "budgetSplittingBetween": "Делим на",
+  "budgetItems": "Позиции",
+  "budgetFieldItem": "Позиция",
+  "budgetFieldCost": "Стоимость ({code})",
+  "@budgetFieldCost": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  },
+  "budgetAddItemTooltip": "Добавить позицию",
+  "budgetItemsEmpty": "Добавьте позиции выше, чтобы увидеть расклад.",
+  "budgetTotal": "Итого",
+  "budgetPerPerson": "На человека ({count})",
+  "@budgetPerPerson": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "budgetFinalise": "Закрыть счёт",
+  "budgetFinalised": "Бюджет закрыт.",
+  "budgetItemInvalid": "Укажите название позиции и стоимость больше нуля.",
+  "budgetErrorNothing": "Нечего закрывать.",
+  "budgetErrorNoTitle": "Добавьте название плана перед закрытием.",
+  "budgetErrorNoItems": "Добавьте хотя бы одну позицию, чтобы составить счёт.",
+  "budgetErrorBadDates": "Дата окончания не может быть раньше даты начала.",
+  "budgetReceiptsTitle": "Закрытые счета",
+  "budgetReceiptSummary": "{count, plural, one{{type} · {from} · {count} позиция} few{{type} · {from} · {count} позиции} many{{type} · {from} · {count} позиций} other{{type} · {from} · {count} позиции}}",
+  "@budgetReceiptSummary": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "from": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "budgetReceiptSummaryRange": "{count, plural, one{{type} · {from} → {to} · {count} позиция} few{{type} · {from} → {to} · {count} позиции} many{{type} · {from} → {to} · {count} позиций} other{{type} · {from} → {to} · {count} позиции}}",
+  "@budgetReceiptSummaryRange": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "from": { "type": "String" },
+      "to": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "budgetEach": "по {amount}",
+  "@budgetEach": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "budgetDeleteTooltip": "Удалить счёт",
+
+  "workspaceEmptyTitle": "Соберите рабочий стол",
+  "workspaceEmptyBody": "Добавьте карточки, которые хотите видеть сразу.",
+  "workspaceAddWidget": "Добавить виджет",
+  "workspaceAddWidgetTitle": "Добавить виджет",
+  "workspaceTitle": "Рабочий стол",
+  "workspaceDragToReorder": "Перетащите, чтобы изменить порядок",
+  "workspaceEditLayout": "Изменить расположение",
+  "workspaceResize": "Размер",
+  "workspaceClearTitle": "Очистить рабочий стол?",
+  "workspaceClearBody": "Будут удалены все виджеты, включая добавленные изображения.",
+
+  "sizeSmall": "S",
+  "sizeMedium": "M",
+  "sizeLarge": "L",
+
+  "widgetTodaySnapshot": "Сводка за день",
+  "widgetBudgetHealth": "Состояние бюджета",
+  "widgetTopCategories": "Основные категории",
+  "widgetGoalProgress": "Прогресс целей",
+  "widgetSafeToSpend": "Можно потратить",
+  "widgetSubStashJar": "Копилка подписок",
+  "widgetBurnRateLine": "График расходов",
+  "widgetQuickEntryPad": "Быстрая запись",
+  "widgetWasteAuditor": "Аудит лишних трат",
+  "widgetRoommateSync": "Расчёты с соседями",
+  "widgetMedia": "Изображение",
+  "widgetMangaStatus": "Статус манги",
+  "widgetAsciiFortune": "ASCII-предсказание",
+  "widgetChibiMascot": "Чиби-маскот",
+  "widgetGrowthGem": "Кристалл роста",
+
+  "widgetNoCategoryBudgets": "Лимиты по категориям пока не заданы.",
+  "widgetNoGoals": "Целей пока нет.",
+  "widgetSetBalanceFirst": "Укажите баланс в разделе «Обзор», чтобы увидеть дневной лимит.",
+  "widgetSafeToSpendLabel": "Можно потратить",
+  "widgetSubStash": "Копилка",
+  "widgetBoostsGoal": "Пополняет «{goal}»",
+  "@widgetBoostsGoal": {
+    "placeholders": {
+      "goal": { "type": "String" }
+    }
+  },
+  "widgetBoostAmount": "Пополнить на {amount}",
+  "@widgetBoostAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "widgetEnterAmountFirst": "Сначала введите сумму больше нуля.",
+  "widgetAddedToCategory": "Добавлено в «{category}».",
+  "@widgetAddedToCategory": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "widgetAmountHint": "Сумма",
+  "widgetNoRecurring": "Регулярные списания пока не найдены.",
+  "widgetNoSplitPlans": "Общих счетов пока нет. Закройте бюджет с числом участников больше одного.",
+  "widgetOwed": "Должны {amount}",
+  "@widgetOwed": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "widgetChooseImage": "Выбрать изображение",
+  "widgetWasteAnnual": "{count, plural, one{{amount} в год за {count} подписку.} few{{amount} в год за {count} подписки.} many{{amount} в год за {count} подписок.} other{{amount} в год за {count} подписки.}}",
+  "@widgetWasteAnnual": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "perMonth": "{amount}/мес",
+  "@perMonth": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "fortunePennySaved": "\ud83d\udcb0 Копейка рубль бережёт",
+  "fortuneSmallSteps": "\ud83d\udcc8 Малые шаги ведут к большому",
+  "fortuneGoalsPatience": "\ud83c\udfaf Цели достигаются терпением",
+  "fortuneSmartSpending": "\ud83d\udca1 Разумные траты — спокойное будущее",
+  "fortuneInvestYourself": "\ud83d\ude80 Вложитесь в себя сегодня",
+  "widgetAddGoalToTrack": "Добавьте цель, чтобы начать следить",
+  "widgetSavingsProgress": "Прогресс накоплений {percent}%",
+  "@widgetSavingsProgress": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+
+  "settingsCurrency": "Валюта",
+  "settingsUsingFallbackRates": "Используются резервные курсы.",
+  "settingsRatesUpdated": "Курсы обновлены {when}.",
+  "@settingsRatesUpdated": {
+    "placeholders": {
+      "when": { "type": "String" }
+    }
+  },
+  "settingsRefreshing": "Обновляем…",
+  "settingsRefreshRates": "Обновить курсы",
+  "settingsTheme": "Тема",
+  "settingsTypography": "Шрифты",
+  "settingsLanguage": "Язык",
+  "settingsLanguageSubtitle": "Применяется во всём приложении сразу.",
+  "settingsLanguageSystem": "Как в системе",
+  "settingsFontDefault": "Обычный",
+  "settingsFontEditorial": "Книжный",
+  "settingsFontMono": "Моноширинный",
+  "settingsTextSize": "Размер текста — {percent}%",
+  "@settingsTextSize": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+  "settingsAccount": "Аккаунт",
+  "settingsDemoMode": "Демо-режим — данные остаются на этом устройстве.",
+  "settingsSignedInAs": "Вы вошли как {name}",
+  "@settingsSignedInAs": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "settingsLeaveDemo": "Выйти из демо-режима",
+  "settingsSignOut": "Выйти",
+  "settingsData": "Данные",
+  "settingsResetAll": "Сбросить все финансовые данные",
+  "settingsResetTitle": "Сбросить всё?",
+  "settingsResetBody": "Это навсегда удалит все операции, цели и бюджеты на этом устройстве. Отменить будет нельзя.",
+  "settingsDeveloper": "Разработчику",
+  "settingsDeveloperBody": "Только для отладочной сборки. Загружает фиксированный набор данных, чтобы каждому виджету было что показать.",
+  "settingsLoadSample": "Загрузить тестовые данные",
+  "settingsSampleLoaded": "Тестовые данные загружены.",
+  "settingsSampleCleared": "Тестовые данные удалены.",
+
+  "relativeJustNow": "только что",
+  "relativeMinutesAgo": "{count} мин назад",
+  "@relativeMinutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "relativeHoursAgo": "{count} ч назад",
+  "@relativeHoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "relativeDaysAgo": "{count} дн назад",
+  "@relativeDaysAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "themeSoftBloom": "Мягкий цвет"
+}

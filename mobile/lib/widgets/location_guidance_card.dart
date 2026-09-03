@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/l10n.dart';
+import '../l10n/presenters.dart';
 import '../logic/budget_math.dart';
 import '../state/currency_provider.dart';
 import '../state/finance_provider.dart';
@@ -14,6 +16,7 @@ class LocationGuidanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final planner = context.watch<PlannerProvider>();
@@ -37,19 +40,24 @@ class LocationGuidanceCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Location guidance', style: theme.textTheme.titleMedium),
+            Text(l10n.locationGuidanceTitle,
+                style: theme.textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
-              'Typical local costs against what is left for today.',
+              l10n.locationGuidanceSubtitle,
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: profile.key,
-              decoration: const InputDecoration(labelText: 'Region'),
+              isExpanded: true,
+              decoration: InputDecoration(labelText: l10n.fieldRegion),
               items: [
                 for (final p in geoProfiles)
-                  DropdownMenuItem(value: p.key, child: Text(p.label)),
+                  DropdownMenuItem(
+                    value: p.key,
+                    child: Text(geoProfileLabel(l10n, p.key)),
+                  ),
               ],
               onChanged: (key) {
                 if (key != null) planner.setGeoProfile(key);
@@ -65,10 +73,15 @@ class LocationGuidanceCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(v.name, style: theme.textTheme.bodyMedium),
                           Text(
-                            'Typical ${currency.formatFromUsd(v.cost)} · '
-                            'suggested max ${currency.formatFromUsd(v.healthyLimit)}',
+                            stapleLabel(l10n, v.kind),
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          Text(
+                            l10n.stapleCost(
+                              currency.formatFromUsd(v.cost),
+                              currency.formatFromUsd(v.healthyLimit),
+                            ),
                             style: theme.textTheme.bodySmall,
                           ),
                         ],
@@ -76,7 +89,7 @@ class LocationGuidanceCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Chip(
-                      label: Text(v.badge),
+                      label: Text(stapleBadge(l10n, v)),
                       visualDensity: VisualDensity.compact,
                       backgroundColor: v.affordable
                           ? theme.colorScheme.secondary
@@ -98,6 +111,7 @@ class SuggestionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final planner = context.watch<PlannerProvider>();
     final finance = context.watch<FinanceProvider>();
@@ -130,7 +144,7 @@ class SuggestionsCard extends StatelessWidget {
                   color: theme.colorScheme.primary,
                 ),
                 const SizedBox(width: 8),
-                Text('Suggestions for today',
+                Text(l10n.suggestionsTodayTitle,
                     style: theme.textTheme.titleMedium),
               ],
             ),
@@ -143,7 +157,10 @@ class SuggestionsCard extends StatelessWidget {
                   children: [
                     Text('•  ', style: theme.textTheme.bodyMedium),
                     Expanded(
-                      child: Text(tip, style: theme.textTheme.bodyMedium),
+                      child: Text(
+                        dailyTipMessage(l10n, tip),
+                        style: theme.textTheme.bodyMedium,
+                      ),
                     ),
                   ],
                 ),
@@ -161,6 +178,7 @@ class DayRecordsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
     final records =
@@ -172,11 +190,11 @@ class DayRecordsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('All day records', style: theme.textTheme.titleMedium),
+            Text(l10n.dayRecordsTitle, style: theme.textTheme.titleMedium),
             const SizedBox(height: 10),
             if (records.isEmpty)
               Text(
-                'No records yet. Add entries to start building history.',
+                l10n.dayRecordsEmpty,
                 style: theme.textTheme.bodySmall,
               )
             else

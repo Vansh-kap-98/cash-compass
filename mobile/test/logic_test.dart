@@ -78,7 +78,6 @@ void main() {
 
       final tight = stapleVerdicts(profile: profile, selectedDayRemaining: 30);
       expect(tight.first.affordable, isFalse);
-      expect(tight.first.badge, 'Trim Needed');
     });
 
     test('india-metro multiplier is applied to staple costs', () {
@@ -87,7 +86,7 @@ void main() {
         selectedDayRemaining: 100,
       );
       // India Metro's own Lunch base cost is 6, not the US figure of 16.
-      expect(verdicts.first.name, 'Lunch');
+      expect(verdicts.first.kind, StapleKind.lunch);
       expect(verdicts.first.cost, closeTo(6 * 0.48, 0.001));
     });
 
@@ -99,7 +98,7 @@ void main() {
         averagePerDay: 90,
       );
       expect(tips.length, 3);
-      expect(tips.first, contains('over'));
+      expect(tips.first, DailyTip.overBudget);
     });
   });
 
@@ -136,7 +135,7 @@ void main() {
       ]);
 
       expect(insight, isNotNull);
-      expect(insight!.weekday, 'Friday');
+      expect(insight!.weekday, DateTime.friday);
       expect(insight.isNight, isTrue);
       expect(insight.tag, ReasonTag.social);
       expect(insight.count, 2);
@@ -164,7 +163,8 @@ void main() {
         budgets: const [],
         now: now,
       );
-      expect(s.first.title, contains('Food'));
+      expect(s.first, isA<WatchCategorySuggestion>());
+      expect((s.first as WatchCategorySuggestion).category, 'Food');
     });
 
     test('raises a budget alert at 80% of the limit', () {
@@ -175,7 +175,10 @@ void main() {
         ],
         now: DateTime(2026, 8, 15),
       );
-      expect(s.any((x) => x.title.contains('budget alert')), isTrue);
+      expect(
+        s.any((x) => x is BudgetAlertSuggestion && x.category == 'Food'),
+        isTrue,
+      );
     });
 
     test('falls back to a neutral message with no data', () {
@@ -184,7 +187,7 @@ void main() {
         budgets: const [],
         now: DateTime(2026, 8, 15),
       );
-      expect(s.single.title, 'Track for 7 days');
+      expect(s.single, isA<TrackForSevenDaysSuggestion>());
     });
   });
 

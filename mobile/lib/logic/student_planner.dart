@@ -10,14 +10,6 @@ import '../models/transaction.dart';
 /// How often an income stream pays out.
 enum IncomeCadence { oneTime, weekly, monthly }
 
-extension IncomeCadenceLabel on IncomeCadence {
-  String get label => switch (this) {
-        IncomeCadence.oneTime => 'One-time',
-        IncomeCadence.weekly => 'Weekly',
-        IncomeCadence.monthly => 'Monthly',
-      };
-}
-
 /// Money coming in over the planning horizon. [amount] is USD.
 class IncomeStream {
   const IncomeStream({
@@ -121,14 +113,6 @@ class SocialPlan {
 
 /// How comfortable the daily spendable figure is.
 enum SurvivalZone { green, tight, critical }
-
-extension SurvivalZoneLabel on SurvivalZone {
-  String get label => switch (this) {
-        SurvivalZone.green => 'Green Zone',
-        SurvivalZone.tight => 'Tight Zone',
-        SurvivalZone.critical => 'Critical Zone',
-      };
-}
 
 class SurvivalResult {
   const SurvivalResult({
