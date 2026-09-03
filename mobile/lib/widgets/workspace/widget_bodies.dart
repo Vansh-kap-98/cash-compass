@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../app/theme/app_theme.dart';
 import '../../logic/budget_math.dart';
 import '../../models/transaction.dart';
 import '../../models/workspace_widget.dart';
@@ -724,7 +725,8 @@ class _MediaWidgetState extends State<_MediaWidget> {
     return GestureDetector(
       onTap: _pick,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        // Thumbnail, so the small step -- matching the receipt thumbnails.
+        borderRadius: Theme.of(context).radii.smallBorder,
         child: Image.file(
           File(path),
           fit: BoxFit.cover,

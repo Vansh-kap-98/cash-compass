@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app/theme/app_theme.dart';
 import '../logic/receipt_batch_queue.dart';
 import '../logic/receipt_parser.dart';
 import '../models/transaction.dart';
@@ -391,7 +392,7 @@ class _Thumbnail extends StatelessWidget {
   Widget build(BuildContext context) {
     final file = File(path);
     return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: Theme.of(context).radii.smallBorder,
       child: SizedBox(
         width: 56,
         height: 72,
