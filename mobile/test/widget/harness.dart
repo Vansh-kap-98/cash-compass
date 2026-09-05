@@ -1,5 +1,4 @@
 import 'package:cash_compass/app/theme/app_theme.dart';
-import 'package:cash_compass/app/theme/app_tokens.dart';
 import 'package:cash_compass/l10n/l10n.dart';
 import 'package:cash_compass/models/budget_category.dart';
 import 'package:cash_compass/models/budget_plan.dart';
@@ -202,16 +201,11 @@ class TestStores {
   }
 }
 
-/// Wraps [child] in the providers and theme a real screen would have.
+/// Just the providers, for a caller supplying its own [MaterialApp].
 ///
-/// [textScale] exercises the Settings font slider range (85–120%) plus the OS
-/// accessibility scale — the combination that turns "just fits" into overflow.
-Widget wrapForTest(
-  Widget child, {
-  required TestStores stores,
-  double textScale = 1.0,
-  Locale locale = const Locale('en'),
-}) {
+/// [wrapForTest] is the one to reach for in a test; this exists for the
+/// screenshot tool, which needs to control the app shell itself.
+Widget wrapScaffold({required TestStores stores, required Widget child}) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider.value(value: stores.finance),
@@ -224,8 +218,24 @@ Widget wrapForTest(
       ChangeNotifierProvider.value(value: stores.locale),
       ChangeNotifierProvider.value(value: stores.auth),
     ],
+    child: child,
+  );
+}
+
+/// Wraps [child] in the providers and theme a real screen would have.
+///
+/// [textScale] exercises the Settings font slider range (85–120%) plus the OS
+/// accessibility scale — the combination that turns "just fits" into overflow.
+Widget wrapForTest(
+  Widget child, {
+  required TestStores stores,
+  double textScale = 1.0,
+  Locale locale = const Locale('en'),
+}) {
+  return wrapScaffold(
+    stores: stores,
     child: MaterialApp(
-      theme: buildTheme(appThemes[defaultThemeName]!),
+      theme: buildTheme(),
       // The same delegates main.dart installs. Without them every widget
       // reading `context.l10n` throws, so the harness has to mirror the real
       // app here or the whole suite tests a tree the app never builds.

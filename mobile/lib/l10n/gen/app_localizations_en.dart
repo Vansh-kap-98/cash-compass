@@ -1180,7 +1180,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get plannerStreakBadge => '3-day bloom streak 🌸';
+  String get plannerStreakBadge => '3-day bloom streak';
 
   @override
   String get plannerMarkedOnTrack => 'Marked on track today';
@@ -1467,19 +1467,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get fortunePennySaved => '💰 A penny saved is a penny earned';
+  String get fortunePennySaved => 'A penny saved is a penny earned';
 
   @override
-  String get fortuneSmallSteps => '📈 Small steps lead to big gains';
+  String get fortuneSmallSteps => 'Small steps lead to big gains';
 
   @override
-  String get fortuneGoalsPatience => '🎯 Goals achieved with patience';
+  String get fortuneGoalsPatience => 'Goals achieved with patience';
 
   @override
-  String get fortuneSmartSpending => '💡 Smart spending = happy future';
+  String get fortuneSmartSpending => 'Smart spending = happy future';
 
   @override
-  String get fortuneInvestYourself => '🚀 Invest in yourself today';
+  String get fortuneInvestYourself => 'Invest in yourself today';
 
   @override
   String get widgetAddGoalToTrack => 'Add a goal to start tracking';
@@ -1507,9 +1507,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsRefreshRates => 'Refresh rates';
 
   @override
-  String get settingsTheme => 'Theme';
-
-  @override
   String get settingsTypography => 'Typography';
 
   @override
@@ -1521,15 +1518,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLanguageSystem => 'System default';
-
-  @override
-  String get settingsFontDefault => 'Default';
-
-  @override
-  String get settingsFontEditorial => 'Editorial';
-
-  @override
-  String get settingsFontMono => 'Mono';
 
   @override
   String settingsTextSize(int percent) {
@@ -1599,7 +1587,4 @@ class AppLocalizationsEn extends AppLocalizations {
   String relativeDaysAgo(int count) {
     return '${count}d ago';
   }
-
-  @override
-  String get themeSoftBloom => 'Soft Bloom';
 }

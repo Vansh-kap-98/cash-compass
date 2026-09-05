@@ -6,6 +6,7 @@ import '../../l10n/presenters.dart';
 import '../../models/workspace_widget.dart';
 import '../../state/workspace_provider.dart';
 import '../../widgets/workspace/widget_bodies.dart';
+import '../../app/theme/app_colors.dart';
 
 /// The Workspace tab — a customisable stack of widgets.
 ///
@@ -94,10 +95,10 @@ class _WorkspaceTabState extends State<WorkspaceTab> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.widgets_outlined,
                 size: 48,
-                color: theme.colorScheme.outline,
+                color: AppColors.disabled,
               ),
               const SizedBox(height: 16),
               Text(l10n.workspaceEmptyTitle,
@@ -138,8 +139,7 @@ class _WorkspaceTabState extends State<WorkspaceTab> {
                 ),
               IconButton(
                 icon: Icon(_editing ? Icons.check : Icons.tune),
-                tooltip:
-                    _editing ? l10n.actionDone : l10n.workspaceEditLayout,
+                tooltip: _editing ? l10n.actionDone : l10n.workspaceEditLayout,
                 onPressed: () => setState(() => _editing = !_editing),
               ),
               IconButton(

@@ -1196,7 +1196,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get plannerStreakBadge => '3 дня подряд 🌸';
+  String get plannerStreakBadge => '3 дня подряд';
 
   @override
   String get plannerMarkedOnTrack => 'Сегодня отмечено';
@@ -1490,19 +1490,19 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get fortunePennySaved => '💰 Копейка рубль бережёт';
+  String get fortunePennySaved => 'Копейка рубль бережёт';
 
   @override
-  String get fortuneSmallSteps => '📈 Малые шаги ведут к большому';
+  String get fortuneSmallSteps => 'Малые шаги ведут к большому';
 
   @override
-  String get fortuneGoalsPatience => '🎯 Цели достигаются терпением';
+  String get fortuneGoalsPatience => 'Цели достигаются терпением';
 
   @override
-  String get fortuneSmartSpending => '💡 Разумные траты — спокойное будущее';
+  String get fortuneSmartSpending => 'Разумные траты — спокойное будущее';
 
   @override
-  String get fortuneInvestYourself => '🚀 Вложитесь в себя сегодня';
+  String get fortuneInvestYourself => 'Вложитесь в себя сегодня';
 
   @override
   String get widgetAddGoalToTrack => 'Добавьте цель, чтобы начать следить';
@@ -1530,9 +1530,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsRefreshRates => 'Обновить курсы';
 
   @override
-  String get settingsTheme => 'Тема';
-
-  @override
   String get settingsTypography => 'Шрифты';
 
   @override
@@ -1544,15 +1541,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsLanguageSystem => 'Как в системе';
-
-  @override
-  String get settingsFontDefault => 'Обычный';
-
-  @override
-  String get settingsFontEditorial => 'Книжный';
-
-  @override
-  String get settingsFontMono => 'Моноширинный';
 
   @override
   String settingsTextSize(int percent) {
@@ -1623,7 +1611,4 @@ class AppLocalizationsRu extends AppLocalizations {
   String relativeDaysAgo(int count) {
     return '$count дн назад';
   }
-
-  @override
-  String get themeSoftBloom => 'Мягкий цвет';
 }

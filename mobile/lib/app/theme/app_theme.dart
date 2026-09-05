@@ -1,83 +1,38 @@
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-import '../../dev/log.dart';
-import '../../state/theme_provider.dart';
-import 'app_tokens.dart';
+import 'app_colors.dart';
+import 'app_spacing.dart';
+import 'app_typography.dart';
 
-/// Turns a set of [AppTokens] into the [ThemeData] the whole app reads through
-/// `Theme.of(context)`.
+/// The app's one [ThemeData].
 ///
-/// Everything colour- or radius-related must come from here rather than from
-/// literals in widgets. That is the Flutter equivalent of the CSS-variable
-/// discipline the web app already keeps, and it is what makes dropping in the
-/// other four themes later a one-line change.
+/// There is no theme switching. The web app carried five `data-theme` blocks
+/// and this port carried the machinery to match, but only one was ever built
+/// and the picker shipped with a single entry in it. That machinery is gone:
+/// the palette in [AppColors], the scale in [AppTypography], and the geometry
+/// in [AppSpacing] are the whole of it.
 ///
-/// [fontPack] comes from the Settings control; it overrides the theme's own
-/// font choices when the user picks a non-default one.
+/// Everything colour- or radius-related must still come from here rather than
+/// from literals in widgets — that discipline is what makes a change like this
+/// one possible at all.
 ///
 /// Text *size* is deliberately not handled here — see `main.dart`, which scales
-/// through `MediaQuery.textScaler`. Doing it in [ThemeData] does not work:
-/// `GoogleFonts` returns styles with a null `fontSize`, and
-/// `TextStyle.apply(fontSizeFactor:)` multiplies that null into nothing, so the
-/// slider silently did nothing in release and asserted in debug.
-ThemeData buildTheme(
-  AppTokens t, {
-  FontPack fontPack = FontPack.defaultPack,
-}) {
-  // A theme change rebuilds MaterialApp, which would otherwise rebuild the
-  // whole Google Fonts text theme (15+ TextStyles) every time. Memoising makes
-  // a repeat call a map lookup. The key space is tiny: 5 themes x 3 font packs.
-  final key = '${t.name}|${fontPack.id}';
-  final cached = _themeCache[key];
-  if (cached != null) return cached;
+/// through `MediaQuery.textScaler` at paint time. Baking the Settings slider
+/// into [ThemeData] does not work with a downloaded font: the styles come back
+/// with a null `fontSize`, and multiplying null yields nothing.
+ThemeData buildTheme() => _cached ??= _build();
 
-  final built = _buildTheme(t, fontPack);
-  _themeCache[key] = built;
-  return built;
-}
-
-final Map<String, ThemeData> _themeCache = {};
-
-/// [GoogleFonts.getTextTheme], degrading to [base] if the family is unknown.
-///
-/// The font names came from `frontend/src/index.css`, where every stack ends in
-/// a generic fallback — `'Geist Mono', monospace` — so a missing family is
-/// invisible on the web. `google_fonts` has no such fallback: it throws
-/// `"No font family by name '...' was found."`
-///
-/// That throw happens while building [ThemeData], which `MaterialApp` reads on
-/// every build, so one unrecognised name took down the entire widget tree and
-/// the user saw a blank screen. A font is decoration; it must never be able to
-/// do that. Falling back mirrors what CSS already does.
-TextTheme _textTheme(String family, TextTheme base) {
-  try {
-    return GoogleFonts.getTextTheme(family, base);
-  } catch (error) {
-    logError('Font family "$family"', error);
-    return base;
-  }
-}
-
-/// [GoogleFonts.getFont], degrading to a plain coloured style. See [_textTheme].
-TextStyle _font(String family, Color color) {
-  try {
-    return GoogleFonts.getFont(family, color: color);
-  } catch (error) {
-    logError('Font family "$family"', error);
-    return TextStyle(color: color);
-  }
-}
+ThemeData? _cached;
 
 /// The radius scale, carried on [ThemeData] so widgets can ask for it instead
 /// of guessing a literal.
 ///
-/// Widgets that draw their own rounded surface — an [InkWell] ripple over an
-/// [InputDecorator], an image thumbnail — previously hardcoded 12 while the
-/// input border beside them was 12 and the button above them was 14. Reading
-/// the scale keeps a ripple aligned to the field it sits in when either moves.
+/// Kept as a [ThemeExtension] rather than folded into [AppRadius] because the
+/// widgets that need it are drawing their own rounded surface — an [InkWell]
+/// ripple over an [InputDecorator], an image thumbnail — and reading it from
+/// the theme keeps a ripple aligned to the field it sits in when either moves.
 @immutable
 class AppRadii extends ThemeExtension<AppRadii> {
   const AppRadii({
@@ -89,7 +44,7 @@ class AppRadii extends ThemeExtension<AppRadii> {
   /// Cards, sheets, dialogs.
   final double surface;
 
-  /// Buttons, inputs, chips, and anything that ripples over them.
+  /// Inputs, and anything that ripples over them.
   final double control;
 
   /// Thumbnails, swatches, inline bars.
@@ -122,228 +77,424 @@ class AppRadii extends ThemeExtension<AppRadii> {
 extension AppRadiiAccess on ThemeData {
   AppRadii get radii =>
       extension<AppRadii>() ??
-      const AppRadii(surface: 24, control: 14, small: 8);
+      const AppRadii(
+        surface: AppRadius.surface,
+        control: AppRadius.control,
+        small: AppRadius.small,
+      );
 }
 
-ThemeData _buildTheme(AppTokens t, FontPack fontPack) {
-  final scheme = ColorScheme(
-    brightness: ThemeData.estimateBrightnessForColor(t.background),
-    primary: t.primary,
-    onPrimary: t.primaryForeground,
-    // The supplied brand colour is too light to be type, so it fills surfaces
-    // here while `primary` stays the darkened, legible version. See AppTokens.
-    primaryContainer: t.primaryContainer ?? t.primary,
-    onPrimaryContainer: t.onPrimaryContainer ?? t.primaryForeground,
-    secondary: t.secondary,
-    onSecondary: t.secondaryForeground,
-    // `accent` had no slot in the ColorScheme, so nothing in the widget tree
-    // could reach it — which is how it went unnoticed that Soft Bloom's accent
-    // was pure white. Mapping it to the tertiary slots gives it a name widgets
-    // can ask for; a theme that omits the container pair falls back to accent.
-    tertiary: t.accent,
-    onTertiary: t.accentForeground,
-    tertiaryContainer: t.accentContainer ?? t.accent,
-    onTertiaryContainer: t.onAccentContainer ?? t.accentForeground,
-    error: t.destructive,
-    onError: t.destructiveForeground,
-    surface: t.card,
-    onSurface: t.cardForeground,
-    surfaceContainerHighest: t.muted,
-    onSurfaceVariant: t.mutedForeground,
-    outline: t.border,
-    outlineVariant: t.input,
+/// The theme to use *inside* an ink-filled surface.
+///
+/// Ink and surface swap roles: type, icons, borders and controls all invert so
+/// anything placed on a black panel reads without being told to.
+///
+/// This exists because the text theme carries explicit colours. A widget asking
+/// for `textTheme.titleMedium` on a black card would otherwise get black type
+/// on black, and a `DefaultTextStyle` cannot help — an explicit colour wins
+/// over an inherited one. Overriding the theme for the subtree is the only
+/// treatment that reaches every descendant, including ones written before the
+/// dark surface existed.
+ThemeData invertTheme(ThemeData base) {
+  final text = base.textTheme.apply(
+    bodyColor: AppColors.surface,
+    displayColor: AppColors.surface,
   );
 
-  // A non-default font pack overrides the theme's own font choices.
-  final bodyFamily =
-      fontPack == FontPack.defaultPack ? t.bodyFont : fontPack.bodyFont;
-  final headingFamily =
-      fontPack == FontPack.defaultPack ? t.headingFont : fontPack.headingFont;
+  // Dimmed white, for what `inkSecondary` says on a light ground.
+  const onInkMuted = Color(0xB3FFFFFF);
+  const onInkLine = Color(0x3DFFFFFF);
 
-  // Colour only. These styles carry a null `fontSize` by design — sizes resolve
-  // from the Material defaults downstream, and the user's scale is applied at
-  // render time via MediaQuery rather than baked in here.
-  final baseText = _textTheme(bodyFamily, const TextTheme()).apply(
-    bodyColor: t.foreground,
-    displayColor: t.foreground,
+  OutlineInputBorder border(Color color, {double width = 1}) =>
+      OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadius.control),
+        borderSide: BorderSide(color: color, width: width),
+      );
+
+  return base.copyWith(
+    textTheme: text.copyWith(
+      bodySmall: text.bodySmall?.copyWith(color: onInkMuted),
+      labelMedium: text.labelMedium?.copyWith(color: onInkMuted),
+      labelSmall: text.labelSmall?.copyWith(color: onInkMuted),
+    ),
+    colorScheme: base.colorScheme.copyWith(
+      surface: AppColors.ink,
+      onSurface: AppColors.surface,
+      onSurfaceVariant: onInkMuted,
+      primary: AppColors.surface,
+      onPrimary: AppColors.ink,
+      outline: onInkLine,
+      outlineVariant: onInkLine,
+    ),
+    iconTheme: const IconThemeData(color: AppColors.surface, size: 22),
+    dividerColor: onInkLine,
+    dividerTheme: const DividerThemeData(
+      color: onInkLine,
+      thickness: AppStroke.hairline,
+      space: AppStroke.hairline,
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: false,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
+      ),
+      border: border(onInkLine),
+      enabledBorder: border(onInkLine),
+      focusedBorder: border(AppColors.surface, width: 2),
+      disabledBorder: border(onInkLine),
+      labelStyle: const TextStyle(color: onInkMuted),
+      floatingLabelStyle: const TextStyle(color: AppColors.surface),
+      hintStyle: const TextStyle(color: onInkMuted),
+      helperStyle: const TextStyle(color: onInkMuted),
+    ),
+    // Inverted again: a chip on a black card is white with dark type.
+    chipTheme: base.chipTheme.copyWith(
+      backgroundColor: AppColors.surface,
+      labelStyle: const TextStyle(
+        fontSize: AppTypography.captionSize,
+        fontWeight: FontWeight.w600,
+        color: AppColors.ink,
+      ),
+      side: const BorderSide(color: AppColors.surface),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.surface,
+        textStyle: text.labelLarge,
+      ),
+    ),
+    textSelectionTheme: const TextSelectionThemeData(
+      cursorColor: AppColors.surface,
+      selectionHandleColor: AppColors.surface,
+      selectionColor: Color(0x59FFFFFF),
+    ),
+  );
+}
+
+/// Maps the palette onto Material's colour roles.
+///
+/// This mapping is the lever that makes the re-skin tractable: every widget in
+/// the app already reads `colorScheme.primary`, `.error`, `.onSurfaceVariant`
+/// and so on rather than naming colours itself, so pointing those roles at the
+/// monochrome palette re-skins the whole tree at once. What is left afterwards
+/// is *shape* work — pills, hairlines, spacing — not a colour hunt.
+const _scheme = ColorScheme(
+  brightness: Brightness.light,
+
+  // Primary is the ink. Buttons, links, active states, progress.
+  primary: AppColors.ink,
+  onPrimary: AppColors.surface,
+  primaryContainer: AppColors.subtleFill,
+  onPrimaryContainer: AppColors.ink,
+
+  // Secondary carries the quiet fills: chips at rest, muted panels.
+  secondary: AppColors.subtleFill,
+  onSecondary: AppColors.ink,
+  secondaryContainer: AppColors.subtleFill,
+  onSecondaryContainer: AppColors.ink,
+
+  // Tertiary was the old accent slot, used for the one emphasised figure on
+  // the dashboard. It stays ink; the emphasis now comes from the fill behind
+  // it, which is the rule this design applies everywhere.
+  tertiary: AppColors.ink,
+  onTertiary: AppColors.surface,
+  tertiaryContainer: AppColors.subtleFill,
+  onTertiaryContainer: AppColors.ink,
+
+  // The one exception. See AppColors.error.
+  error: AppColors.error,
+  onError: AppColors.onError,
+  errorContainer: AppColors.subtleFill,
+  onErrorContainer: AppColors.error,
+
+  surface: AppColors.surface,
+  onSurface: AppColors.ink,
+  surfaceContainerHighest: AppColors.subtleFill,
+  onSurfaceVariant: AppColors.inkSecondary,
+
+  // Material's own split, and the same one this palette makes: `outline` is
+  // the edge of a container, `outlineVariant` a rule drawn inside one. Any
+  // widget the app has not themed by hand still lands on the right side of
+  // it.
+  outline: AppColors.outline,
+  outlineVariant: AppColors.hairline,
+);
+
+ThemeData _build() {
+  final textTheme = AppTypography.textTheme();
+
+  final surfaceShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(AppRadius.surface),
+    side: const BorderSide(
+      color: AppColors.outline,
+      width: AppStroke.hairline,
+    ),
   );
 
-  // Headings use the heading font; body styles keep the body font.
-  // This style carries no `fontSize`, so merging it below overrides the family
-  // without undoing the scaling applied above.
-  //
-  // The weight is part of the pairing, not decoration. Outfit at w600 against
-  // Inter at w400 is what separates a heading from a paragraph when both sit at
-  // similar sizes — without it the two families are near enough to read as one.
-  final headingStyle =
-      _font(headingFamily, t.foreground).copyWith(fontWeight: FontWeight.w600);
-
-  // `titleMedium` and `titleSmall` are included deliberately. `titleMedium` is
-  // the card-title style and is used 28 times across the app; while only
-  // `titleLarge` and the `headline*` sizes took the heading font, Outfit
-  // appeared on eight surfaces in total and every card heading rendered in
-  // Inter — so the app had two declared fonts and effectively shipped one.
-  final textTheme = baseText.copyWith(
-    displayLarge: baseText.displayLarge?.merge(headingStyle),
-    displayMedium: baseText.displayMedium?.merge(headingStyle),
-    displaySmall: baseText.displaySmall?.merge(headingStyle),
-    headlineLarge: baseText.headlineLarge?.merge(headingStyle),
-    headlineMedium: baseText.headlineMedium?.merge(headingStyle),
-    headlineSmall: baseText.headlineSmall?.merge(headingStyle),
-    titleLarge: baseText.titleLarge?.merge(headingStyle),
-    titleMedium: baseText.titleMedium?.merge(headingStyle),
-    titleSmall: baseText.titleSmall?.merge(headingStyle),
-  );
-
-  final cardRadius = BorderRadius.circular(t.radius);
-  final controlRadius = BorderRadius.circular(t.radiusControl);
+  OutlineInputBorder inputBorder(Color color, {double width = 1}) =>
+      OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadius.control),
+        borderSide: BorderSide(color: color, width: width),
+      );
 
   return ThemeData(
     useMaterial3: true,
-    colorScheme: scheme,
-    extensions: [
+    colorScheme: _scheme,
+    extensions: const [
       AppRadii(
-        surface: t.radius,
-        control: t.radiusControl,
-        small: t.radiusSmall,
+        surface: AppRadius.surface,
+        control: AppRadius.control,
+        small: AppRadius.small,
       ),
     ],
-    scaffoldBackgroundColor: t.background,
-    canvasColor: t.background,
+    scaffoldBackgroundColor: AppColors.surface,
+    canvasColor: AppColors.surface,
     textTheme: textTheme,
-    dividerColor: t.border,
+    dividerColor: AppColors.hairline,
+    dividerTheme: const DividerThemeData(
+      color: AppColors.hairline,
+      thickness: AppStroke.hairline,
+      space: AppStroke.hairline,
+    ),
+    splashFactory: InkSparkle.splashFactory,
+
+    // Hairline border, no shadow. Picking one and applying it everywhere is
+    // what stops a page looking assembled from two different kits.
     cardTheme: CardThemeData(
-      color: t.card,
+      color: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: cardRadius,
-        side: BorderSide(color: t.border),
-      ),
+      shape: surfaceShape,
     ),
+
     appBarTheme: AppBarTheme(
-      backgroundColor: t.background,
-      foregroundColor: t.foreground,
+      backgroundColor: AppColors.surface,
+      foregroundColor: AppColors.ink,
+      surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
+      titleTextStyle: textTheme.headlineMedium,
     ),
-    bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: t.card,
-      selectedItemColor: t.primary,
-      unselectedItemColor: t.mutedForeground,
-      type: BottomNavigationBarType.fixed,
-      elevation: 0,
-    ),
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: t.card,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      border: OutlineInputBorder(
-        borderRadius: controlRadius,
-        borderSide: BorderSide(color: t.input),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: controlRadius,
-        borderSide: BorderSide(color: t.input),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: controlRadius,
-        borderSide: BorderSide(color: t.ring, width: 2),
-      ),
-      // Errors were previously drawn with the Material default red rather than
-      // the theme's destructive colour, so the one state that most needs to be
-      // unmistakable was the only one off-palette.
-      errorBorder: OutlineInputBorder(
-        borderRadius: controlRadius,
-        borderSide: BorderSide(color: t.destructive),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: controlRadius,
-        borderSide: BorderSide(color: t.destructive, width: 2),
-      ),
-      disabledBorder: OutlineInputBorder(
-        borderRadius: controlRadius,
-        borderSide: BorderSide(color: t.border),
-      ),
-      labelStyle: TextStyle(color: t.mutedForeground),
-      hintStyle: TextStyle(color: t.mutedForeground),
-      errorStyle: TextStyle(color: t.destructive),
-    ),
-    // Buttons share one padding rule and one radius. Vertical padding is 12 --
-    // on the 4px grid -- with the 48dp minimum touch target stated explicitly
-    // rather than smuggled in as an off-grid 14.
+
+    // Buttons are pills. Black fill for the primary action, white with a black
+    // hairline for everything else.
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        // Filled surfaces carry the supplied Wisteria with dark ink on it --
-        // white on that blue is 2.64:1, so the label has to be the dark one.
-        backgroundColor: t.primaryContainer ?? t.primary,
-        foregroundColor: t.onPrimaryContainer ?? t.primaryForeground,
-        disabledBackgroundColor: t.secondary,
-        disabledForegroundColor: t.mutedForeground,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        minimumSize: const Size(0, 48),
-        shape: RoundedRectangleBorder(borderRadius: controlRadius),
-        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+        backgroundColor: AppColors.ink,
+        foregroundColor: AppColors.surface,
+        disabledBackgroundColor: AppColors.subtleFill,
+        disabledForegroundColor: AppColors.disabled,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+        minimumSize: const Size(0, 52),
+        elevation: 0,
+        shape: const StadiumBorder(),
+        textStyle: textTheme.labelLarge,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: t.foreground,
-        disabledForegroundColor: t.mutedForeground,
-        side: BorderSide(color: t.border),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        minimumSize: const Size(0, 48),
-        shape: RoundedRectangleBorder(borderRadius: controlRadius),
+        backgroundColor: AppColors.surface,
+        foregroundColor: AppColors.ink,
+        disabledForegroundColor: AppColors.disabled,
+        side: const BorderSide(
+          color: AppColors.ink,
+          width: AppStroke.hairline,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+        minimumSize: const Size(0, 52),
+        shape: const StadiumBorder(),
+        textStyle: textTheme.labelLarge,
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: t.primary,
-        disabledForegroundColor: t.mutedForeground,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        foregroundColor: AppColors.ink,
+        disabledForegroundColor: AppColors.disabled,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
         minimumSize: const Size(0, 48),
-        shape: RoundedRectangleBorder(borderRadius: controlRadius),
+        shape: const StadiumBorder(),
+        textStyle: textTheme.labelLarge,
       ),
     ),
-    // A selected chip fills with `primary`. The label previously stayed
-    // `secondaryForeground` in both states, so a selected chip drew dark ink on
-    // a dark plum fill. Resolving the label and the border per state keeps both
-    // states legible instead of only the unselected one.
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.surface,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
+      ),
+      border: inputBorder(AppColors.outline),
+      enabledBorder: inputBorder(AppColors.outline),
+      // Focus is carried by weight rather than colour: the resting edge is
+      // already ink, so there is nowhere darker to go.
+      focusedBorder: inputBorder(AppColors.ink, width: 2),
+      errorBorder: inputBorder(AppColors.error),
+      focusedErrorBorder: inputBorder(AppColors.error, width: 2),
+      // A disabled field keeps the pale edge — it is the one state that should
+      // recede rather than assert a boundary.
+      disabledBorder: inputBorder(AppColors.hairline),
+      labelStyle: const TextStyle(color: AppColors.inkSecondary),
+      floatingLabelStyle: const TextStyle(color: AppColors.ink),
+      hintStyle: const TextStyle(color: AppColors.disabled),
+      helperStyle: const TextStyle(color: AppColors.inkSecondary),
+      errorStyle: const TextStyle(color: AppColors.error),
+    ),
+
+    // Selected chips invert to ink; unselected stay white with a hairline.
+    //
+    // The label colours are plain [TextStyle]s, not a `WidgetStateTextStyle`.
+    // `RawChip` reads `labelStyle.color` off the style *before* resolving it
+    // against the widget states, so a state-dependent style hands it null and
+    // the label ends up with no colour at all — which on this palette is an
+    // empty white pill rather than a visibly wrong one. `secondaryLabelStyle`
+    // is the hook Material gives for the selected case.
     chipTheme: ChipThemeData(
-      backgroundColor: t.secondary,
-      selectedColor: t.primaryContainer ?? t.primary,
-      checkmarkColor: t.onPrimaryContainer ?? t.primaryForeground,
-      labelStyle: WidgetStateTextStyle.resolveWith(
-        (states) => TextStyle(
-          color: states.contains(WidgetState.selected)
-              ? (t.onPrimaryContainer ?? t.primaryForeground)
-              : t.secondaryForeground,
-          fontWeight: FontWeight.w500,
-        ),
+      backgroundColor: AppColors.surface,
+      selectedColor: AppColors.ink,
+      secondarySelectedColor: AppColors.ink,
+      checkmarkColor: AppColors.surface,
+      disabledColor: AppColors.subtleFill,
+      labelStyle: const TextStyle(
+        fontSize: AppTypography.captionSize,
+        fontWeight: FontWeight.w600,
+        color: AppColors.ink,
+      ),
+      secondaryLabelStyle: const TextStyle(
+        fontSize: AppTypography.captionSize,
+        fontWeight: FontWeight.w600,
+        color: AppColors.surface,
       ),
       side: WidgetStateBorderSide.resolveWith(
         (states) => BorderSide(
-          color: states.contains(WidgetState.selected)
-              ? (t.primaryContainer ?? t.primary)
-              : t.border,
+          color: states.contains(WidgetState.disabled)
+              ? AppColors.hairline
+              : AppColors.outline,
+          width: AppStroke.hairline,
         ),
       ),
       shape: const StadiumBorder(),
+      showCheckmark: false,
     ),
-    progressIndicatorTheme: ProgressIndicatorThemeData(
-      color: t.primary,
-      linearTrackColor: t.secondary,
-    ),
-    bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: t.card,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(t.radius)),
+
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? AppColors.ink
+              : AppColors.surface,
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? AppColors.surface
+              : AppColors.ink,
+        ),
+        side: const WidgetStatePropertyAll(
+          BorderSide(color: AppColors.outline, width: AppStroke.hairline),
+        ),
+        shape: const WidgetStatePropertyAll(StadiumBorder()),
+        textStyle: WidgetStatePropertyAll(textTheme.labelMedium),
       ),
     ),
+
+    // A black disc with a white glyph, matching the primary button and the
+    // nav bar it sits above. Left unthemed it took Material 3's defaults — a
+    // pale rounded square — which was the only non-monochrome-looking control
+    // on the dashboard.
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: AppColors.ink,
+      foregroundColor: AppColors.surface,
+      elevation: 0,
+      focusElevation: 0,
+      hoverElevation: 0,
+      highlightElevation: 0,
+      shape: CircleBorder(),
+    ),
+
+    progressIndicatorTheme: const ProgressIndicatorThemeData(
+      color: AppColors.ink,
+      linearTrackColor: AppColors.subtleFill,
+      circularTrackColor: AppColors.subtleFill,
+    ),
+
+    sliderTheme: const SliderThemeData(
+      activeTrackColor: AppColors.ink,
+      inactiveTrackColor: AppColors.subtleFill,
+      thumbColor: AppColors.ink,
+      overlayColor: Color(0x14000000),
+      valueIndicatorColor: AppColors.ink,
+      valueIndicatorTextStyle: TextStyle(color: AppColors.surface),
+    ),
+
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? AppColors.surface
+            : AppColors.inkSecondary,
+      ),
+      trackColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? AppColors.ink
+            : AppColors.subtleFill,
+      ),
+      trackOutlineColor: const WidgetStatePropertyAll(AppColors.outline),
+    ),
+
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppRadius.surface),
+        ),
+      ),
+    ),
+
     dialogTheme: DialogThemeData(
-      backgroundColor: t.popover,
-      shape: RoundedRectangleBorder(borderRadius: cardRadius),
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.surface),
+      ),
+      titleTextStyle: textTheme.titleLarge,
+      contentTextStyle: textTheme.bodyMedium,
+    ),
+
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: AppColors.ink,
+      contentTextStyle: textTheme.bodyMedium?.copyWith(
+        color: AppColors.surface,
+      ),
+      actionTextColor: AppColors.surface,
+      behavior: SnackBarBehavior.floating,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.control),
+      ),
+    ),
+
+    listTileTheme: const ListTileThemeData(
+      iconColor: AppColors.ink,
+      textColor: AppColors.ink,
+    ),
+
+    iconTheme: const IconThemeData(color: AppColors.ink, size: 22),
+
+    tooltipTheme: TooltipThemeData(
+      decoration: BoxDecoration(
+        color: AppColors.ink,
+        borderRadius: BorderRadius.circular(AppRadius.small),
+      ),
+      textStyle: const TextStyle(
+        color: AppColors.surface,
+        fontSize: AppTypography.captionSize,
+      ),
     ),
   );
 }

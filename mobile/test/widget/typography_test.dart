@@ -1,19 +1,18 @@
 import 'package:cash_compass/app/theme/app_theme.dart';
-import 'package:cash_compass/app/theme/app_tokens.dart';
-import 'package:cash_compass/state/theme_provider.dart';
+import 'package:cash_compass/app/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'harness.dart';
 
-/// Regression tests for two reported Settings bugs.
+/// Guards the typography, including two bugs this app has already shipped once.
 ///
 /// 1. Selecting the Mono font pack blanked the screen. `google_fonts` throws on
 ///    an unknown family, and that throw happened while building `ThemeData` —
 ///    which `MaterialApp` reads on every build — so the whole widget tree
-///    failed. The font name came from the web app's CSS, where the stack ends
-///    in `monospace` and a miss is invisible.
+///    failed. The font packs are gone, but the failure mode is a property of
+///    `google_fonts`, not of the packs, so the guard stays.
 ///
 /// 2. The text-size slider did nothing. Sizes were applied with
 ///    `TextTheme.apply(fontSizeFactor:)`, but Google Fonts styles carry a null
@@ -22,80 +21,65 @@ import 'harness.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  // google_fonts fetches font files from fonts.gstatic.com on first use. There
-  // is no network in a test run, and the resulting async failure is unrelated
-  // to what these tests assert. Turning fetching off keeps the failures honest.
-  setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
+  // Runtime fetching is deliberately left ON, matching every other test file.
+  //
+  // Turning it off used to be safe here because nothing in this file built a
+  // real theme. It no longer is: with fetching disabled, `google_fonts` throws
+  // *asynchronously* for a catalogued family whose file is not bundled, and an
+  // async throw escapes the synchronous try/catch in `AppTypography._safe`. So
+  // disabling it does not make failures honest any more — it manufactures one.
+  //
+  // With it on, the fetch simply fails offline and the family falls back,
+  // which is the same path a user on a plane takes.
 
-  final tokens = appThemes[defaultThemeName]!;
-
-  group('font packs', () {
-    // Checked against the catalogue rather than by building a theme: building
-    // one kicks off an async font download, which cannot succeed in a test and
-    // would fail these for a reason that has nothing to do with the invariant.
-    test('every declared family exists in the google_fonts catalogue', () {
-      final catalogue = GoogleFonts.asMap().keys.toSet();
-
-      for (final pack in FontPack.values) {
-        for (final family in {pack.headingFont, pack.bodyFont}) {
-          expect(
-            catalogue,
-            contains(family),
-            reason: '"$family" (${pack.id} pack) is not in google_fonts. '
-                'Asking for it throws, and that throw happens while building '
-                'ThemeData — which blanks the whole screen. This is exactly '
-                'how "Geist Mono" broke the Mono pack.',
-          );
-        }
-      }
+  group('the family', () {
+    test('exists in the google_fonts catalogue', () {
+      // Checked against the catalogue rather than by building a theme:
+      // building one kicks off an async download that cannot succeed here.
+      expect(
+        GoogleFonts.asMap().keys,
+        contains(AppTypography.family),
+        reason: '"${AppTypography.family}" is not in google_fonts. Asking for '
+            'it throws, and that throw happens while building ThemeData — '
+            'which blanks the whole screen. This is exactly how "Geist Mono" '
+            'broke the old Mono pack.',
+      );
     });
 
-    test('theme token fonts exist too', () {
-      final catalogue = GoogleFonts.asMap().keys.toSet();
+    test('is not one of the faces that lack Cyrillic', () {
+      // The app ships in Russian. A family without Cyrillic does not fail
+      // loudly — it silently renders every Russian string in a system
+      // fallback, which is what the previous heading font (Outfit) was doing.
+      //
+      // A denylist rather than an allowlist because the real requirement is
+      // "has Cyrillic", which cannot be read offline; this at least catches
+      // the tempting swaps. Verify coverage before changing the family:
+      //   curl -A "<a browser UA>" \
+      //     "https://fonts.googleapis.com/css2?family=<Name>:wght@400" \
+      //     | grep U+0301
+      const noCyrillic = {'Outfit', 'Poppins', 'DM Sans', 'Space Grotesk'};
 
-      for (final theme in appThemes.values) {
-        for (final family in {theme.headingFont, theme.bodyFont}) {
-          expect(catalogue, contains(family),
-              reason: '"$family" in the ${theme.name} theme is not catalogued');
-        }
-      }
+      expect(
+        noCyrillic,
+        isNot(contains(AppTypography.family)),
+        reason: '${AppTypography.family} has no Cyrillic glyphs, so the '
+            'Russian build would fall back to a system face everywhere',
+      );
     });
 
     testWidgets('an unknown family degrades instead of blanking the screen',
         (tester) async {
-      // Simulates the original bug: a token set naming a font that is not in
-      // the catalogue. The app must still render.
-      final bogus = AppTokens(
-        name: 'bogus-font-theme',
-        label: 'Bogus',
-        headingFont: 'Definitely Not A Real Font',
-        bodyFont: 'Also Not Real',
-        monoFont: 'Not Real Either',
-        popover: tokens.popover,
-        popoverForeground: tokens.popoverForeground,
-        radius: tokens.radius,
-        background: tokens.background,
-        foreground: tokens.foreground,
-        card: tokens.card,
-        cardForeground: tokens.cardForeground,
-        primary: tokens.primary,
-        primaryForeground: tokens.primaryForeground,
-        secondary: tokens.secondary,
-        secondaryForeground: tokens.secondaryForeground,
-        muted: tokens.muted,
-        mutedForeground: tokens.mutedForeground,
-        accent: tokens.accent,
-        accentForeground: tokens.accentForeground,
-        destructive: tokens.destructive,
-        destructiveForeground: tokens.destructiveForeground,
-        border: tokens.border,
-        input: tokens.input,
-        ring: tokens.ring,
+      // Simulates the original bug: a family that is not in the catalogue.
+      // The app must still render.
+      final theme = ThemeData(
+        textTheme: AppTypography.textTheme(
+          fontFamily: 'Definitely Not A Real Font',
+        ),
       );
 
       await tester.pumpWidget(
         MaterialApp(
-          theme: buildTheme(bogus),
+          theme: theme,
           home: const Scaffold(body: Text('still here')),
         ),
       );
@@ -105,6 +89,74 @@ void main() {
         findsOneWidget,
         reason: 'a missing font is decoration failing, not the app failing',
       );
+    });
+  });
+
+  group('the scale', () {
+    test('defines a descending display / header / body / caption ramp', () {
+      // Four named steps, each smaller than the last. A scale that is not
+      // monotonic is how a "caption" ends up larger than the body around it.
+      expect(
+        AppTypography.displaySize,
+        greaterThan(AppTypography.headerSize),
+      );
+      expect(AppTypography.headerSize, greaterThan(AppTypography.bodySize));
+      expect(AppTypography.bodySize, greaterThan(AppTypography.captionSize));
+    });
+
+    test('every style carries an explicit size', () {
+      // The old theme left sizes to Material's defaults, which is what made
+      // the scale impossible to reason about in one place.
+      //
+      // Reads `scale()` rather than `textTheme()` on purpose: the latter goes
+      // through google_fonts, which starts a fetch that outlives a plain test.
+      final t = AppTypography.scale();
+      final styles = <String, TextStyle?>{
+        'displayLarge': t.displayLarge,
+        'headlineSmall': t.headlineSmall,
+        'titleMedium': t.titleMedium,
+        'bodyMedium': t.bodyMedium,
+        'bodySmall': t.bodySmall,
+        'labelLarge': t.labelLarge,
+      };
+
+      styles.forEach((name, style) {
+        expect(style?.fontSize, isNotNull, reason: '$name has no size');
+      });
+    });
+
+    testWidgets('the family survives being merged with the scale',
+        (tester) async {
+      // Regression guard. Layering the scale with `copyWith` instead of
+      // `merge` replaces each slot outright and drops the family with it —
+      // the app then renders in the platform default and still looks
+      // plausible, which is exactly why this needs a test rather than an eye.
+      late TextTheme applied;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildTheme(),
+          home: Builder(
+            builder: (context) {
+              applied = Theme.of(context).textTheme;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+
+      for (final entry in {
+        'displayLarge': applied.displayLarge,
+        'titleMedium': applied.titleMedium,
+        'bodyMedium': applied.bodyMedium,
+        'bodySmall': applied.bodySmall,
+      }.entries) {
+        expect(
+          entry.value?.fontFamily,
+          contains(AppTypography.family),
+          reason: '${entry.key} lost the font family',
+        );
+        expect(entry.value?.fontSize, isNotNull, reason: entry.key);
+      }
     });
   });
 
@@ -157,6 +209,14 @@ void main() {
 
       await theme.setFontScale(0);
       expect(theme.fontScalePercent, 85);
+    });
+  });
+
+  group('the theme', () {
+    test('is a single memoised instance', () {
+      // There is nothing to vary any more, so rebuilding MaterialApp must not
+      // rebuild 15 TextStyles.
+      expect(identical(buildTheme(), buildTheme()), isTrue);
     });
   });
 }

@@ -64,7 +64,8 @@ void main() {
 
     expect(find.text('Язык'), findsOneWidget);
     expect(find.text('Валюта'), findsOneWidget);
-    expect(find.text('Тема'), findsOneWidget);
+    // No "Тема" section: the palette is fixed and the picker is gone.
+    expect(find.text('Тема'), findsNothing);
 
     // Nothing English left over above the fold.
     expect(find.text('Language'), findsNothing);

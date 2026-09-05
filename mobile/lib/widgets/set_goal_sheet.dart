@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app/theme/app_colors.dart';
+import '../app/theme/app_spacing.dart';
+import '../app/widgets/app_card.dart';
+import '../app/widgets/goal_icon.dart';
 import '../l10n/l10n.dart';
 import '../state/currency_provider.dart';
 import '../state/finance_provider.dart';
@@ -51,12 +55,12 @@ class SetGoalSheet extends StatefulWidget {
 
 class _SetGoalSheetState extends State<SetGoalSheet> {
   final _nameController = TextEditingController();
-  final _iconController = TextEditingController(text: '🎯');
   final _targetController = TextEditingController();
   final _savedController = TextEditingController();
   final _customDaysController = TextEditingController(text: '90');
 
   GoalPeriod _period = GoalPeriod.sixMonths;
+  String _iconKey = defaultGoalIconKey;
   String? _error;
 
   int get _days {
@@ -69,7 +73,6 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
   @override
   void dispose() {
     _nameController.dispose();
-    _iconController.dispose();
     _targetController.dispose();
     _savedController.dispose();
     _customDaysController.dispose();
@@ -98,9 +101,7 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
           name: name,
           target: currency.convertToUsd(target),
           initialAmount: currency.convertToUsd(saved),
-          icon: _iconController.text.trim().isEmpty
-              ? '🎯'
-              : _iconController.text.trim(),
+          icon: _iconKey,
         );
 
     Navigator.of(context).pop();
@@ -129,29 +130,27 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
       onSubmit: _save,
       submitLabel: l10n.goalSheetSubmit,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        TextField(
+          controller: _nameController,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            labelText: l10n.goalFieldName,
+            hintText: l10n.goalFieldNameHint,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(l10n.goalFieldIcon, style: theme.textTheme.labelLarge),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
           children: [
-            SizedBox(
-              width: 72,
-              child: TextField(
-                controller: _iconController,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 20),
-                decoration: InputDecoration(labelText: l10n.goalFieldIcon),
+            for (final entry in goalIcons.entries)
+              _IconChoice(
+                icon: entry.value,
+                selected: _iconKey == entry.key,
+                onTap: () => setState(() => _iconKey = entry.key),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                controller: _nameController,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
-                  labelText: l10n.goalFieldName,
-                  hintText: l10n.goalFieldNameHint,
-                ),
-              ),
-            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -209,8 +208,7 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
                   controller: _customDaysController,
                   keyboardType: TextInputType.number,
                   onChanged: (_) => setState(() {}),
-                  decoration:
-                      InputDecoration(labelText: l10n.goalFieldDays),
+                  decoration: InputDecoration(labelText: l10n.goalFieldDays),
                 ),
               ),
               const SizedBox(width: 12),
@@ -220,32 +218,30 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
         ],
         if (target > 0) ...[
           const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.goalReachIn(_days),
-                    style: theme.textTheme.bodySmall,
+          AppCard(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.goalReachIn(_days),
+                  style: theme.textTheme.bodySmall,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  l10n.goalPerDay(currency.formatAmount(perDay)),
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.goalPerWeekMonth(
+                    currency.formatAmount(perDay * 7),
+                    currency.formatAmount(perDay * 30),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    l10n.goalPerDay(currency.formatAmount(perDay)),
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.goalPerWeekMonth(
-                      currency.formatAmount(perDay * 7),
-                      currency.formatAmount(perDay * 30),
-                    ),
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ],
-              ),
+                  style: theme.textTheme.bodySmall,
+                ),
+              ],
             ),
           ),
         ],
@@ -264,9 +260,11 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
                       // A long goal name plus two formatted amounts overflows
                       // a narrow sheet, especially in locales with wider
                       // number grouping.
+                      Icon(goalIcon(g.icon), size: 18),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          '${g.icon} ${g.name}',
+                          g.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -300,6 +298,48 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// One selectable mark in the goal-icon picker.
+///
+/// A square tile that inverts when chosen, matching how chips and segmented
+/// buttons read selection everywhere else in the app.
+class _IconChoice extends StatelessWidget {
+  const _IconChoice({
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.small),
+        child: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: selected ? AppColors.ink : AppColors.surface,
+            borderRadius: BorderRadius.circular(AppRadius.small),
+            border: Border.all(color: AppColors.outline),
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: selected ? AppColors.surface : AppColors.ink,
+          ),
+        ),
+      ),
     );
   }
 }
