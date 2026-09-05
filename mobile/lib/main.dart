@@ -175,10 +175,7 @@ class _CashCompassAppState extends State<CashCompassApp>
           ],
           // Removes Android's overscroll stretch app-wide; see AppScrollBehavior.
           scrollBehavior: const AppScrollBehavior(),
-          theme: buildTheme(
-            themeState.tokens,
-            fontPack: themeState.fontPack,
-          ),
+          theme: buildTheme(),
           // Text size is applied here rather than inside ThemeData.
           //
           // The obvious approach — `TextTheme.apply(fontSizeFactor:)` — cannot

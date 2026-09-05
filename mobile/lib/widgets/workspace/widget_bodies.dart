@@ -5,7 +5,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_theme.dart';
+import '../../app/widgets/app_progress_ring.dart';
+import '../../app/widgets/goal_icon.dart';
 import '../../l10n/l10n.dart';
 import '../../l10n/presenters.dart';
 import '../../logic/budget_math.dart';
@@ -126,27 +129,58 @@ class _BudgetHealth extends StatelessWidget {
 
     return _ScrollingBody(
       children: [
+        // Name and percentage on one line with a track beneath, as the
+        // reference sheet lays out its budget list. The bar says at a glance
+        // what the figure only says on reading — same numbers, same source.
         for (final b in finance.budgets)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    categoryLabel(l10n, b.name),
-                    style: theme.textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+          Builder(
+            builder: (context) {
+              final used = byCategory[b.name.toLowerCase()] ?? 0;
+              final share =
+                  b.monthlyLimit <= 0 ? null : used / b.monthlyLimit;
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            categoryLabel(l10n, b.name),
+                            style: theme.textTheme.bodySmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          share == null
+                              ? '—'
+                              : '${(share * 100).round()}%',
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(999),
+                      child: LinearProgressIndicator(
+                        // A budget with no limit has no proportion to draw, so
+                        // the track shows empty rather than guessing at one.
+                        value: share == null ? 0 : share.clamp(0.0, 1.0),
+                        minHeight: 5,
+                        backgroundColor: AppColors.subtleFill,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  b.monthlyLimit <= 0
-                      ? '—'
-                      : '${((byCategory[b.name.toLowerCase()] ?? 0) / b.monthlyLimit * 100).round()}%',
-                  style: theme.textTheme.bodySmall,
-                ),
-              ],
-            ),
+              );
+            },
           ),
       ],
     );
@@ -218,9 +252,11 @@ class _GoalProgress extends StatelessWidget {
               children: [
                 Row(
                   children: [
+                    Icon(goalIcon(g.icon), size: 14),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        '${g.icon} ${g.name}',
+                        g.name,
                         style: theme.textTheme.bodySmall,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -282,28 +318,10 @@ class _SafeToSpend extends StatelessWidget {
 
     return Row(
       children: [
-        SizedBox(
-          width: 62,
-          height: 62,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 62,
-                height: 62,
-                child: CircularProgressIndicator(
-                  value: completion,
-                  strokeWidth: 6,
-                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                ),
-              ),
-              Text(
-                '${(completion * 100).round()}%',
-                style: theme.textTheme.bodySmall,
-              ),
-            ],
-          ),
-        ),
+        // The shared ring rather than a CircularProgressIndicator stacked
+        // behind a Text: Material's indicator cannot centre a label, so the
+        // cap and the figure were competing for the same optical centre.
+        AppProgressRing(progress: completion, size: 62),
         const SizedBox(width: 14),
         Expanded(
           child: Column(
@@ -613,7 +631,7 @@ class _WasteAuditor extends StatelessWidget {
                 Text(
                   l10n.perMonth(currency.formatFromUsd(s.averageAmount)),
                   style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.error),
+                      ?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -668,8 +686,11 @@ class _RoommateSync extends StatelessWidget {
                               ),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: plan.settledWith.contains('all')
-                              ? theme.colorScheme.primary
-                              : theme.colorScheme.error,
+                              ? AppColors.inkSecondary
+                              : AppColors.ink,
+                          fontWeight: plan.settledWith.contains('all')
+                              ? FontWeight.w400
+                              : FontWeight.w700,
                         ),
                       ),
                     ],
@@ -765,7 +786,15 @@ class _MediaWidgetState extends State<_MediaWidget> {
 class _MangaStatus extends StatelessWidget {
   const _MangaStatus();
 
-  static const _stages = ['😔', '😐', '😊', '😄', '🤩'];
+  // Material's sentiment set is the same five-step ramp the emoji gave, drawn
+  // as line faces instead of colour ones.
+  static const _stages = [
+    Icons.sentiment_very_dissatisfied_outlined,
+    Icons.sentiment_dissatisfied_outlined,
+    Icons.sentiment_neutral_outlined,
+    Icons.sentiment_satisfied_outlined,
+    Icons.sentiment_very_satisfied_outlined,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -783,7 +812,7 @@ class _MangaStatus extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(_stages[stage], style: const TextStyle(fontSize: 40)),
+            Icon(_stages[stage], size: 40),
             const SizedBox(height: 6),
             Text(
               goals.isEmpty
@@ -837,7 +866,16 @@ class _ChibiMascot extends StatefulWidget {
 }
 
 class _ChibiMascotState extends State<_ChibiMascot> {
-  static const _faces = ['🤖', '🐱', '🦊', '🐼', '🐧'];
+  // Five distinct line glyphs rather than five colour animals. Distinctness is
+  // the whole point of the widget — tapping cycles them — so these are chosen
+  // to differ in silhouette, not just in subject.
+  static const _faces = [
+    Icons.smart_toy_outlined,
+    Icons.pets,
+    Icons.cruelty_free_outlined,
+    Icons.rocket_launch_outlined,
+    Icons.emoji_nature_outlined,
+  ];
   int _index = 0;
 
   @override
@@ -848,10 +886,7 @@ class _ChibiMascotState extends State<_ChibiMascot> {
       child: GestureDetector(
         onTap: () => setState(() => _index = (_index + 1) % _faces.length),
         child: _FitBody(
-          child: Text(
-            _faces[_index],
-            style: const TextStyle(fontSize: 44),
-          ),
+          child: Icon(_faces[_index], size: 44),
         ),
       ),
     );
@@ -896,10 +931,7 @@ class _GrowthGemState extends State<_GrowthGem>
               turns: _controller,
               child: CustomPaint(
                 size: Size(size, size),
-                painter: _HexagonPainter(
-                  start: theme.colorScheme.primary,
-                  end: theme.colorScheme.secondary,
-                ),
+                painter: const _HexagonPainter(),
               ),
             ),
             const SizedBox(height: 8),
@@ -917,17 +949,21 @@ class _GrowthGemState extends State<_GrowthGem>
 
 /// The gem the web app drew as an inline SVG polygon — no three.js involved,
 /// despite the 3D dependencies in its package.json.
+///
+/// Flat-shaded rather than gradient-filled. The gradient was the one glossy
+/// surface left in the app, and a single gloss among flat cards reads as an
+/// oversight rather than as an accent. The cut is suggested by two flat facets
+/// in different greys — the way a printed diagram would show it — which keeps
+/// the shape legible without simulating a light source.
 class _HexagonPainter extends CustomPainter {
-  const _HexagonPainter({required this.start, required this.end});
-
-  final Color start;
-  final Color end;
+  const _HexagonPainter();
 
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
-    final path = Path()
+
+    final body = Path()
       ..moveTo(w * 0.50, h * 0.10)
       ..lineTo(w * 0.90, h * 0.40)
       ..lineTo(w * 0.90, h * 0.70)
@@ -936,16 +972,22 @@ class _HexagonPainter extends CustomPainter {
       ..lineTo(w * 0.10, h * 0.40)
       ..close();
 
-    final paint = Paint()
-      ..shader = LinearGradient(colors: [start, end]).createShader(
-        Rect.fromLTWH(0, 0, w, h),
-      );
-    canvas.drawPath(path, paint);
+    canvas.drawPath(body, Paint()..color = AppColors.ink);
+
+    // The upper-left facet, one flat step lighter. Drawn over the body rather
+    // than beside it so the silhouette stays a single clean hexagon.
+    final facet = Path()
+      ..moveTo(w * 0.50, h * 0.10)
+      ..lineTo(w * 0.50, h * 0.90)
+      ..lineTo(w * 0.10, h * 0.70)
+      ..lineTo(w * 0.10, h * 0.40)
+      ..close();
+
+    canvas.drawPath(facet, Paint()..color = const Color(0xFF5C5C5C));
   }
 
   @override
-  bool shouldRepaint(_HexagonPainter old) =>
-      old.start != start || old.end != end;
+  bool shouldRepaint(_HexagonPainter old) => false;
 }
 
 class _Metric extends StatelessWidget {

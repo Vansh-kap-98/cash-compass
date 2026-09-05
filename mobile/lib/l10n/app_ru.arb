@@ -612,7 +612,7 @@
       "count": { "type": "int" }
     }
   },
-  "plannerStreakBadge": "3 дня подряд 🌸",
+  "plannerStreakBadge": "3 дня подряд",
   "plannerMarkedOnTrack": "Сегодня отмечено",
   "plannerMarkOnTrack": "Отметить сегодняшний день",
   "plannerStreakFooter": "Никаких штрафов. Пропущенные дни просто мягко обнуляют серию.",
@@ -757,11 +757,11 @@
       "amount": { "type": "String" }
     }
   },
-  "fortunePennySaved": "\ud83d\udcb0 Копейка рубль бережёт",
-  "fortuneSmallSteps": "\ud83d\udcc8 Малые шаги ведут к большому",
-  "fortuneGoalsPatience": "\ud83c\udfaf Цели достигаются терпением",
-  "fortuneSmartSpending": "\ud83d\udca1 Разумные траты — спокойное будущее",
-  "fortuneInvestYourself": "\ud83d\ude80 Вложитесь в себя сегодня",
+  "fortunePennySaved": "Копейка рубль бережёт",
+  "fortuneSmallSteps": "Малые шаги ведут к большому",
+  "fortuneGoalsPatience": "Цели достигаются терпением",
+  "fortuneSmartSpending": "Разумные траты — спокойное будущее",
+  "fortuneInvestYourself": "Вложитесь в себя сегодня",
   "widgetAddGoalToTrack": "Добавьте цель, чтобы начать следить",
   "widgetSavingsProgress": "Прогресс накоплений {percent}%",
   "@widgetSavingsProgress": {
@@ -780,14 +780,10 @@
   },
   "settingsRefreshing": "Обновляем…",
   "settingsRefreshRates": "Обновить курсы",
-  "settingsTheme": "Тема",
   "settingsTypography": "Шрифты",
   "settingsLanguage": "Язык",
   "settingsLanguageSubtitle": "Применяется во всём приложении сразу.",
   "settingsLanguageSystem": "Как в системе",
-  "settingsFontDefault": "Обычный",
-  "settingsFontEditorial": "Книжный",
-  "settingsFontMono": "Моноширинный",
   "settingsTextSize": "Размер текста — {percent}%",
   "@settingsTextSize": {
     "placeholders": {
@@ -832,7 +828,5 @@
     "placeholders": {
       "count": { "type": "int" }
     }
-  },
-
-  "themeSoftBloom": "Мягкий цвет"
+  }
 }

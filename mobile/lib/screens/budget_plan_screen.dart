@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../app/theme/app_theme.dart';
+import '../app/widgets/app_card.dart';
 import '../l10n/l10n.dart';
 import '../l10n/presenters.dart';
 import '../models/budget_plan.dart';
@@ -260,8 +261,7 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
                 child: TextField(
                   controller: _itemNameController,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration:
-                      InputDecoration(labelText: l10n.budgetFieldItem),
+                  decoration: InputDecoration(labelText: l10n.budgetFieldItem),
                 ),
               ),
               const SizedBox(width: 10),
@@ -319,38 +319,34 @@ class _BudgetPlanScreenState extends State<BudgetPlanScreen> {
                 ),
               ),
           const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
+          AppCard(
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(l10n.budgetTotal, style: theme.textTheme.bodyMedium),
+                    Text(
+                      currency.formatFromUsd(draft.total),
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+                if (draft.people > 1) ...[
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(l10n.budgetTotal,
-                          style: theme.textTheme.bodyMedium),
                       Text(
-                        currency.formatFromUsd(draft.total),
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
+                        l10n.budgetPerPerson(draft.people),
+                        style: theme.textTheme.bodySmall,
                       ),
+                      Text(currency.formatFromUsd(draft.perPerson)),
                     ],
                   ),
-                  if (draft.people > 1) ...[
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          l10n.budgetPerPerson(draft.people),
-                          style: theme.textTheme.bodySmall,
-                        ),
-                        Text(currency.formatFromUsd(draft.perPerson)),
-                      ],
-                    ),
-                  ],
                 ],
-              ),
+              ],
             ),
           ),
         ],
@@ -406,71 +402,66 @@ class BudgetReceiptsCard extends StatelessWidget {
 
     if (store.plans.isEmpty) return const SizedBox.shrink();
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.budgetReceiptsTitle,
-                style: theme.textTheme.titleMedium),
-            const SizedBox(height: 10),
-            for (final plan in store.plans.take(5))
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            plan.title,
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                          Text(
-                            plan.dateTo == null
-                                ? l10n.budgetReceiptSummary(
-                                    budgetPlanTypeLabel(l10n, plan.planType),
-                                    plan.dateFrom,
-                                    plan.items.length,
-                                  )
-                                : l10n.budgetReceiptSummaryRange(
-                                    budgetPlanTypeLabel(l10n, plan.planType),
-                                    plan.dateFrom,
-                                    plan.dateTo!,
-                                    plan.items.length,
-                                  ),
-                            style: theme.textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.budgetReceiptsTitle, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 10),
+          for (final plan in store.plans.take(5))
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(currency.formatFromUsd(plan.total)),
-                        if (plan.people > 1)
-                          Text(
-                            l10n.budgetEach(
-                              currency.formatFromUsd(plan.perPerson),
-                            ),
-                            style: theme.textTheme.bodySmall,
-                          ),
+                        Text(
+                          plan.title,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        Text(
+                          plan.dateTo == null
+                              ? l10n.budgetReceiptSummary(
+                                  budgetPlanTypeLabel(l10n, plan.planType),
+                                  plan.dateFrom,
+                                  plan.items.length,
+                                )
+                              : l10n.budgetReceiptSummaryRange(
+                                  budgetPlanTypeLabel(l10n, plan.planType),
+                                  plan.dateFrom,
+                                  plan.dateTo!,
+                                  plan.items.length,
+                                ),
+                          style: theme.textTheme.bodySmall,
+                        ),
                       ],
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      tooltip: l10n.budgetDeleteTooltip,
-                      onPressed: () => context
-                          .read<BudgetPlanProvider>()
-                          .deletePlan(plan.id),
-                    ),
-                  ],
-                ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(currency.formatFromUsd(plan.total)),
+                      if (plan.people > 1)
+                        Text(
+                          l10n.budgetEach(
+                            currency.formatFromUsd(plan.perPerson),
+                          ),
+                          style: theme.textTheme.bodySmall,
+                        ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline),
+                    tooltip: l10n.budgetDeleteTooltip,
+                    onPressed: () =>
+                        context.read<BudgetPlanProvider>().deletePlan(plan.id),
+                  ),
+                ],
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }

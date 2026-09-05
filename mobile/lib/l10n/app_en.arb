@@ -620,7 +620,7 @@
       "count": { "type": "int" }
     }
   },
-  "plannerStreakBadge": "3-day bloom streak 🌸",
+  "plannerStreakBadge": "3-day bloom streak",
   "plannerMarkedOnTrack": "Marked on track today",
   "plannerMarkOnTrack": "Mark today on track",
   "plannerStreakFooter": "No penalties. Missed days just restart softly.",
@@ -765,14 +765,14 @@
       "amount": { "type": "String" }
     }
   },
-  "fortunePennySaved": "\ud83d\udcb0 A penny saved is a penny earned",
+  "fortunePennySaved": "A penny saved is a penny earned",
   "@fortunePennySaved": {
     "description": "One of five rotating aphorisms on the ASCII Fortune widget. Translate for sense, not literally \u2014 an equivalent saying in the target language reads better than a transliteration."
   },
-  "fortuneSmallSteps": "\ud83d\udcc8 Small steps lead to big gains",
-  "fortuneGoalsPatience": "\ud83c\udfaf Goals achieved with patience",
-  "fortuneSmartSpending": "\ud83d\udca1 Smart spending = happy future",
-  "fortuneInvestYourself": "\ud83d\ude80 Invest in yourself today",
+  "fortuneSmallSteps": "Small steps lead to big gains",
+  "fortuneGoalsPatience": "Goals achieved with patience",
+  "fortuneSmartSpending": "Smart spending = happy future",
+  "fortuneInvestYourself": "Invest in yourself today",
   "widgetAddGoalToTrack": "Add a goal to start tracking",
   "widgetSavingsProgress": "Savings progress {percent}%",
   "@widgetSavingsProgress": {
@@ -791,14 +791,10 @@
   },
   "settingsRefreshing": "Refreshing…",
   "settingsRefreshRates": "Refresh rates",
-  "settingsTheme": "Theme",
   "settingsTypography": "Typography",
   "settingsLanguage": "Language",
   "settingsLanguageSubtitle": "Applies everywhere in the app straight away.",
   "settingsLanguageSystem": "System default",
-  "settingsFontDefault": "Default",
-  "settingsFontEditorial": "Editorial",
-  "settingsFontMono": "Mono",
   "settingsTextSize": "Text size — {percent}%",
   "@settingsTextSize": {
     "placeholders": {
@@ -843,7 +839,5 @@
     "placeholders": {
       "count": { "type": "int" }
     }
-  },
-
-  "themeSoftBloom": "Soft Bloom"
+  }
 }

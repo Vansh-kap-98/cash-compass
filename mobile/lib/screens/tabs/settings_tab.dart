@@ -1,24 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../app/theme/app_tokens.dart';
+import '../../app/theme/app_colors.dart';
+import '../../app/widgets/app_avatar.dart';
+import '../../app/widgets/app_button.dart';
+import '../../app/widgets/app_card.dart';
 import '../../dev/sample_data.dart';
 import '../../l10n/l10n.dart';
 import '../../l10n/presenters.dart';
 import '../../state/auth_provider.dart';
 import '../../state/budget_plan_provider.dart';
 import '../../state/currency_provider.dart';
+import '../../state/finance_provider.dart';
 import '../../state/locale_provider.dart';
 import '../../state/planner_provider.dart';
 import '../../state/student_planner_provider.dart';
-import '../../state/workspace_provider.dart';
-import '../../state/finance_provider.dart';
 import '../../state/theme_provider.dart';
+import '../../state/workspace_provider.dart';
 
 /// Settings tab. Port of `SettingsStudio.tsx`.
 ///
-/// The currency and theme controls live here only — the desktop Right-Ctrl and
-/// Right-Alt keyboard shortcuts have no meaning on a phone.
+/// No longer a theme studio: the palette and the typeface are fixed, so what is
+/// left is language, currency, text size, the account, and data. The web app's
+/// Right-Ctrl and Right-Alt theme-cycling shortcuts have no phone equivalent
+/// and are not replaced.
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
 
@@ -100,48 +105,14 @@ class SettingsTab extends StatelessWidget {
             ],
           ),
         ),
-        _Section(
-          title: l10n.settingsTheme,
-          child: DropdownButtonFormField<String>(
-            initialValue: themeState.themeName,
-            items: [
-              for (final entry in appThemes.entries)
-                DropdownMenuItem(
-                  value: entry.key,
-                  child: Text(themeLabel(l10n, entry.value)),
-                ),
-            ],
-            onChanged: (name) {
-              if (name != null) themeState.setTheme(name);
-            },
-          ),
-        ),
+        // No theme or font-pack picker. The app has one palette and one
+        // family; what remains here is the text-size control, which is an
+        // accessibility affordance rather than a styling choice.
         _Section(
           title: l10n.settingsTypography,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DropdownButtonFormField<FontPack>(
-                initialValue: themeState.fontPack,
-                items: [
-                  DropdownMenuItem(
-                    value: FontPack.defaultPack,
-                    child: Text(l10n.settingsFontDefault),
-                  ),
-                  DropdownMenuItem(
-                    value: FontPack.editorial,
-                    child: Text(l10n.settingsFontEditorial),
-                  ),
-                  DropdownMenuItem(
-                    value: FontPack.mono,
-                    child: Text(l10n.settingsFontMono),
-                  ),
-                ],
-                onChanged: (pack) {
-                  if (pack != null) themeState.setFontPack(pack);
-                },
-              ),
-              const SizedBox(height: 16),
               Text(
                 l10n.settingsTextSize(themeState.fontScalePercent.round()),
                 style: theme.textTheme.labelLarge,
@@ -159,35 +130,46 @@ class SettingsTab extends StatelessWidget {
         ),
         _Section(
           title: l10n.settingsAccount,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                context.watch<AuthProvider>().isDemoMode
-                    ? l10n.settingsDemoMode
-                    : l10n.settingsSignedInAs(
-                        context.watch<AuthProvider>().user?.displayName ?? '',
+          child: Builder(
+            builder: (context) {
+              final auth = context.watch<AuthProvider>();
+              final name = auth.user?.displayName ?? '';
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      AppAvatar(name: auth.isDemoMode ? 'Demo' : name),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          auth.isDemoMode
+                              ? l10n.settingsDemoMode
+                              : l10n.settingsSignedInAs(name),
+                          style: theme.textTheme.bodySmall,
+                        ),
                       ),
-                style: theme.textTheme.bodySmall,
-              ),
-              const SizedBox(height: 10),
-              OutlinedButton.icon(
-                icon: const Icon(Icons.logout),
-                label: Text(
-                  context.watch<AuthProvider>().isDemoMode
-                      ? l10n.settingsLeaveDemo
-                      : l10n.settingsSignOut,
-                ),
-                onPressed: () => context.read<AuthProvider>().signOut(),
-              ),
-            ],
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  AppButton.secondary(
+                    icon: Icons.logout,
+                    label: auth.isDemoMode
+                        ? l10n.settingsLeaveDemo
+                        : l10n.settingsSignOut,
+                    onPressed: () => context.read<AuthProvider>().signOut(),
+                  ),
+                ],
+              );
+            },
           ),
         ),
         _Section(
           title: l10n.settingsData,
-          child: OutlinedButton.icon(
-            icon: const Icon(Icons.delete_outline),
-            label: Text(l10n.settingsResetAll),
+          child: AppButton.destructive(
+            icon: Icons.delete_outline,
+            label: l10n.settingsResetAll,
             onPressed: () => _confirmReset(context),
           ),
         ),
@@ -281,8 +263,9 @@ class SettingsTab extends StatelessWidget {
             onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(l10n.actionCancel),
           ),
-          FilledButton(
+          TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: Text(l10n.actionReset),
           ),
         ],
@@ -305,17 +288,14 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 12),
-              child,
-            ],
-          ),
+      child: AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 12),
+            child,
+          ],
         ),
       ),
     );

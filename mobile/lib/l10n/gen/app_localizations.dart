@@ -2045,7 +2045,7 @@ abstract class AppLocalizations {
   /// No description provided for @plannerStreakBadge.
   ///
   /// In en, this message translates to:
-  /// **'3-day bloom streak 🌸'**
+  /// **'3-day bloom streak'**
   String get plannerStreakBadge;
 
   /// No description provided for @plannerMarkedOnTrack.
@@ -2520,31 +2520,31 @@ abstract class AppLocalizations {
   /// One of five rotating aphorisms on the ASCII Fortune widget. Translate for sense, not literally — an equivalent saying in the target language reads better than a transliteration.
   ///
   /// In en, this message translates to:
-  /// **'💰 A penny saved is a penny earned'**
+  /// **'A penny saved is a penny earned'**
   String get fortunePennySaved;
 
   /// No description provided for @fortuneSmallSteps.
   ///
   /// In en, this message translates to:
-  /// **'📈 Small steps lead to big gains'**
+  /// **'Small steps lead to big gains'**
   String get fortuneSmallSteps;
 
   /// No description provided for @fortuneGoalsPatience.
   ///
   /// In en, this message translates to:
-  /// **'🎯 Goals achieved with patience'**
+  /// **'Goals achieved with patience'**
   String get fortuneGoalsPatience;
 
   /// No description provided for @fortuneSmartSpending.
   ///
   /// In en, this message translates to:
-  /// **'💡 Smart spending = happy future'**
+  /// **'Smart spending = happy future'**
   String get fortuneSmartSpending;
 
   /// No description provided for @fortuneInvestYourself.
   ///
   /// In en, this message translates to:
-  /// **'🚀 Invest in yourself today'**
+  /// **'Invest in yourself today'**
   String get fortuneInvestYourself;
 
   /// No description provided for @widgetAddGoalToTrack.
@@ -2589,12 +2589,6 @@ abstract class AppLocalizations {
   /// **'Refresh rates'**
   String get settingsRefreshRates;
 
-  /// No description provided for @settingsTheme.
-  ///
-  /// In en, this message translates to:
-  /// **'Theme'**
-  String get settingsTheme;
-
   /// No description provided for @settingsTypography.
   ///
   /// In en, this message translates to:
@@ -2618,24 +2612,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'System default'**
   String get settingsLanguageSystem;
-
-  /// No description provided for @settingsFontDefault.
-  ///
-  /// In en, this message translates to:
-  /// **'Default'**
-  String get settingsFontDefault;
-
-  /// No description provided for @settingsFontEditorial.
-  ///
-  /// In en, this message translates to:
-  /// **'Editorial'**
-  String get settingsFontEditorial;
-
-  /// No description provided for @settingsFontMono.
-  ///
-  /// In en, this message translates to:
-  /// **'Mono'**
-  String get settingsFontMono;
 
   /// No description provided for @settingsTextSize.
   ///
@@ -2750,12 +2726,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count}d ago'**
   String relativeDaysAgo(int count);
-
-  /// No description provided for @themeSoftBloom.
-  ///
-  /// In en, this message translates to:
-  /// **'Soft Bloom'**
-  String get themeSoftBloom;
 }
 
 class _AppLocalizationsDelegate

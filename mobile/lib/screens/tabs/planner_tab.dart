@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../app/theme/app_colors.dart';
+import '../../app/widgets/app_card.dart';
 import '../../l10n/l10n.dart';
 import '../../l10n/presenters.dart';
 import '../../logic/student_planner.dart';
@@ -76,10 +78,14 @@ class _SurvivalCardState extends State<_SurvivalCard> {
       spentToday: finance.spentToday,
     );
 
-    final zoneColour = switch (result.zone) {
-      SurvivalZone.green => theme.colorScheme.primary,
-      SurvivalZone.tight => theme.colorScheme.tertiary,
-      SurvivalZone.critical => theme.colorScheme.error,
+    // Severity as darkness, not as hue: comfortable is an outline, tight is a
+    // grey fill, critical is solid black. Mapping the three zones onto colour
+    // roles left green and tight resolving to the same ink under a monochrome
+    // palette, so the chip could not tell them apart.
+    final (zoneFill, zoneInk) = switch (result.zone) {
+      SurvivalZone.green => (AppColors.surface, AppColors.ink),
+      SurvivalZone.tight => (AppColors.subtleFill, AppColors.ink),
+      SurvivalZone.critical => (AppColors.ink, AppColors.surface),
     };
 
     return _Section(
@@ -88,23 +94,47 @@ class _SurvivalCardState extends State<_SurvivalCard> {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(l10n.plannerDailySpendable,
-                    style: theme.textTheme.bodySmall),
-                const SizedBox(height: 2),
-                Text(
-                  currency.formatFromUsd(result.dailySpendable),
-                  style: theme.textTheme.headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(l10n.plannerDailySpendable,
+                      style: theme.textTheme.bodySmall),
+                  const SizedBox(height: 2),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      currency.formatFromUsd(result.dailySpendable),
+                      style: theme.textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ],
+              ),
             ),
+            const SizedBox(width: 8),
             Chip(
-              label: Text(survivalZoneLabel(l10n, result.zone)),
-              backgroundColor: zoneColour.withValues(alpha: 0.18),
+              // `overflow: visible` rather than the chip's default fade. The
+              // chip sizes itself to the label's intrinsic width, and Manrope
+              // measures a fraction narrower than it paints, so the default
+              // fades the last glyph out of a two-word status — "Critical
+              // Zone" arrives as "Critical Zon". There is nothing to truncate
+              // here: the chip is already as wide as the text.
+              label: Text(
+                survivalZoneLabel(l10n, result.zone),
+                softWrap: false,
+                overflow: TextOverflow.visible,
+              ),
+              backgroundColor: zoneFill,
+              labelStyle: theme.textTheme.labelMedium?.copyWith(
+                color: zoneInk,
+                fontWeight: FontWeight.w600,
+              ),
+              side: const BorderSide(color: AppColors.outline),
             ),
           ],
         ),
@@ -166,6 +196,7 @@ class _SurvivalCardState extends State<_SurvivalCard> {
             Expanded(
               child: DropdownButtonFormField<IncomeCadence>(
                 initialValue: _cadence,
+                isExpanded: true,
                 decoration: const InputDecoration(isDense: true),
                 items: [
                   for (final c in IncomeCadence.values)
@@ -214,8 +245,15 @@ class _SurvivalCardState extends State<_SurvivalCard> {
         const Divider(height: 24),
         Row(
           children: [
-            Text(l10n.plannerFixedCosts, style: theme.textTheme.labelLarge),
-            const Spacer(),
+            Expanded(
+              child: Text(
+                l10n.plannerFixedCosts,
+                style: theme.textTheme.labelLarge,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
             Text(
               currency.formatFromUsd(result.fixedCostsTotal),
               style: theme.textTheme.bodySmall,
@@ -612,7 +650,11 @@ class _StreakCard extends StatelessWidget {
               ],
             ),
             const Spacer(),
-            if (streak >= 3) Chip(label: Text(l10n.plannerStreakBadge)),
+            if (streak >= 3)
+              Chip(
+                avatar: const Icon(Icons.local_florist_outlined, size: 16),
+                label: Text(l10n.plannerStreakBadge),
+              ),
           ],
         ),
         const SizedBox(height: 12),
@@ -653,19 +695,16 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Text(subtitle, style: theme.textTheme.bodySmall),
-            const SizedBox(height: 14),
-            ...children,
-          ],
-        ),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 4),
+          Text(subtitle, style: theme.textTheme.bodySmall),
+          const SizedBox(height: 14),
+          ...children,
+        ],
       ),
     );
   }

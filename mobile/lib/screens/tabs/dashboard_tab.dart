@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../app/widgets/app_card.dart';
+import '../../app/widgets/app_icon_tile.dart';
+import '../../app/widgets/app_list_row.dart';
+import '../../app/widgets/category_icon.dart';
 import '../../l10n/l10n.dart';
 import '../../l10n/presenters.dart';
 import '../../state/currency_provider.dart';
@@ -116,7 +120,6 @@ class _BalanceSnapshotCardState extends State<_BalanceSnapshotCard> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final theme = Theme.of(context);
     final currencyStore = context.watch<CurrencyProvider>();
     final currency = currencyStore.currency;
     // Rebuilds when the stored balance changes — including a seed, a reset, or
@@ -125,53 +128,70 @@ class _BalanceSnapshotCardState extends State<_BalanceSnapshotCard> {
         context.select<FinanceProvider, double?>((f) => f.manualBalance);
     _syncFromStore(balanceUsd, currencyStore);
 
-    // Elevation and padding, not a coloured edge, are what mark this card as
-    // the primary one -- a thick single-side border on a rounded card is the
-    // most recognisable shortcut for "this one matters" and reads as template.
-    return Card(
-      elevation: 3,
-      shadowColor: theme.colorScheme.primary.withValues(alpha: 0.18),
-      surfaceTintColor: Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(l10n.dashTotalBalance,
-                    style: theme.textTheme.titleMedium),
-                ActionChip(
-                  label: Text(currency.code),
-                  onPressed: () =>
-                      context.read<CurrencyProvider>().cycleCurrency(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _controller,
-              focusNode: _focus,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                prefixText: '${currency.symbol} ',
-                hintText: '0.00',
+    // The hero card, inverted to ink. This is the figure the whole page is
+    // derived from, and the reference sheet gives that role a solid black
+    // panel. Everything inside is re-themed for the dark ground by AppCard, so
+    // the field, its label and the chip all invert with it.
+    return AppCard.ink(
+      padding: const EdgeInsets.all(20),
+      // Built through a Builder so `Theme.of` resolves *below* the card's
+      // inverted theme. Reading it from the enclosing build — as the first
+      // version did — hands back the light theme, and a title styled
+      // `titleMedium` then paints black type on the black panel: present,
+      // laid out, and completely invisible.
+      child: Builder(
+        builder: (context) {
+          final inkTheme = Theme.of(context);
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // The chip is a fixed three-letter control, so the title is
+                  // the side that has to yield.
+                  Expanded(
+                    child: Text(
+                      l10n.dashTotalBalance,
+                      style: inkTheme.textTheme.titleMedium,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ActionChip(
+                    label: Text(currency.code),
+                    onPressed: () =>
+                        context.read<CurrencyProvider>().cycleCurrency(),
+                  ),
+                ],
               ),
-              onSubmitted: (_) => _save(),
-              onTapOutside: (_) {
-                FocusManager.instance.primaryFocus?.unfocus();
-                _save();
-              },
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.dashSnapshotHint,
-              style: theme.textTheme.bodySmall,
-            ),
-          ],
-        ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _controller,
+                focusNode: _focus,
+                style: inkTheme.textTheme.headlineSmall,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  prefixText: '${currency.symbol} ',
+                  hintText: '0.00',
+                ),
+                onSubmitted: (_) => _save(),
+                onTapOutside: (_) {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  _save();
+                },
+              ),
+              const SizedBox(height: 10),
+              Text(
+                l10n.dashSnapshotHint,
+                style: inkTheme.textTheme.bodySmall,
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -214,13 +234,20 @@ class _StatGrid extends StatelessWidget {
       ),
     ];
 
+    // A grid cell is a fixed box, so its height has to follow the text inside
+    // it. Dividing the ratio by the active text scale makes the tiles grow
+    // taller as type grows rather than clipping it — a constant 1.7 overflowed
+    // by 4dp at the default size once the monochrome scale set larger explicit
+    // sizes, and by 18dp at 1.3x.
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.7,
+      childAspectRatio: 1.7 / textScale.clamp(1.0, 2.0),
       children: [
         for (final stat in stats)
           _StatCard(
@@ -253,38 +280,41 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    return Card(
-      // A filled ground, per the design rules for this project: emphasis comes
-      // from fill, elevation or spacing, never from a coloured edge.
-      color: emphasis ? scheme.tertiaryContainer : null,
-      child: Padding(
-        // 16/8 rather than 14/6 -- the whole app is on a 4px grid, and these
-        // two were the only values in this file that were not.
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
+    // A filled ground, per the design rules for this project: emphasis comes
+    // from fill, elevation or spacing, never from a coloured edge.
+    return AppCard(
+      tone: emphasis ? AppCardTone.quiet : AppCardTone.plain,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        // The cell is a fixed box; without this the column demands its
+        // natural height and reports an overflow instead of settling into
+        // what it was given.
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: theme.textTheme.labelMedium?.copyWith(
                 color: emphasis
                     ? scheme.onTertiaryContainer
                     : scheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 8),
-            FittedBox(
-              child: Text(
-                value,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: emphasis ? scheme.tertiary : null,
-                ),
+          ),
+          const SizedBox(height: 8),
+          FittedBox(
+            child: Text(
+              value,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: emphasis ? scheme.tertiary : null,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -306,46 +336,37 @@ class _RecentTransactions extends StatelessWidget {
         context.read<FinanceProvider>().transactions.take(10).toList();
     final currency = context.watch<CurrencyProvider>();
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.dashRecentActivity,
-                style: theme.textTheme.titleMedium),
-            const SizedBox(height: 12),
-            if (recent.isEmpty)
-              Text(
-                l10n.dashNoEntries,
-                style: theme.textTheme.bodySmall,
-              )
-            else
-              for (final t in recent)
-                ListTile(
-                  key: ValueKey(t.id),
-                  contentPadding: EdgeInsets.zero,
-                  leading: Text(
-                    t.icon ?? '💸',
-                    style: const TextStyle(fontSize: 24),
-                  ),
-                  title: Text(t.name),
-                  subtitle: Text(
-                    '${categoryLabel(l10n, t.category)} · ${t.date}',
-                  ),
-                  trailing: Text(
-                    '${t.isExpense ? '−' : '+'}'
-                    '${currency.formatFromUsd(t.amount)}',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: t.isExpense
-                          ? theme.colorScheme.error
-                          : theme.colorScheme.primary,
-                    ),
-                  ),
-                ),
-          ],
-        ),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.dashRecentActivity, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 12),
+          if (recent.isEmpty)
+            Text(
+              l10n.dashNoEntries,
+              style: theme.textTheme.bodySmall,
+            )
+          else
+            for (var i = 0; i < recent.length; i++) ...[
+              // Rules between rows, not under the last one — which is what a
+              // per-row divider leaves behind.
+              if (i > 0) const AppRowDivider(indent: 52),
+              AppListRow(
+                key: ValueKey(recent[i].id),
+                leading: AppIconTile.icon(categoryIcon(recent[i].category)),
+                title: recent[i].name,
+                subtitle: '${categoryLabel(l10n, recent[i].category)}'
+                    ' · ${recent[i].date}',
+                // Both directions are ink. The leading '-' or '+' already says
+                // which way the money went, and colouring every expense red
+                // would tint most of this list — money leaving an account is
+                // the normal case, not a fault.
+                trailing: '${recent[i].isExpense ? '−' : '+'}'
+                    '${currency.formatFromUsd(recent[i].amount)}',
+              ),
+            ],
+        ],
       ),
     );
   }

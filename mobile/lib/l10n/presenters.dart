@@ -10,7 +10,6 @@
 /// [CurrencyProvider], so these stay usable from a test with a stub formatter.
 library;
 
-import '../app/theme/app_tokens.dart';
 import '../logic/budget_math.dart';
 import '../logic/events.dart';
 import '../logic/insights.dart';
@@ -308,17 +307,6 @@ String receiptDiscrepancyMessage(
 }
 
 // ----------------------------------------------------------------- settings
-
-/// Display name for a theme.
-///
-/// Falls back to the English [AppTokens.label] for a theme with no translated
-/// name yet — four of the five palettes are still unbuilt, and a new one should
-/// appear in the picker under its own name rather than its slug.
-String themeLabel(AppLocalizations l10n, AppTokens tokens) =>
-    switch (tokens.name) {
-      'soft-bloom' => l10n.themeSoftBloom,
-      _ => tokens.label,
-    };
 
 String languageLabel(AppLocalizations l10n, AppLanguage language) =>
     switch (language) {

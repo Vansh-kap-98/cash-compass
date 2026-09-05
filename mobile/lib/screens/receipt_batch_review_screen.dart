@@ -275,11 +275,10 @@ class _ReceiptRow extends StatelessWidget {
                               decimal: true,
                             ),
                             decoration: InputDecoration(
-                              labelText: l10n
-                                  .entryFieldAmount(currency.currency.code),
+                              labelText:
+                                  l10n.entryFieldAmount(currency.currency.code),
                               isDense: true,
-                              helperText:
-                                  _amountHint(l10n, receipt, currency),
+                              helperText: _amountHint(l10n, receipt, currency),
                             ),
                           ),
                         ],

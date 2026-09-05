@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app/theme/app_colors.dart';
+import '../app/widgets/app_card.dart';
 import '../l10n/l10n.dart';
 import '../l10n/presenters.dart';
 import '../logic/budget_math.dart';
@@ -34,72 +36,75 @@ class LocationGuidanceCard extends StatelessWidget {
     final verdicts =
         stapleVerdicts(profile: profile, selectedDayRemaining: remainingToday);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.locationGuidanceTitle,
-                style: theme.textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Text(
-              l10n.locationGuidanceSubtitle,
-              style: theme.textTheme.bodySmall,
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: profile.key,
-              isExpanded: true,
-              decoration: InputDecoration(labelText: l10n.fieldRegion),
-              items: [
-                for (final p in geoProfiles)
-                  DropdownMenuItem(
-                    value: p.key,
-                    child: Text(geoProfileLabel(l10n, p.key)),
-                  ),
-              ],
-              onChanged: (key) {
-                if (key != null) planner.setGeoProfile(key);
-              },
-            ),
-            const SizedBox(height: 12),
-            for (final v in verdicts)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            stapleLabel(l10n, v.kind),
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                          Text(
-                            l10n.stapleCost(
-                              currency.formatFromUsd(v.cost),
-                              currency.formatFromUsd(v.healthyLimit),
-                            ),
-                            style: theme.textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Chip(
-                      label: Text(stapleBadge(l10n, v)),
-                      visualDensity: VisualDensity.compact,
-                      backgroundColor: v.affordable
-                          ? theme.colorScheme.secondary
-                          : theme.colorScheme.errorContainer,
-                    ),
-                  ],
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.locationGuidanceTitle, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 4),
+          Text(
+            l10n.locationGuidanceSubtitle,
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<String>(
+            initialValue: profile.key,
+            isExpanded: true,
+            decoration: InputDecoration(labelText: l10n.fieldRegion),
+            items: [
+              for (final p in geoProfiles)
+                DropdownMenuItem(
+                  value: p.key,
+                  child: Text(geoProfileLabel(l10n, p.key)),
                 ),
+            ],
+            onChanged: (key) {
+              if (key != null) planner.setGeoProfile(key);
+            },
+          ),
+          const SizedBox(height: 12),
+          for (final v in verdicts)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          stapleLabel(l10n, v.kind),
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        Text(
+                          l10n.stapleCost(
+                            currency.formatFromUsd(v.cost),
+                            currency.formatFromUsd(v.healthyLimit),
+                          ),
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Affordable recedes to an outline; over-budget inverts
+                  // to a filled black chip. Fill, not hue — the two used to
+                  // differ by colour alone and now resolve to the same grey.
+                  Chip(
+                    label: Text(stapleBadge(l10n, v)),
+                    visualDensity: VisualDensity.compact,
+                    backgroundColor:
+                        v.affordable ? AppColors.surface : AppColors.ink,
+                    labelStyle: theme.textTheme.labelMedium?.copyWith(
+                      color: v.affordable ? AppColors.ink : AppColors.surface,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    side: const BorderSide(color: AppColors.outline),
+                  ),
+                ],
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -130,43 +135,40 @@ class SuggestionsCard extends StatelessWidget {
       averagePerDay: finance.averagePerDay,
     );
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.lightbulb_outline,
-                  size: 18,
-                  color: theme.colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(l10n.suggestionsTodayTitle,
-                    style: theme.textTheme.titleMedium),
-              ],
-            ),
-            const SizedBox(height: 10),
-            for (final tip in tips)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('•  ', style: theme.textTheme.bodyMedium),
-                    Expanded(
-                      child: Text(
-                        dailyTipMessage(l10n, tip),
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                    ),
-                  ],
-                ),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.lightbulb_outline,
+                size: 18,
+                color: theme.colorScheme.primary,
               ),
-          ],
-        ),
+              const SizedBox(width: 8),
+              Text(l10n.suggestionsTodayTitle,
+                  style: theme.textTheme.titleMedium),
+            ],
+          ),
+          const SizedBox(height: 10),
+          for (final tip in tips)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('•  ', style: theme.textTheme.bodyMedium),
+                  Expanded(
+                    child: Text(
+                      dailyTipMessage(l10n, tip),
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -184,36 +186,33 @@ class DayRecordsCard extends StatelessWidget {
     final records =
         context.watch<FinanceProvider>().dailyRecordsByDay.take(20).toList();
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.dayRecordsTitle, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 10),
-            if (records.isEmpty)
-              Text(
-                l10n.dayRecordsEmpty,
-                style: theme.textTheme.bodySmall,
-              )
-            else
-              for (final r in records)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(r.date, style: theme.textTheme.bodyMedium),
-                      Text(
-                        currency.formatFromUsd(r.expense),
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.dayRecordsTitle, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 10),
+          if (records.isEmpty)
+            Text(
+              l10n.dayRecordsEmpty,
+              style: theme.textTheme.bodySmall,
+            )
+          else
+            for (final r in records)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(r.date, style: theme.textTheme.bodyMedium),
+                    Text(
+                      currency.formatFromUsd(r.expense),
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ],
                 ),
-          ],
-        ),
+              ),
+        ],
       ),
     );
   }

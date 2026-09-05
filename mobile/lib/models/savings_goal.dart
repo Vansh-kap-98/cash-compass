@@ -1,3 +1,4 @@
+import '../app/widgets/goal_icon.dart';
 import 'json_utils.dart';
 
 /// A savings target. [current] and [target] are both in USD.
@@ -45,6 +46,6 @@ class SavingsGoal {
         // Target is clamped to at least 1 on write; mirror that on read so a
         // corrupt zero can never produce a divide-by-zero in [progress].
         target: asDouble(j['target'], fallback: 1),
-        icon: j['icon'] as String? ?? '🎯',
+        icon: j['icon'] as String? ?? defaultGoalIconKey,
       );
 }

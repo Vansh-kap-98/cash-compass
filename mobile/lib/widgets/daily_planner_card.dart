@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../app/theme/app_theme.dart';
+import '../app/widgets/app_card.dart';
 import '../l10n/l10n.dart';
 import '../logic/budget_math.dart';
 import '../state/currency_provider.dart';
@@ -46,58 +47,74 @@ class BudgetRangeCard extends StatelessWidget {
       );
     }
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.budgetingWindow, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _DateField(
-                    label: l10n.fieldStart,
-                    value: isoDate(planner.rangeStart),
-                    onTap: () => pick(isStart: true),
-                  ),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.budgetingWindow, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _DateField(
+                  label: l10n.fieldStart,
+                  value: isoDate(planner.rangeStart),
+                  onTap: () => pick(isStart: true),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _DateField(
-                    label: l10n.fieldEnd,
-                    value: isoDate(planner.rangeEnd),
-                    onTap: () => pick(isStart: false),
-                  ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _DateField(
+                  label: l10n.fieldEnd,
+                  value: isoDate(planner.rangeEnd),
+                  onTap: () => pick(isStart: false),
                 ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Both sides flex. Neither was constrained before, so a long
+              // amount beside a long "over N days" simply ran off the card —
+              // which Russian and a raised text scale both provoke.
+              Flexible(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(l10n.dailyBudget,
-                        style: theme.textTheme.labelMedium),
-                    const SizedBox(height: 2),
                     Text(
-                      currency.formatFromUsd(perDay),
-                      style: theme.textTheme.titleLarge
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                      l10n.dailyBudget,
+                      style: theme.textTheme.labelMedium,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        currency.formatFromUsd(perDay),
+                        style: theme.textTheme.titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ],
                 ),
-                Text(
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
                   l10n.overDays(days),
                   style: theme.textTheme.bodySmall,
+                  textAlign: TextAlign.end,
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -191,111 +208,107 @@ class _DailyPlannerCardState extends State<DailyPlannerCard> {
     final remainingAfterPlans = perDay - daySpent - dayPlanned;
     final dayPlans = planner.plansFor(dateIso);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.dailyPlanTitle, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Text(
-              l10n.dailyPlanSubtitle,
-              style: theme.textTheme.bodySmall,
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.dailyPlanTitle, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 4),
+          Text(
+            l10n.dailyPlanSubtitle,
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: _titleController,
+            textCapitalization: TextCapitalization.sentences,
+            decoration: InputDecoration(
+              labelText: l10n.dailyPlanName,
+              hintText: l10n.dailyPlanNameHint,
             ),
-            const SizedBox(height: 14),
-            TextField(
-              controller: _titleController,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(
-                labelText: l10n.dailyPlanName,
-                hintText: l10n.dailyPlanNameHint,
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _estimateController,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: l10n.dailyPlanEstimate(currency.currency.code),
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _estimateController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText:
-                          l10n.dailyPlanEstimate(currency.currency.code),
-                    ),
-                  ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _DateField(
+                  label: l10n.dailyPlanDate,
+                  value: dateIso,
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _planDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) setState(() => _planDate = picked);
+                  },
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _DateField(
-                    label: l10n.dailyPlanDate,
-                    value: dateIso,
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: _planDate,
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2100),
-                      );
-                      if (picked != null) setState(() => _planDate = picked);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.tonal(
-                onPressed: _add,
-                child: Text(l10n.dailyPlanAdd),
-              ),
-            ),
-            const SizedBox(height: 16),
-            _SummaryRow(
-              label: l10n.dailyPlanSpentThatDay,
-              value: currency.formatFromUsd(daySpent),
-            ),
-            _SummaryRow(
-              label: l10n.dailyPlanPlanned,
-              value: currency.formatFromUsd(dayPlanned),
-            ),
-            _SummaryRow(
-              label: l10n.dailyBudget,
-              value: currency.formatFromUsd(perDay),
-            ),
-            const Divider(height: 20),
-            _SummaryRow(
-              label: l10n.dailyPlanRemaining,
-              value: currency.formatFromUsd(remainingAfterPlans),
-              emphasise: true,
-              positive: remainingAfterPlans >= 0,
-            ),
-            if (dayPlans.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              for (final p in dayPlans)
-                ListTile(
-                  key: ValueKey(p.id),
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                  title: Text(p.title),
-                  subtitle: Text(currency.formatFromUsd(p.estimate)),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.close),
-                    tooltip: l10n.dailyPlanDeleteTooltip,
-                    onPressed: () => planner.removePlan(p.id),
-                  ),
-                ),
-            ] else ...[
-              const SizedBox(height: 12),
-              Text(
-                l10n.dailyPlanEmpty,
-                style: theme.textTheme.bodySmall,
               ),
             ],
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.tonal(
+              onPressed: _add,
+              child: Text(l10n.dailyPlanAdd),
+            ),
+          ),
+          const SizedBox(height: 16),
+          _SummaryRow(
+            label: l10n.dailyPlanSpentThatDay,
+            value: currency.formatFromUsd(daySpent),
+          ),
+          _SummaryRow(
+            label: l10n.dailyPlanPlanned,
+            value: currency.formatFromUsd(dayPlanned),
+          ),
+          _SummaryRow(
+            label: l10n.dailyBudget,
+            value: currency.formatFromUsd(perDay),
+          ),
+          const Divider(height: 20),
+          _SummaryRow(
+            label: l10n.dailyPlanRemaining,
+            value: currency.formatFromUsd(remainingAfterPlans),
+            emphasise: true,
+            positive: remainingAfterPlans >= 0,
+          ),
+          if (dayPlans.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            for (final p in dayPlans)
+              ListTile(
+                key: ValueKey(p.id),
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                title: Text(p.title),
+                subtitle: Text(currency.formatFromUsd(p.estimate)),
+                trailing: IconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: l10n.dailyPlanDeleteTooltip,
+                  onPressed: () => planner.removePlan(p.id),
+                ),
+              ),
+          ] else ...[
+            const SizedBox(height: 12),
+            Text(
+              l10n.dailyPlanEmpty,
+              style: theme.textTheme.bodySmall,
+            ),
           ],
-        ),
+        ],
       ),
     );
   }

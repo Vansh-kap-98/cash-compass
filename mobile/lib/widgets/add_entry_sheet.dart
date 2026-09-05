@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app/theme/app_colors.dart';
 import '../app/theme/app_theme.dart';
+import '../app/theme/app_typography.dart';
 import '../l10n/l10n.dart';
 import '../l10n/presenters.dart';
 import '../logic/receipt_parser.dart';
@@ -248,9 +250,8 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
 
     return SheetScaffold(
       title: _fromScan ? l10n.entrySheetTitleCheck : l10n.entrySheetTitleAdd,
-      subtitle: _fromScan
-          ? l10n.entrySheetSubtitleCheck
-          : l10n.entrySheetSubtitleAdd,
+      subtitle:
+          _fromScan ? l10n.entrySheetSubtitleCheck : l10n.entrySheetSubtitleAdd,
       onSubmit: _save,
       submitLabel: l10n.entrySheetSubmit,
       children: [
@@ -337,8 +338,7 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
               child: DropdownButtonFormField<String>(
                 initialValue: _category,
                 isExpanded: true,
-                decoration:
-                    InputDecoration(labelText: l10n.entryFieldCategory),
+                decoration: InputDecoration(labelText: l10n.entryFieldCategory),
                 items: [
                   // The value stays the stored English key; only the label is
                   // translated, so switching language never rewrites data.
@@ -360,8 +360,7 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
                 // Matches the input border this ripples over.
                 borderRadius: Theme.of(context).radii.controlBorder,
                 child: InputDecorator(
-                  decoration:
-                      InputDecoration(labelText: l10n.entryFieldDate),
+                  decoration: InputDecoration(labelText: l10n.entryFieldDate),
                   child: Text(isoDate(_date)),
                 ),
               ),
@@ -408,6 +407,16 @@ class _AddEntrySheetState extends State<AddEntrySheet> {
                 for (final tag in ReasonTag.values)
                   FilterChip(
                     label: Text(reasonTagLabel(l10n, tag)),
+                    // FilterChip is the one chip that ignores the theme's
+                    // `secondaryLabelStyle`, so a selected tag would be ink on
+                    // an ink fill — invisible rather than merely wrong.
+                    labelStyle: TextStyle(
+                      fontSize: AppTypography.captionSize,
+                      fontWeight: FontWeight.w600,
+                      color: _reasonTags.contains(tag)
+                          ? AppColors.surface
+                          : AppColors.ink,
+                    ),
                     selected: _reasonTags.contains(tag),
                     onSelected: (on) => setState(() {
                       if (on) {

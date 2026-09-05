@@ -2,49 +2,22 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../app/theme/app_tokens.dart';
 import '../dev/log.dart';
 import '../services/prefs.dart';
 
-/// Font packs offered in Settings, ported from `SettingsStudio.tsx`.
-enum FontPack {
-  defaultPack('default', 'Outfit', 'Inter'),
-  editorial('editorial', 'Playfair Display', 'Newsreader'),
-  // The web app's mono theme sets heading, body, and mono all to
-  // `'Geist Mono', monospace` (index.css:115-117). Geist Mono is not in the
-  // `google_fonts` catalogue, and unlike CSS there is no fallback in the stack
-  // — asking for it threw and blanked the screen. JetBrains Mono is the
-  // closest catalogued equivalent, and using it for both roles matches the
-  // web app's own single-font intent for this pack.
-  mono('mono', 'JetBrains Mono', 'JetBrains Mono');
-
-  const FontPack(this.id, this.headingFont, this.bodyFont);
-
-  final String id;
-  final String headingFont;
-  final String bodyFont;
-
-  static FontPack fromId(String? id) {
-    for (final pack in FontPack.values) {
-      if (pack.id == id) return pack;
-    }
-    return FontPack.defaultPack;
-  }
-}
-
-/// Holds the active theme and the typography preferences.
+/// Display preferences.
 ///
-/// Port of `ThemeContext.tsx` plus the font controls from `SettingsStudio.tsx`.
-/// On the web these were two separate stores (`dashboard-theme` and
-/// `cash-compass-ui-settings-v1`); both are kept here since they all feed the
-/// single [buildTheme] call.
+/// This used to hold the active theme and a choice of three font packs, on top
+/// of the text scale. Both selections are gone: there is one palette and one
+/// family now, established in `lib/app/theme/`.
+///
+/// The text scale stays. It is an accessibility control, not a styling choice —
+/// removing it along with the "pick your vibe" machinery would have taken a
+/// real affordance out with the decoration.
 class ThemeProvider extends ChangeNotifier {
   ThemeProvider(this._prefs);
 
   final Prefs _prefs;
-
-  AppTokens tokens = appThemes[defaultThemeName]!;
-  FontPack fontPack = FontPack.defaultPack;
 
   /// Text scale as a percentage, 85-120, matching the Settings slider.
   double fontScalePercent = 100;
@@ -54,14 +27,13 @@ class ThemeProvider extends ChangeNotifier {
   /// Multiplier applied to the text theme.
   double get fontSizeFactor => fontScalePercent / 100;
 
-  String get themeName => tokens.name;
-
   Future<void> load() async {
-    tokens = resolveTheme(await _prefs.getString(PrefsKeys.theme));
-
+    // Reads the same blob the old build wrote. A stored `fontPack` is ignored
+    // rather than migrated — there is nowhere for it to go — but leaving the
+    // key in place means an upgrade does not have to rewrite the record just
+    // to drop a field.
     final ui = await _prefs.getJson(PrefsKeys.uiSettings);
     if (ui != null) {
-      fontPack = FontPack.fromId(ui['fontPack'] as String?);
       final scale = ui['fontScale'];
       if (scale is num) {
         fontScalePercent = scale.toDouble().clamp(85, 120);
@@ -70,21 +42,6 @@ class ThemeProvider extends ChangeNotifier {
 
     loaded = true;
     notifyListeners();
-  }
-
-  Future<void> setTheme(String name) async {
-    final next = resolveTheme(name);
-    if (next.name == tokens.name) return;
-    tokens = next;
-    notifyListeners();
-    await _prefs.setString(PrefsKeys.theme, next.name);
-  }
-
-  Future<void> setFontPack(FontPack pack) async {
-    if (pack == fontPack) return;
-    fontPack = pack;
-    notifyListeners();
-    await _persistUiSettings();
   }
 
   /// Dragging the Settings slider fires this on every tick. Repainting per tick
@@ -121,10 +78,8 @@ class ThemeProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _persistUiSettings() => _prefs.setJson(PrefsKeys.uiSettings, {
-        'fontPack': fontPack.id,
-        'fontScale': fontScalePercent,
-      });
+  Future<void> _persistUiSettings() =>
+      _prefs.setJson(PrefsKeys.uiSettings, {'fontScale': fontScalePercent});
 
   @override
   void dispose() {

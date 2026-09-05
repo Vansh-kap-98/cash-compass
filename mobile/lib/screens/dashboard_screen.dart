@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app/widgets/app_backdrop.dart';
+import '../app/widgets/app_bottom_nav.dart';
 import '../l10n/l10n.dart';
 import '../logic/receipt_batch_queue.dart';
 import '../models/transaction.dart';
@@ -208,17 +210,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: Text(titles[_index]),
         titleTextStyle: Theme.of(context).textTheme.headlineSmall,
       ),
-      // IndexedStack keeps each tab alive, preserving scroll position the way
-      // the web app's in-page tab switcher did.
-      body: IndexedStack(
-        index: _index,
-        children: const [
-          DashboardTab(),
-          GoalsTab(),
-          PlannerTab(),
-          WorkspaceTab(),
-          SettingsTab(),
-        ],
+      // One backdrop for the whole shell rather than one per tab: it is a
+      // property of the page ground, and painting it here means it does not
+      // restart or shift when the tab changes.
+      body: AppBackdrop(
+        // IndexedStack keeps each tab alive, preserving scroll position the way
+        // the web app's in-page tab switcher did.
+        child: IndexedStack(
+          index: _index,
+          children: const [
+            DashboardTab(),
+            GoalsTab(),
+            PlannerTab(),
+            WorkspaceTab(),
+            SettingsTab(),
+          ],
+        ),
       ),
       // One FAB opening a chooser, rather than the web app's three stacked
       // buttons — stacked FABs are not an Android pattern.
@@ -228,33 +235,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onPressed: () => _openQuickActions(context),
               child: const Icon(Icons.add),
             ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
+      // Icon-only, with the active tab lit rather than labelled. The trade is
+      // real — five unlabelled icons ask more of a first-time user than five
+      // labelled ones — so every destination carries its localised name for
+      // assistive technology and for long-press. See AppBottomNav.
+      bottomNavigationBar: AppBottomNav(
+        currentIndex: _index,
+        onSelected: (i) => setState(() => _index = i),
         destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.dashboard_outlined),
-            selectedIcon: const Icon(Icons.dashboard),
+          AppNavDestination(
+            icon: Icons.dashboard_outlined,
             label: l10n.tabDashboard,
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.savings_outlined),
-            selectedIcon: const Icon(Icons.savings),
+          AppNavDestination(
+            icon: Icons.savings_outlined,
             label: l10n.tabGoals,
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.school_outlined),
-            selectedIcon: const Icon(Icons.school),
+          AppNavDestination(
+            icon: Icons.school_outlined,
             label: l10n.tabPlanner,
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.widgets_outlined),
-            selectedIcon: const Icon(Icons.widgets),
+          AppNavDestination(
+            icon: Icons.widgets_outlined,
             label: l10n.tabWorkspace,
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            selectedIcon: const Icon(Icons.settings),
+          AppNavDestination(
+            icon: Icons.settings_outlined,
             label: l10n.tabSettings,
           ),
         ],

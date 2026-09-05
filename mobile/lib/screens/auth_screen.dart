@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../app/theme/app_colors.dart';
+import '../app/widgets/app_backdrop.dart';
+import '../app/widgets/app_button.dart';
+import '../app/widgets/app_header_panel.dart';
 import '../l10n/l10n.dart';
 import '../l10n/presenters.dart';
 import '../state/auth_provider.dart';
@@ -106,115 +110,132 @@ class _AuthScreenState extends State<AuthScreen> {
     final failure = _failure;
 
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 460),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Icon(
-                    Icons.explore_outlined,
-                    size: 48,
-                    color: theme.colorScheme.primary,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    l10n.appTitle,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    l10n.authTagline,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 28),
-                  if (_isSignUp) ...[
-                    TextField(
-                      controller: _name,
-                      textCapitalization: TextCapitalization.words,
-                      decoration:
-                          InputDecoration(labelText: l10n.authFieldName),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  TextField(
-                    controller: _email,
-                    keyboardType: TextInputType.emailAddress,
-                    autocorrect: false,
-                    decoration: InputDecoration(labelText: l10n.authFieldEmail),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _password,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: l10n.authFieldPassword,
-                      helperText: _isSignUp ? l10n.authPasswordHelper : null,
-                    ),
-                  ),
-                  if (_isSignUp) ...[
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: _confirm,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: l10n.authFieldConfirmPassword,
-                      ),
-                    ),
-                  ],
-                  if (failure != null) ...[
+      // The wordmark sits in a full-bleed ink panel that releases into the page
+      // along a curve, as the reference sheet opens. The panel handles the
+      // status bar itself, so it lives outside any SafeArea.
+      body: AppBackdrop(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AppHeaderPanel(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.explore_outlined, size: 44),
                     const SizedBox(height: 14),
                     Text(
-                      authFailureMessage(l10n, failure),
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: theme.colorScheme.error),
-                    ),
-                  ],
-                  const SizedBox(height: 20),
-                  FilledButton(
-                    onPressed: _busy ? null : _submit,
-                    child: Text(
-                      _busy
-                          ? l10n.authWorking
-                          : _isSignUp
-                              ? l10n.authCreateAccount
-                              : l10n.authSignIn,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: _busy
-                        ? null
-                        : () => setState(() {
-                              _isSignUp = !_isSignUp;
-                              _failure = null;
-                            }),
-                    child: Text(
-                      _isSignUp ? l10n.authHaveAccount : l10n.authNeedAccount,
-                    ),
-                  ),
-                  if (!auth.canUseSupabase) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      l10n.authNoBackend,
+                      l10n.appTitle,
                       textAlign: TextAlign.center,
-                      style: theme.textTheme.bodySmall,
+                      style: theme.textTheme.displaySmall
+                          ?.copyWith(color: AppColors.surface),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      l10n.authTagline,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: AppColors.onInkDim),
                     ),
                   ],
-                  const SizedBox(height: 16),
-                  const Divider(),
-                  const SizedBox(height: 8),
-                  OutlinedButton(
-                    onPressed: _busy ? null : _continueAsDemo,
-                    child: Text(l10n.authContinueWithoutAccount),
-                  ),
-                ],
+                ),
               ),
-            ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 460),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (_isSignUp) ...[
+                          TextField(
+                            controller: _name,
+                            textCapitalization: TextCapitalization.words,
+                            decoration:
+                                InputDecoration(labelText: l10n.authFieldName),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        TextField(
+                          controller: _email,
+                          keyboardType: TextInputType.emailAddress,
+                          autocorrect: false,
+                          decoration:
+                              InputDecoration(labelText: l10n.authFieldEmail),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _password,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            labelText: l10n.authFieldPassword,
+                            helperText:
+                                _isSignUp ? l10n.authPasswordHelper : null,
+                          ),
+                        ),
+                        if (_isSignUp) ...[
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: _confirm,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: l10n.authFieldConfirmPassword,
+                            ),
+                          ),
+                        ],
+                        if (failure != null) ...[
+                          const SizedBox(height: 14),
+                          Text(
+                            authFailureMessage(l10n, failure),
+                            style: theme.textTheme.bodySmall
+                                ?.copyWith(color: theme.colorScheme.error),
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        // The sheet's action pair: solid pill over outline
+                        // pill, stacked and full width.
+                        AppButton(
+                          label: _busy
+                              ? l10n.authWorking
+                              : _isSignUp
+                                  ? l10n.authCreateAccount
+                                  : l10n.authSignIn,
+                          onPressed: _busy ? null : _submit,
+                        ),
+                        const SizedBox(height: 12),
+                        AppButton.secondary(
+                          label: l10n.authContinueWithoutAccount,
+                          onPressed: _busy ? null : _continueAsDemo,
+                        ),
+                        const SizedBox(height: 4),
+                        TextButton(
+                          onPressed: _busy
+                              ? null
+                              : () => setState(() {
+                                    _isSignUp = !_isSignUp;
+                                    _failure = null;
+                                  }),
+                          child: Text(
+                            _isSignUp
+                                ? l10n.authHaveAccount
+                                : l10n.authNeedAccount,
+                          ),
+                        ),
+                        if (!auth.canUseSupabase) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.authNoBackend,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,7 +1,6 @@
-import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 
+import '../app/widgets/goal_icon.dart';
 import '../dev/log.dart';
 import '../logic/budget_math.dart';
 import '../logic/insights.dart';
@@ -11,6 +10,8 @@ import '../models/json_utils.dart';
 import '../models/savings_goal.dart';
 import '../models/transaction.dart';
 import '../services/prefs.dart';
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 /// Transaction / goal / budget ids seeded by an old demo build. The web app
 /// strips these on load so returning users don't see fake data forever; keeping
@@ -324,7 +325,11 @@ class FinanceProvider extends ChangeNotifier {
         category: resolvedCategory,
         date: date,
         note: note?.trim().isEmpty ?? true ? null : note!.trim(),
-        icon: categoryIcons[resolvedCategory] ?? (isExpense ? '💸' : '💰'),
+        // Interchange only. Nothing in this app renders it — the lists draw a
+        // line glyph from the category itself, via `categoryIcon` — but the
+        // field is part of the JSON shape the web app reads, so it is still
+        // written. Do not put it on screen: these are colour emoji.
+        icon: categoryIcons[resolvedCategory],
         createdAt: DateTime.now().toIso8601String(),
         // Reason tags only describe unplanned *spending*; income never carries
         // them, so both fields are dropped for income entries.
@@ -341,7 +346,7 @@ class FinanceProvider extends ChangeNotifier {
     required String name,
     required double target,
     double initialAmount = 0,
-    String icon = '🎯',
+    String icon = defaultGoalIconKey,
   }) {
     if (!target.isFinite) return;
     final resolvedTarget = target < 1 ? 1.0 : target;
