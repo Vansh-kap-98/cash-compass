@@ -1,14 +1,14 @@
-import { useTheme } from "next-themes";
 import { Toaster as Sonner, toast } from "sonner";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme();
-
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      // Pinned light. The app has one design and no dark variant, so asking
+      // next-themes what the theme is would only ever return "system" and let
+      // a dark-mode OS setting render a toast the rest of the app cannot match.
+      theme="light"
       className="toaster group"
       toastOptions={{
         classNames: {

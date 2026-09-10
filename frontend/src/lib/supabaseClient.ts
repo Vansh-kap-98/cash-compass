@@ -32,7 +32,13 @@ export interface Database {
 }
 
 const env = import.meta.env;
-const processEnv = typeof process !== "undefined" ? process.env : undefined;
+// `process` does not exist in a Vite browser build and @types/node is not
+// installed, so naming it directly does not type-check even behind a `typeof`
+// guard. Reaching through globalThis keeps the same runtime behaviour — the
+// NEXT_PUBLIC_* fallbacks still resolve if this is ever run under Node — while
+// staying honest that the browser bundle has no process object.
+const processEnv = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process
+  ?.env;
 
 const supabaseUrl =
   env.VITE_SUPABASE_URL ?? env.NEXT_PUBLIC_SUPABASE_URL ?? processEnv?.NEXT_PUBLIC_SUPABASE_URL ?? processEnv?.VITE_SUPABASE_URL;

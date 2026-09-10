@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
@@ -52,6 +51,12 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // The container edge, distinct from `border` (the pale rule drawn
+        // *inside* a container). See the note beside --outline in index.css.
+        outline: "hsl(var(--outline))",
+        disabled: "hsl(var(--disabled))",
+        "on-ink-dim": "hsl(var(--on-ink-dim))",
+        "backdrop-line": "hsl(var(--backdrop-line))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -67,6 +72,8 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        control: "var(--radius-control)",
+        small: "var(--radius-small)",
       },
       keyframes: {
         "accordion-down": {
