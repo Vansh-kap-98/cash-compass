@@ -19,6 +19,9 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, ImagePlus, Plus, RectangleHorizontal, Trash2, Settings, TrendingUp, AlertTriangle, Users, Sparkles, Zap, MessageCircle, PlusCircle } from "lucide-react";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useFinance } from "@/contexts/FinanceContext";
+import { MIN_CHARGES, detectSubscriptions } from "@/lib/subscriptions";
+import { budgetUsage } from "@/lib/budgets";
+import { averageGoalPercent, goalPercent } from "@/lib/goals";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
@@ -303,6 +306,12 @@ export const WorkspaceCanvas = () => {
       }, {});
   }, [transactions]);
 
+  /** Month-scoped budget usage, keyed by category name. */
+  const usageByName = useMemo(
+    () => new Map(budgetUsage(budgets, transactions).map((u) => [u.name, u])),
+    [budgets, transactions],
+  );
+
   const spentTodayFromEntries = useMemo(() => {
     const today = new Date().toISOString().slice(0, 10);
     return transactions
@@ -383,8 +392,12 @@ export const WorkspaceCanvas = () => {
       return (
         <div className="space-y-2 text-sm">
           {budgets.slice(0, 3).map((budget) => {
-            const spent = expenseByCategory[budget.name] ?? 0;
-            const ratio = budget.monthlyLimit > 0 ? (spent / budget.monthlyLimit) * 100 : 0;
+            // Month-scoped, via the shared helper. This used to divide
+            // all-time category spend by a *monthly* limit, so a long-running
+            // budget reported several hundred percent while the Insight Box,
+            // which scoped correctly, reported the real figure.
+            const usage = usageByName.get(budget.name);
+            const ratio = (usage?.ratio ?? 0) * 100;
             return (
               <div key={budget.id} className="flex items-center justify-between rounded-lg border border-white/20 bg-white/10 p-2">
                 <span>{budget.name}</span>
@@ -414,7 +427,7 @@ export const WorkspaceCanvas = () => {
       return (
         <div className="space-y-2 text-sm">
           {goals.slice(0, 3).map((goal) => {
-            const pct = Math.min(100, (goal.current / goal.target) * 100);
+            const pct = goalPercent(goal);
             return (
               <div key={goal.id} className="rounded-lg border border-white/20 bg-white/10 p-2">
                 <div className="mb-1 flex items-center justify-between">
@@ -521,22 +534,35 @@ export const WorkspaceCanvas = () => {
     }
 
     if (widget.type === "waste-auditor") {
-      const subscriptions = [
-        { name: "Streaming", cost: 15.99, canceled: false },
-        { name: "Cloud Storage", cost: 9.99, canceled: false },
-        { name: "Gym", cost: 49.99, canceled: false },
-      ];
+      // Reads the user's own history through the shared detector.
+      //
+      // This widget previously rendered a literal array — Streaming $15.99,
+      // Cloud Storage $9.99, Gym $49.99 — for every user regardless of their
+      // data, and offered a "✕" that did nothing. It was the most extreme case
+      // of the inconsistency this audit was chasing: not a divergent
+      // calculation but no calculation at all, presented as a finding.
+      //
+      // The mobile app's equivalent widget already reads real detected
+      // subscriptions; this brings the two into line.
+      const subscriptions = detectSubscriptions(transactions);
+
+      if (!subscriptions.length) {
+        return (
+          <p className="text-xs text-muted-foreground">
+            Nothing repeating found yet. Charges appear here once they show up {MIN_CHARGES} times about a month apart.
+          </p>
+        );
+      }
+
       return (
         <div className="space-y-2 text-xs">
-          {subscriptions.map((sub, idx) => (
-            <div key={idx} className="flex items-center justify-between rounded border border-red-400/30 bg-red-400/10 p-2">
+          {subscriptions.map((sub) => (
+            <div key={sub.name} className="surface-outline flex items-center justify-between rounded p-2">
               <div className="flex-1">
                 <p className="font-semibold">{sub.name}</p>
-                <p className="text-red-300">{formatFromUSD(sub.cost)}/mo</p>
+                <p className="text-muted-foreground tabular-nums">{formatFromUSD(sub.averageAmount)}/mo</p>
               </div>
-              <Button size="sm" variant="ghost" className="h-6 px-2 text-xs">
-                ✕
-              </Button>
+              <span className="shrink-0 text-muted-foreground tabular-nums">×{sub.chargeCount}</span>
             </div>
           ))}
         </div>
@@ -571,7 +597,7 @@ export const WorkspaceCanvas = () => {
     }
 
     if (widget.type === "manga-status") {
-      const totalSavingsPercentage = Math.min(100, goals.length > 0 ? goals.reduce((sum, g) => sum + (g.current / g.target) * 100, 0) / goals.length : 0);
+      const totalSavingsPercentage = averageGoalPercent(goals);
       const charStage = Math.floor(totalSavingsPercentage / 25);
       const stageEmoji = ["😔", "😐", "😊", "😄", "🤩"][charStage];
       return (
