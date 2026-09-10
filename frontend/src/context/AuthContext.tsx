@@ -12,6 +12,42 @@ export interface DemoUserProfile {
 
 export type AppUser = User | DemoUserProfile;
 
+/**
+ * The name to show for either kind of user.
+ *
+ * `AppUser` is a union and only the demo arm has a `name` — a Supabase `User`
+ * keeps its display name inside `user_metadata`, which is typed as a loose
+ * record. Reading `.name` off the union therefore does not compile, and the
+ * call sites that did were relying on the checker not being run against them.
+ *
+ * Returns null rather than a placeholder so the caller decides what "no name"
+ * should read as; the account card says "Demo Mode" or "Not signed in"
+ * depending on context, which this helper has no way to know.
+ */
+export function displayName(user: AppUser | null): string | null {
+  if (!user) return null;
+  // Narrow on `name`, not on `role`: Supabase's `User` also carries an optional
+  // `role`, so `'role' in user` does not discriminate the union. `name` exists
+  // on the demo arm only, which is what makes this an actual type guard.
+  if ('name' in user) return user.name;
+  const metadata = (user as User).user_metadata;
+  const named = metadata?.full_name ?? metadata?.name;
+  return typeof named === 'string' && named.length > 0 ? named : null;
+}
+
+/** Initials for the avatar, e.g. "Vansh Kapoor" -> "VK". Max two letters. */
+export function initials(user: AppUser | null): string | null {
+  const name = displayName(user);
+  if (!name) return null;
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+
 interface AuthContextValue {
   user: AppUser | null;
   session: Session | null;

@@ -2,8 +2,18 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+// Edited for the monochrome design system — see the note in button.tsx.
+//
+// `surface-outline` rather than the default `border`: a card is a container, so
+// it takes the ink edge, while `border-border` stays pale for the separators
+// *inside* it. `shadow-sm` is dropped because this design commits to the border
+// and never mixes the two.
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("rounded-lg border bg-card text-card-foreground shadow-sm", className)} {...props} />
+  <div
+    ref={ref}
+    className={cn("surface-outline rounded-lg bg-card text-card-foreground", className)}
+    {...props}
+  />
 ));
 Card.displayName = "Card";
 

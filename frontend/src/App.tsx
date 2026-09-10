@@ -6,7 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { FinanceProvider } from "@/contexts/FinanceContext";
 import { AuthProvider } from "@/context/AuthContext";
-import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/context/AuthContext";
 import LoginPage from "./pages/Login.tsx";
@@ -22,8 +21,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <CurrencyProvider>
       <FinanceProvider>
-        <ThemeProvider>
-          <TooltipProvider>
+        <TooltipProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
@@ -46,7 +44,6 @@ const App = () => (
               </AuthProvider>
             </BrowserRouter>
           </TooltipProvider>
-        </ThemeProvider>
       </FinanceProvider>
     </CurrencyProvider>
   </QueryClientProvider>

@@ -4,7 +4,6 @@ import { GoalsInsights } from "@/components/GoalsInsights";
 import { WorkspaceCanvas } from "@/components/WorkspaceCanvas";
 import { SettingsStudio } from "@/components/SettingsStudio";
 import { StudentPlannerHub } from "@/components/StudentPlannerHub";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { EventCalendar } from "@/components/widgets/EventCalendar";
 import { SubscriptionTracker } from "@/components/widgets/SubscriptionTracker";
 import { SocialBenchmarks } from "@/components/widgets/SocialBenchmarks";
@@ -15,7 +14,6 @@ import { TransactionFeed } from "@/components/TransactionFeed";
 import { SavingsProgress } from "@/components/SavingsProgress";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useFinance } from "@/contexts/FinanceContext";
-import { useTheme } from "@/contexts/ThemeContext";
 import { Wallet, Bell, CalendarClock, PiggyBank } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +30,6 @@ const SoftWidget = ({ title, children }: { title: string; children: React.ReactN
 );
 
 export const SoftBloomLayout = () => {
-  const { theme } = useTheme();
   const { formatFromUSD, convertToUSD, convertFromUSD } = useCurrency();
   const { manualBalance, setManualSnapshot } = useFinance();
   const [activeTab, setActiveTab] = useState<"Dashboard" | "Goals" | "Planner" | "Workspace" | "Settings">("Dashboard");
@@ -322,7 +319,6 @@ export const SoftBloomLayout = () => {
       {activeTab !== "Settings" && null /* FeatureShowcase removed */}
     </main>
   </div>
-  <ThemeToggle />
   </>
   );
 };
