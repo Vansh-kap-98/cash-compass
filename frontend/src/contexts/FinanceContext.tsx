@@ -74,6 +74,11 @@ interface FinanceContextType {
   contributeToGoal: (goalId: string, amount: number) => void;
   upsertBudget: (name: string, monthlyLimit: number) => void;
   resetAll: () => void;
+  totalIncome: number;
+  totalSpent: number;
+  spentToday: number;
+  availableBalance: number;
+  expensesByCategory: Array<{ category: string; amount: number }>;
 }
 
 const STORAGE_KEY = "cash-compass-finance-v1";
@@ -258,6 +263,41 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
   };
 
+  const todayIsoLive = useMemo(() => new Date().toISOString().slice(0, 10), []);
+
+  const totalIncome = useMemo(
+    () => state.transactions.filter((tx) => tx.type === "income").reduce((sum, tx) => sum + tx.amount, 0),
+    [state.transactions],
+  );
+
+  const totalSpent = useMemo(
+    () => state.transactions.filter((tx) => tx.type === "expense").reduce((sum, tx) => sum + tx.amount, 0),
+    [state.transactions],
+  );
+
+  const spentToday = useMemo(
+    () => state.transactions.filter((tx) => tx.type === "expense" && tx.date === todayIsoLive).reduce((sum, tx) => sum + tx.amount, 0),
+    [state.transactions, todayIsoLive],
+  );
+
+  // Flutter formula: max(0, manualBalance + totalIncome - totalSpent)
+  const availableBalance = useMemo(
+    () => Math.max(0, (state.manualBalance ?? 0) + totalIncome - totalSpent),
+    [state.manualBalance, totalIncome, totalSpent],
+  );
+
+  const expensesByCategory = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const tx of state.transactions) {
+      if (tx.type === "expense") {
+        map[tx.category] = (map[tx.category] ?? 0) + tx.amount;
+      }
+    }
+    return Object.entries(map)
+      .map(([category, amount]) => ({ category, amount }))
+      .sort((a, b) => b.amount - a.amount);
+  }, [state.transactions]);
+
   const value = useMemo(
     () => ({
       startingBalance: state.startingBalance,
@@ -274,8 +314,13 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       contributeToGoal,
       upsertBudget,
       resetAll,
+      totalIncome,
+      totalSpent,
+      spentToday,
+      availableBalance,
+      expensesByCategory,
     }),
-    [state],
+    [state, totalIncome, totalSpent, spentToday, availableBalance, expensesByCategory],
   );
 
   return <FinanceContext.Provider value={value}>{children}</FinanceContext.Provider>;
