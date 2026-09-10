@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useFinance } from "@/contexts/FinanceContext";
+import { goalPercent } from "@/lib/goals";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -103,7 +104,7 @@ export const GoalsInsights = () => {
           </CardHeader>
           <CardContent className="space-y-5">
             {goals.map((goal) => {
-              const pct = Math.min(100, Math.round((goal.current / goal.target) * 100));
+              const pct = goalPercent(goal);
               const isComplete = goal.current >= goal.target;
               return (
                 <div key={goal.id} className="space-y-2">

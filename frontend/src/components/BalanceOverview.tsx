@@ -5,19 +5,20 @@ import { useFinance } from "@/contexts/FinanceContext";
 
 export const BalanceOverview = () => {
   const { formatFromUSD } = useCurrency();
-  const { manualBalance, transactions } = useFinance();
+  // All four figures come from the context, which derives them with `useMemo`
+  // from the live transaction list.
+  //
+  // This component previously recomputed every one of them inline, and its
+  // balance formula was `manualBalance - totalSpent` — the pre-fix version
+  // that **omits income**. So the headline balance card still behaved the way
+  // the original bug report described: recording a coffee moved the number and
+  // recording a salary did not. The context's `availableBalance` had been
+  // corrected to `manualBalance + totalIncome - totalSpent`, but no consumer
+  // was ever repointed at it, so the canonical value had zero readers and the
+  // wrong one stayed on screen.
+  const { availableBalance, spentToday, totalSpent, manualBalance } = useFinance();
 
-  const today = new Date().toISOString().slice(0, 10);
-
-  const totalBalance = manualBalance ?? 0;
-  const spending = transactions
-    .filter((tx) => tx.type === "expense" && tx.date === today)
-    .reduce((sum, tx) => sum + tx.amount, 0);
-  const totalSpent = transactions
-    .filter((tx) => tx.type === "expense")
-    .reduce((sum, tx) => sum + tx.amount, 0);
-  const availableBalance = Math.max(0, totalBalance - totalSpent);
-  const monthlyChangeLabel = availableBalance >= spending ? "+expense-flow" : "expense-flow";
+  const monthlyChangeLabel = availableBalance >= spentToday ? "+expense-flow" : "expense-flow";
 
   return (
     <motion.div
@@ -48,7 +49,7 @@ export const BalanceOverview = () => {
             Total balance
           </div>
           <p className="text-lg font-semibold tabular-nums font-heading">
-            {formatFromUSD(totalBalance)}
+            {formatFromUSD(manualBalance ?? 0)}
           </p>
         </div>
         <div className="space-y-1">
@@ -57,7 +58,7 @@ export const BalanceOverview = () => {
             Spent today
           </div>
           <p className="text-lg font-semibold tabular-nums font-heading">
-            {formatFromUSD(spending)}
+            {formatFromUSD(spentToday)}
           </p>
         </div>
       </div>

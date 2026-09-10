@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { Lightbulb } from "lucide-react";
 import { useFinance } from "@/contexts/FinanceContext";
+import { budgetUsage } from "@/lib/budgets";
+import { detectSubscriptions } from "@/lib/subscriptions";
 import { useMemo } from "react";
 
 export const InsightBox = () => {
@@ -22,14 +24,11 @@ export const InsightBox = () => {
 
     const topExpense = Object.entries(expenseByCategory).sort((a, b) => b[1] - a[1])[0];
 
-    const budgetAlerts = budgets
-      .map((budget) => {
-        const spent = expenseByCategory[budget.name] ?? 0;
-        const ratio = budget.monthlyLimit > 0 ? spent / budget.monthlyLimit : 0;
-        return { ...budget, spent, ratio };
-      })
-      .filter((item) => item.ratio >= 0.8)
-      .sort((a, b) => b.ratio - a.ratio);
+    // Via the shared helper, which is month-scoped and already sorted worst
+    // first. The maths was correct here — the Workspace Budget Health widget
+    // was the one dividing all-time spend by a monthly limit — but leaving a
+    // second copy of it in place is how the two drifted apart to begin with.
+    const budgetAlerts = budgetUsage(budgets, transactions, now).filter((item) => item.atRisk);
 
     const smartItems = [] as Array<{ id: string; title: string; description: string; savings: number; icon: string }>;
 
@@ -50,19 +49,31 @@ export const InsightBox = () => {
         id: "budget-alert",
         title: `${alert.name} Budget Alert`,
         description: `${alert.name} is at ${(alert.ratio * 100).toFixed(0)}% of your monthly budget (${formatFromUSD(alert.spent)} of ${formatFromUSD(alert.monthlyLimit)}).`,
-        savings: Math.max(0, alert.spent - alert.monthlyLimit),
+        savings: alert.overspend,
         icon: "🚨",
       });
     }
 
-    const subscriptions = expenseThisMonth.filter((tx) => /netflix|spotify|subscription|prime|youtube/i.test(tx.name));
+    // Detection comes from the shared module, not from a merchant-name regex.
+    //
+    // This used to be `/netflix|spotify|subscription|prime|youtube/i` over the
+    // current month, which had two failure modes pulling in opposite
+    // directions: it fired on a *single* charge from one of those five brands
+    // (so one Spotify entry was reported as a subscription here while Fixed
+    // Liabilities correctly said it had no cadence yet), and it was blind to a
+    // genuine monthly charge from any other merchant.
+    //
+    // Note this reads the full history rather than `expenseThisMonth`: a
+    // cadence is only visible across months, so scoping detection to the
+    // current one would mean it could never find anything.
+    const subscriptions = detectSubscriptions(transactions);
     if (subscriptions.length > 0) {
-      const total = subscriptions.reduce((sum, tx) => sum + tx.amount, 0);
+      const monthlyTotal = subscriptions.reduce((sum, s) => sum + s.averageAmount, 0);
       smartItems.push({
         id: "subscription-audit",
         title: "Subscription Audit",
-        description: `You logged ${subscriptions.length} subscription-style payments this month. Rotating one plan could reduce recurring spend.`,
-        savings: total * 0.25,
+        description: `${subscriptions.length} recurring ${subscriptions.length === 1 ? "charge" : "charges"} detected, about ${formatFromUSD(monthlyTotal)} a month. Rotating one plan could reduce recurring spend.`,
+        savings: monthlyTotal * 0.25,
         icon: "📺",
       });
     }

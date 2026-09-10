@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useFinance } from "@/contexts/FinanceContext";
+import { goalPercent } from "@/lib/goals";
 import { Button } from "@/components/ui/button";
 
 export const SavingsProgress = () => {
@@ -21,7 +22,7 @@ export const SavingsProgress = () => {
 
       <div className="space-y-5">
         {goals.map((goal, i) => {
-          const pct = Math.round((goal.current / goal.target) * 100);
+          const pct = goalPercent(goal);
           return (
             <motion.div
               key={goal.id}

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Target, CalendarIcon, SlidersHorizontal, X, Minus, GripHorizontal, MapPin, Plane, Users, Utensils, ScanLine } from "lucide-react";
 import { format } from "date-fns";
 import { useFinance, type ReasonTag, type TransactionType } from "@/contexts/FinanceContext";
+import { goalPercent } from "@/lib/goals";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ReceiptScanner } from "@/components/ReceiptScanner";
 import { needsReview, type FieldConfidence, type ParsedReceipt } from "@/lib/receiptParser";
@@ -478,7 +479,7 @@ export const QuickActions = () => {
               <div className="rounded-md border p-3 space-y-2">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">Current Goals</p>
                 {goals.map((g) => {
-                  const pct = Math.min(100, Math.round((g.current / g.target) * 100));
+                  const pct = goalPercent(g);
                   return (
                     <div key={g.id} className="space-y-1">
                       <div className="flex items-center justify-between text-sm">
