@@ -37,6 +37,7 @@ interface FinalizedBudgetPlan {
   total: number;
   perPerson: number;
   createdAt: string;
+  settledWith?: string[];
 }
 
 const BUDGET_PLANS_KEY = "cash-compass-budget-plans-v1";
@@ -200,8 +201,9 @@ export const QuickActions = () => {
   const perPerson = useMemo(() => budgetTotal / Math.max(1, Number(budgetPeople) || 1), [budgetTotal, budgetPeople]);
 
   const addBudgetItem = () => {
-    const est = Number(newItemEstimate);
-    if (!newItemName.trim() || !est || est <= 0) return;
+    const estInput = Number(newItemEstimate);
+    if (!newItemName.trim() || !estInput || estInput <= 0) return;
+    const est = convertToUSD(estInput);
     setBudgetItems(prev => [...prev, { id: `bi-${Date.now()}`, name: newItemName.trim(), estimate: est }]);
     setNewItemName(""); setNewItemEstimate("");
   };
@@ -247,8 +249,23 @@ export const QuickActions = () => {
     };
 
     setFinalizedPlans((prev) => [finalizedPlan, ...prev]);
-    toast({ title: "Budget finalised", description: `Bill created: ${formatAmount(finalizedPlan.total)}${people > 1 ? ` total, ${formatAmount(finalizedPlan.perPerson)} each.` : "."}` });
+    toast({ title: "Budget finalised", description: `Bill created: ${formatFromUSD(finalizedPlan.total)}${people > 1 ? ` total, ${formatFromUSD(finalizedPlan.perPerson)} each.` : "."}` });
     clearBudgetDraft();
+  };
+
+  const toggleSettled = (planId: string, person: string) => {
+    setFinalizedPlans((prev) =>
+      prev.map((plan) => {
+        if (plan.id !== planId) return plan;
+        const settled = plan.settledWith ?? [];
+        return {
+          ...plan,
+          settledWith: settled.includes(person)
+            ? settled.filter((p) => p !== person)
+            : [...settled, person],
+        };
+      }),
+    );
   };
 
   const planTypeConfig: Record<BudgetPlanType, { icon: React.ReactNode; label: string }> = {
@@ -566,7 +583,7 @@ export const QuickActions = () => {
                     <div key={item.id} className="flex items-center justify-between rounded-lg border border-border px-2.5 py-1.5 text-xs">
                       <span>{item.name}</span>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{formatAmount(item.estimate)}</span>
+                        <span className="font-medium">{formatFromUSD(item.estimate)}</span>
                         <button type="button" onClick={() => removeBudgetItem(item.id)} className="text-muted-foreground hover:text-destructive transition-colors">
                           <X className="w-3 h-3" />
                         </button>
@@ -580,12 +597,12 @@ export const QuickActions = () => {
               <div className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3 space-y-1.5">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total</span>
-                  <span className="font-bold">{formatAmount(budgetTotal)}</span>
+                  <span className="font-bold">{formatFromUSD(budgetTotal)}</span>
                 </div>
                 {Number(budgetPeople) > 1 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Per person</span>
-                    <span className="font-semibold">{formatAmount(perPerson)}</span>
+                    <span className="font-semibold">{formatFromUSD(perPerson)}</span>
                   </div>
                 )}
                 {budgetItems.length === 0 && (
@@ -611,18 +628,18 @@ export const QuickActions = () => {
                     {finalizedPlans[0].items.map((item) => (
                       <div key={item.id} className="flex items-center justify-between text-xs">
                         <span>{item.name}</span>
-                        <span className="font-medium">{formatAmount(item.estimate)}</span>
+                        <span className="font-medium">{formatFromUSD(item.estimate)}</span>
                       </div>
                     ))}
                   </div>
                   <div className="pt-1 border-t border-border space-y-1 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Final bill</span>
-                      <span className="font-semibold">{formatAmount(finalizedPlans[0].total)}</span>
+                      <span className="font-semibold">{formatFromUSD(finalizedPlans[0].total)}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Split ({finalizedPlans[0].people})</span>
-                      <span className="font-semibold">{formatAmount(finalizedPlans[0].perPerson)}</span>
+                      <span className="font-semibold">{formatFromUSD(finalizedPlans[0].perPerson)}</span>
                     </div>
                   </div>
                 </div>
@@ -634,7 +651,7 @@ export const QuickActions = () => {
                   {finalizedPlans.slice(1, 4).map((plan) => (
                     <div key={plan.id} className="flex items-center justify-between text-xs">
                       <span>{plan.title}</span>
-                      <span className="font-medium">{formatAmount(plan.total)}</span>
+                      <span className="font-medium">{formatFromUSD(plan.total)}</span>
                     </div>
                   ))}
                 </div>
@@ -658,7 +675,7 @@ export const QuickActions = () => {
             style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
           >
             <SlidersHorizontal className="w-3.5 h-3.5 rotate-90" />
-            <span>Budget: {formatAmount(budgetTotal)}</span>
+            <span>Budget: {formatFromUSD(budgetTotal)}</span>
           </motion.button>
         )}
       </AnimatePresence>

@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { addDays, differenceInCalendarDays, format, isSameDay, parseISO } from "date-fns";
+import { Trash2 } from "lucide-react";
 import { useFinance } from "@/contexts/FinanceContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,18 +39,64 @@ interface SocialPlan {
   note?: string;
 }
 
+const PLANNER_KEY = "cash-compass-student-planner-v1";
+
+interface PlannerState {
+  horizonDays: number;
+  upcomingBills: number;
+  incomeStreams: IncomeStream[];
+  fixedCosts: FixedCost[];
+  socialPlans: SocialPlan[];
+  loanLumpSum: number;
+  loanSafetyBuffer: number;
+  streakDates: string[];
+}
+
 export const StudentPlannerHub = () => {
-  const { formatFromUSD } = useCurrency();
+  const { formatFromUSD, convertToUSD } = useCurrency();
   const { transactions, manualBalance, manualIncomeToDate, manualSpentToday } = useFinance();
 
-  const [horizonDays, setHorizonDays] = useState(30);
-  const [upcomingBills, setUpcomingBills] = useState(0);
-  const [incomeStreams, setIncomeStreams] = useState<IncomeStream[]>([]);
-  const [fixedCosts] = useState<FixedCost[]>([]);
+  const loadState = (): Partial<PlannerState> => {
+    try {
+      const saved = localStorage.getItem(PLANNER_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error("Failed to load planner state", e);
+    }
+    return {};
+  };
+
+  const savedState = useMemo(loadState, []);
+
+  const [horizonDays, setHorizonDays] = useState(savedState.horizonDays ?? 30);
+  const [upcomingBills, setUpcomingBills] = useState(savedState.upcomingBills ?? 0);
+  const [incomeStreams, setIncomeStreams] = useState<IncomeStream[]>(savedState.incomeStreams ?? []);
+  const [fixedCosts, setFixedCosts] = useState<FixedCost[]>(savedState.fixedCosts ?? []);
+  const [socialPlans, setSocialPlans] = useState<SocialPlan[]>(savedState.socialPlans ?? []);
+  const [loanLumpSum, setLoanLumpSum] = useState(savedState.loanLumpSum ?? 4200);
+  const [loanSafetyBuffer, setLoanSafetyBuffer] = useState(savedState.loanSafetyBuffer ?? 350);
+  const [streakDates, setStreakDates] = useState<string[]>(savedState.streakDates ?? []);
+
+  useEffect(() => {
+    const state: PlannerState = {
+      horizonDays,
+      upcomingBills,
+      incomeStreams,
+      fixedCosts,
+      socialPlans,
+      loanLumpSum,
+      loanSafetyBuffer,
+      streakDates,
+    };
+    localStorage.setItem(PLANNER_KEY, JSON.stringify(state));
+  }, [horizonDays, upcomingBills, incomeStreams, fixedCosts, socialPlans, loanLumpSum, loanSafetyBuffer, streakDates]);
 
   const [newIncomeName, setNewIncomeName] = useState("");
   const [newIncomeAmount, setNewIncomeAmount] = useState("");
   const [newIncomeCadence, setNewIncomeCadence] = useState<IncomeCadence>("weekly");
+
+  const [newFixedCostName, setNewFixedCostName] = useState("");
+  const [newFixedCostAmount, setNewFixedCostAmount] = useState("");
 
   const [newSocialTitle, setNewSocialTitle] = useState("");
   const [newSocialDate, setNewSocialDate] = useState(format(addDays(new Date(), 2), "yyyy-MM-dd"));
@@ -58,14 +105,9 @@ export const StudentPlannerHub = () => {
   const [newSocialStretch, setNewSocialStretch] = useState("");
   const [newSocialSplit, setNewSocialSplit] = useState("1");
   const [newSocialNote, setNewSocialNote] = useState("");
-  const [socialPlans, setSocialPlans] = useState<SocialPlan[]>([]);
 
   const semesterStart = useMemo(() => new Date(new Date().getFullYear(), 0, 15), []);
   const semesterEnd = useMemo(() => addDays(semesterStart, 16 * 7), [semesterStart]);
-
-  const [loanLumpSum, setLoanLumpSum] = useState(4200);
-  const [loanSafetyBuffer, setLoanSafetyBuffer] = useState(350);
-  const [streakDates, setStreakDates] = useState<string[]>([]);
 
   const totalIncomeForHorizon = useMemo(() => {
     return incomeStreams.reduce((sum, stream) => {
@@ -162,7 +204,7 @@ export const StudentPlannerHub = () => {
   }, [streakDates]);
 
   const addIncome = () => {
-    const amount = Number(newIncomeAmount);
+    const amount = convertToUSD(Number(newIncomeAmount));
     if (!newIncomeName.trim() || !Number.isFinite(amount) || amount <= 0) {
       toast({ title: "Quick check", description: "Add a name and a valid amount for this income stream." });
       return;
@@ -181,10 +223,33 @@ export const StudentPlannerHub = () => {
     setNewIncomeAmount("");
   };
 
+  const removeIncome = (id: string) => setIncomeStreams(prev => prev.filter(s => s.id !== id));
+
+  const addFixedCost = () => {
+    const amount = convertToUSD(Number(newFixedCostAmount));
+    if (!newFixedCostName.trim() || !Number.isFinite(amount) || amount <= 0) {
+      toast({ title: "Quick check", description: "Add a name and a valid amount for this fixed cost." });
+      return;
+    }
+
+    setFixedCosts((prev) => [
+      {
+        id: `fc-${Date.now()}`,
+        name: newFixedCostName.trim(),
+        amount,
+      },
+      ...prev,
+    ]);
+    setNewFixedCostName("");
+    setNewFixedCostAmount("");
+  };
+
+  const removeFixedCost = (id: string) => setFixedCosts(prev => prev.filter(c => c.id !== id));
+
   const addSocialPlan = () => {
-    const lowEstimate = Number(newSocialLow);
-    const realisticEstimate = Number(newSocialRealistic);
-    const stretchEstimate = Number(newSocialStretch);
+    const lowEstimate = convertToUSD(Number(newSocialLow));
+    const realisticEstimate = convertToUSD(Number(newSocialRealistic));
+    const stretchEstimate = convertToUSD(Number(newSocialStretch));
     const splitCount = Math.max(1, Number(newSocialSplit) || 1);
 
     if (!newSocialTitle.trim() || realisticEstimate <= 0) {
@@ -214,11 +279,21 @@ export const StudentPlannerHub = () => {
     setNewSocialNote("");
   };
 
+  const removeSocialPlan = (id: string) => setSocialPlans(prev => prev.filter(p => p.id !== id));
+
   const markTodayOnTrack = () => {
     const today = format(new Date(), "yyyy-MM-dd");
-    setStreakDates((prev) => (prev.includes(today) ? prev : [today, ...prev]));
-    toast({ title: "Bloom streak updated", description: "Nice work. You stayed within your plan today." });
+    setStreakDates((prev) => {
+      if (prev.includes(today)) {
+        toast({ title: "Bloom streak updated", description: "Removed today's on-track mark." });
+        return prev.filter(d => d !== today);
+      }
+      toast({ title: "Bloom streak updated", description: "Nice work. You stayed within your plan today." });
+      return [today, ...prev];
+    });
   };
+
+  const isTodayMarked = streakDates.includes(format(new Date(), "yyyy-MM-dd"));
 
   return (
     <div className="grid grid-cols-1 gap-6">
@@ -259,7 +334,12 @@ export const StudentPlannerHub = () => {
                 {incomeStreams.slice(0, 4).map((stream) => (
                   <div key={stream.id} className="flex items-center justify-between text-sm">
                     <span>{stream.name}</span>
-                    <span>{formatFromUSD(stream.amount)} <span className="text-xs text-muted-foreground">/{stream.cadence}</span></span>
+                    <div className="flex items-center gap-2">
+                      <span>{formatFromUSD(stream.amount)} <span className="text-xs text-muted-foreground">/{stream.cadence}</span></span>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={() => removeIncome(stream.id)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -287,11 +367,21 @@ export const StudentPlannerHub = () => {
                 {fixedCosts.map((item) => (
                   <div key={item.id} className="flex items-center justify-between text-sm">
                     <span>{item.name}</span>
-                    <span>{formatFromUSD(item.amount)}</span>
+                    <div className="flex items-center gap-2">
+                      <span>{formatFromUSD(item.amount)}</span>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={() => removeFixedCost(item.id)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground">Total essentials: {formatFromUSD(fixedCostsTotal)}</p>
+              <div className="grid grid-cols-1 gap-2 pt-2 md:grid-cols-2">
+                <Input placeholder="New fixed cost" value={newFixedCostName} onChange={(e) => setNewFixedCostName(e.target.value)} />
+                <Input type="number" placeholder="Amount" value={newFixedCostAmount} onChange={(e) => setNewFixedCostAmount(e.target.value)} />
+              </div>
+              <Button type="button" variant="secondary" className="w-full" onClick={addFixedCost}>Add Fixed Cost</Button>
+              <p className="text-xs text-muted-foreground mt-2">Total essentials: {formatFromUSD(fixedCostsTotal)}</p>
             </div>
           </div>
         </CardContent>
@@ -324,10 +414,15 @@ export const StudentPlannerHub = () => {
               {socialPlans.slice(0, 4).map((plan) => (
                 <div key={plan.id} className="rounded-xl border border-border p-3">
                   <div className="flex items-center justify-between">
-                    <p className="font-medium">{plan.title}</p>
-                    <Badge variant="secondary">{format(parseISO(plan.date), "MMM d")}</Badge>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{plan.title}</p>
+                      <Badge variant="secondary">{format(parseISO(plan.date), "MMM d")}</Badge>
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={() => removeSocialPlan(plan.id)}>
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground mt-1">
                     Your share: {formatFromUSD(plan.realisticEstimate / Math.max(1, plan.splitCount))} (realistic)
                   </p>
                 </div>
@@ -389,7 +484,9 @@ export const StudentPlannerHub = () => {
             {currentStreak >= 3 && <Badge className="mt-2">3-Day Bloom Streak</Badge>}
           </div>
           <div className="space-y-2">
-            <Button type="button" onClick={markTodayOnTrack}>Mark Today On Track</Button>
+            <Button type="button" variant={isTodayMarked ? "secondary" : "default"} onClick={markTodayOnTrack}>
+              {isTodayMarked ? "Marked on-track today" : "Mark Today On Track"}
+            </Button>
             <p className="text-xs text-muted-foreground">No penalties. Missed days just restart softly.</p>
           </div>
         </CardContent>

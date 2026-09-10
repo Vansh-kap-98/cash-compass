@@ -3,12 +3,16 @@ import { DashboardPlanner } from "@/components/DashboardPlanner";
 import { GoalsInsights } from "@/components/GoalsInsights";
 import { WorkspaceCanvas } from "@/components/WorkspaceCanvas";
 import { SettingsStudio } from "@/components/SettingsStudio";
+import { StudentPlannerHub } from "@/components/StudentPlannerHub";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { EventCalendar } from "@/components/widgets/EventCalendar";
 import { SubscriptionTracker } from "@/components/widgets/SubscriptionTracker";
 import { SocialBenchmarks } from "@/components/widgets/SocialBenchmarks";
 import { SmartCards } from "@/components/insights/SmartCards";
 import { SpendingPatternInsight } from "@/components/forms/ReasonTags";
+import { InsightBox } from "@/components/InsightBox";
+import { TransactionFeed } from "@/components/TransactionFeed";
+import { SavingsProgress } from "@/components/SavingsProgress";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useFinance } from "@/contexts/FinanceContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -31,7 +35,7 @@ export const SoftBloomLayout = () => {
   const { theme } = useTheme();
   const { formatFromUSD, convertToUSD, convertFromUSD } = useCurrency();
   const { manualBalance, setManualSnapshot } = useFinance();
-  const [activeTab, setActiveTab] = useState<"Dashboard" | "Goals" | "Workspace" | "Settings">("Dashboard");
+  const [activeTab, setActiveTab] = useState<"Dashboard" | "Goals" | "Planner" | "Workspace" | "Settings">("Dashboard");
 
   const updateSnapshot = (value: number) => {
     setManualSnapshot({
@@ -146,10 +150,10 @@ export const SoftBloomLayout = () => {
       </div>
 
       <nav className="space-y-1 mt-4 font-body text-sm">
-        {["Dashboard", "Goals", "Workspace", "Settings"].map((item) => (
+        {["Dashboard", "Goals", "Planner", "Workspace", "Settings"].map((item) => (
           <div
             key={item}
-            onClick={() => setActiveTab(item as "Dashboard" | "Goals" | "Workspace" | "Settings")}
+            onClick={() => setActiveTab(item as "Dashboard" | "Goals" | "Planner" | "Workspace" | "Settings")}
             className={`px-3 py-2 rounded-lg cursor-pointer transition-colors ${
               activeTab === item ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"
             }`}
@@ -201,13 +205,14 @@ export const SoftBloomLayout = () => {
         {[
           ["Dashboard", "Dashboard"],
           ["Goals", "Goals"],
+          ["Planner", "Planner"],
           ["Workspace", "Workspace"],
           ["Settings", "Settings"],
         ].map(([label, tab]) => (
           <button
             key={tab}
             type="button"
-            onClick={() => setActiveTab(tab as "Dashboard" | "Goals" | "Workspace" | "Settings")}
+            onClick={() => setActiveTab(tab as "Dashboard" | "Goals" | "Planner" | "Workspace" | "Settings")}
             className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${activeTab === tab ? "bg-primary text-primary-foreground" : "bg-card/80 text-muted-foreground border border-border"}`}
           >
             {label}
@@ -304,9 +309,13 @@ export const SoftBloomLayout = () => {
         </section>
         <SmartCards dailyLimit={dailyBudgetUSD} />
         <SpendingPatternInsight />
+        <InsightBox />
+        <SavingsProgress />
+        <TransactionFeed />
         <SocialBenchmarks />
       </>}
       {activeTab === "Goals" && <GoalsInsights />}
+      {activeTab === "Planner" && <StudentPlannerHub />}
       {activeTab === "Workspace" && <WorkspaceCanvas />}
       {activeTab === "Settings" && <SettingsStudio />}
 

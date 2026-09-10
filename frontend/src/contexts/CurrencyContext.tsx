@@ -13,6 +13,7 @@ interface CurrencyContextType {
   ratesLoading: boolean;
   ratesError: string | null;
   lastUpdated: Date | null;
+  refreshRates: () => Promise<void>;
 }
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
@@ -23,7 +24,7 @@ const currencyOrder: CurrencyCode[] = ["USD", "INR", "RUB"];
 const fallbackRatesFromUSD: Record<CurrencyCode, number> = {
   USD: 1,
   INR: 83.5,
-  RUB: 92,
+  RUB: 85,
 };
 
 const localeByCurrency: Record<CurrencyCode, string> = {
@@ -97,7 +98,7 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     try {
       // Use frankfurter.app (free, no API key needed, reliable)
-      const response = await fetch("https://api.frankfurter.app/latest?from=USD&to=INR,RUB");
+      const response = await fetch("https://api.frankfurter.dev/v1/latest?from=USD");
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -106,10 +107,23 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const data = await response.json();
 
       if (data?.rates) {
+        // Merge fetched rates onto fallbacks. Frankfurter mirrors ECB reference
+        // rates, and ECB no longer publishes RUB — so a successful response can
+        // legitimately omit currencies we still support. Merging ensures RUB
+        // keeps its fallback value rather than being silently dropped.
+        const fetched: Record<string, number> = {};
+        for (const [code, value] of Object.entries(data.rates)) {
+          const n = Number(value);
+          // Full precision, deliberately. Rounding rates to 2dp destroys
+          // currencies whose rate is below one — BHD at 0.377 becomes 0.38,
+          // an 0.8% error on every conversion.
+          if (Number.isFinite(n) && n > 0) fetched[code] = n;
+        }
         const newRates: Record<CurrencyCode, number> = {
+          ...fallbackRatesFromUSD,
           USD: 1,
-          INR: round2(Number(data.rates.INR) || fallbackRatesFromUSD.INR),
-          RUB: round2(Number(data.rates.RUB) || fallbackRatesFromUSD.RUB),
+          INR: fetched.INR ?? fallbackRatesFromUSD.INR,
+          RUB: fetched.RUB ?? fallbackRatesFromUSD.RUB,
         };
         setRates(newRates);
         writeCachedRates(newRates);
@@ -233,8 +247,9 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       ratesLoading,
       ratesError,
       lastUpdated,
+      refreshRates: fetchRates,
     }),
-    [currency, setCurrency, cycleCurrency, convertFromUSD, convertToUSD, formatAmount, formatFromUSD, ratesLoading, ratesError, lastUpdated],
+    [currency, setCurrency, cycleCurrency, convertFromUSD, convertToUSD, formatAmount, formatFromUSD, ratesLoading, ratesError, lastUpdated, fetchRates],
   );
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
