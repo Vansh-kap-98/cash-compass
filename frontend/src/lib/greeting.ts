@@ -42,3 +42,37 @@ export function useGreeting(): Greeting {
 
   return greeting;
 }
+
+/**
+ * Today's date for the line under the greeting, e.g. "Friday 11 September".
+ *
+ * Pinned to an English locale rather than the browser's: the web app's UI is
+ * English-only, and a Russian-locale browser would otherwise put a Russian
+ * date under an English greeting. Day-before-month matches the dd/mm/yyyy the
+ * date inputs already use.
+ */
+export function formatToday(date: Date): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(date);
+}
+
+/**
+ * The date label, refreshed once a minute.
+ *
+ * Separate from `useGreeting` because the two change at different moments:
+ * midnight falls inside "Good evening", so a date tied to the greeting would
+ * show yesterday until 5am.
+ */
+export function useTodayLabel(): string {
+  const [label, setLabel] = useState(() => formatToday(new Date()));
+
+  useEffect(() => {
+    const id = window.setInterval(() => setLabel(formatToday(new Date())), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  return label;
+}

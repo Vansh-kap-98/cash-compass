@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useState, useMemo, useEffect } from "react";
-import { useGreeting } from "@/lib/greeting";
+import { GreetingHeader } from "@/components/GreetingHeader";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -33,7 +33,6 @@ const SoftWidget = ({ title, children }: { title: string; children: React.ReactN
 export const SoftBloomLayout = () => {
   const { formatFromUSD, convertToUSD, convertFromUSD } = useCurrency();
   const { manualBalance, setManualSnapshot } = useFinance();
-  const greeting = useGreeting();
   const [activeTab, setActiveTab] = useState<"Dashboard" | "Goals" | "Planner" | "Workspace" | "Settings">("Dashboard");
 
   const updateSnapshot = (value: number) => {
@@ -218,7 +217,7 @@ export const SoftBloomLayout = () => {
           </button>
         ))}
       </div>
-      <h1 className="font-heading text-2xl font-bold">{greeting}</h1>
+      <GreetingHeader />
       {activeTab === "Dashboard" && <section data-tour="balance-summary" className="grid grid-cols-1 sm:grid-cols-4 gap-4 rounded-3xl border border-border bg-card/90 p-4 shadow-card items-end">
         <div className="space-y-2">
           <Label className="text-xs uppercase tracking-wide text-muted-foreground">Total balance</Label>
