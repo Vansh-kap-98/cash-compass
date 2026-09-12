@@ -9,6 +9,8 @@ class SavingsGoal {
     required this.current,
     required this.target,
     required this.icon,
+    this.targetDate,
+    this.completedAt,
   });
 
   final String id;
@@ -17,18 +19,32 @@ class SavingsGoal {
   final double target;
   final String icon;
 
+  /// ISO calendar date (`yyyy-MM-dd`), set from the timeframe chosen when the
+  /// goal was created. Null for goals created before this field existed.
+  ///
+  /// Used only by the Speed Demon badge (`lib/logic/badges.dart`) to tell
+  /// whether a goal was completed ahead of schedule — nothing else reads it.
+  final String? targetDate;
+
+  /// ISO-8601 timestamp of the moment [current] first reached [target].
+  /// Stamped once by `FinanceProvider.contributeToGoal` and never cleared, so
+  /// a later contribution (there is no withdrawal) cannot erase it.
+  final String? completedAt;
+
   /// Completion in the range 0..1. Guards against a zero or negative target.
   double get progress =>
       target <= 0 ? 0 : (current / target).clamp(0.0, 1.0).toDouble();
 
   bool get isComplete => current >= target;
 
-  SavingsGoal copyWith({double? current}) => SavingsGoal(
+  SavingsGoal copyWith({double? current, String? completedAt}) => SavingsGoal(
         id: id,
         name: name,
         current: current ?? this.current,
         target: target,
         icon: icon,
+        targetDate: targetDate,
+        completedAt: completedAt ?? this.completedAt,
       );
 
   Map<String, dynamic> toJson() => {
@@ -37,6 +53,8 @@ class SavingsGoal {
         'current': current,
         'target': target,
         'icon': icon,
+        if (targetDate != null) 'targetDate': targetDate,
+        if (completedAt != null) 'completedAt': completedAt,
       };
 
   factory SavingsGoal.fromJson(Map<String, dynamic> j) => SavingsGoal(
@@ -47,5 +65,7 @@ class SavingsGoal {
         // corrupt zero can never produce a divide-by-zero in [progress].
         target: asDouble(j['target'], fallback: 1),
         icon: j['icon'] as String? ?? defaultGoalIconKey,
+        targetDate: j['targetDate'] as String?,
+        completedAt: j['completedAt'] as String?,
       );
 }

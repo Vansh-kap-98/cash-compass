@@ -21,6 +21,7 @@ enum WorkspaceWidgetType {
   asciiFortune,
   chibiMascot,
   growthGem,
+  literacyTip,
 }
 
 /// Card height, replacing the web app's 12-column drag-resize.

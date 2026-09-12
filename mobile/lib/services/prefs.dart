@@ -35,6 +35,8 @@ abstract final class PrefsKeys {
   /// Not present in the web app — the location profile was component state
   /// there and reset on every reload.
   static const geoProfile = 'cash-compass-geo-profile-v1';
+  static const literacyCards = 'cash-compass-literacy-cards-v1';
+  static const achievements = 'cash-compass-achievements-v1';
   static const demoMode = 'cash-compass-demo-mode-v1';
   static const completedTour = 'cash-compass-has-completed-tour-v1';
   static const theme = 'dashboard-theme';

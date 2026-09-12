@@ -10,9 +10,11 @@
 /// [CurrencyProvider], so these stay usable from a test with a stub formatter.
 library;
 
+import '../logic/badges.dart';
 import '../logic/budget_math.dart';
 import '../logic/events.dart';
 import '../logic/insights.dart';
+import '../logic/literacy_cards.dart';
 import '../logic/receipt_parser.dart';
 import '../logic/student_planner.dart';
 import '../models/budget_plan.dart';
@@ -106,6 +108,120 @@ String workspaceWidgetLabel(AppLocalizations l10n, WorkspaceWidgetType t) =>
       WorkspaceWidgetType.asciiFortune => l10n.widgetAsciiFortune,
       WorkspaceWidgetType.chibiMascot => l10n.widgetChibiMascot,
       WorkspaceWidgetType.growthGem => l10n.widgetGrowthGem,
+      WorkspaceWidgetType.literacyTip => l10n.widgetLiteracyTip,
+    };
+
+// --------------------------------------------------------- literacy cards
+
+String literacyCategoryLabel(AppLocalizations l10n, LiteracyCategory c) =>
+    switch (c) {
+      LiteracyCategory.foodDelivery => l10n.literacyCategoryFoodDelivery,
+      LiteracyCategory.subscriptionsTech =>
+        l10n.literacyCategorySubscriptionsTech,
+      LiteracyCategory.smartShopping => l10n.literacyCategorySmartShopping,
+      LiteracyCategory.savingsPlanning => l10n.literacyCategorySavingsPlanning,
+      LiteracyCategory.mindsetBudgeting =>
+        l10n.literacyCategoryMindsetBudgeting,
+    };
+
+/// Looks up a card's title by [id]. Falls back to the id itself for a card
+/// added to `literacyCards` without a matching l10n entry yet, rather than
+/// crashing — the same defensiveness `categoryLabel` uses for an unrecognised
+/// stored category.
+String literacyCardTitle(AppLocalizations l10n, String id) => switch (id) {
+      'daily-drip' => l10n.literacyDailyDripTitle,
+      'late-night-craving' => l10n.literacyLateNightCravingTitle,
+      'meal-prep-power' => l10n.literacyMealPrepPowerTitle,
+      'hungry-shopper' => l10n.literacyHungryShopperTitle,
+      'ghost-subscriptions' => l10n.literacyGhostSubscriptionsTitle,
+      'student-discounts' => l10n.literacyStudentDiscountsTitle,
+      'upgrade-cycle' => l10n.literacyUpgradeCycleTitle,
+      'the-24-hour-rule' => l10n.literacyThe24HourRuleTitle,
+      'off-season-steals' => l10n.literacyOffSeasonStealsTitle,
+      'textbook-hack' => l10n.literacyTextbookHackTitle,
+      'micro-savings' => l10n.literacyMicroSavingsTitle,
+      'emergency-cushion' => l10n.literacyEmergencyCushionTitle,
+      'compound-interest' => l10n.literacyCompoundInterestTitle,
+      'the-50-30-20-guide' => l10n.literacyThe503020GuideTitle,
+      'invisible-leaks' => l10n.literacyInvisibleLeaksTitle,
+      'the-hour-value' => l10n.literacyTheHourValueTitle,
+      'credit-trap' => l10n.literacyCreditTrapTitle,
+      'wishlist-trick' => l10n.literacyWishlistTrickTitle,
+      _ => id,
+    };
+
+String literacyCardBody(AppLocalizations l10n, String id) => switch (id) {
+      'daily-drip' => l10n.literacyDailyDripBody,
+      'late-night-craving' => l10n.literacyLateNightCravingBody,
+      'meal-prep-power' => l10n.literacyMealPrepPowerBody,
+      'hungry-shopper' => l10n.literacyHungryShopperBody,
+      'ghost-subscriptions' => l10n.literacyGhostSubscriptionsBody,
+      'student-discounts' => l10n.literacyStudentDiscountsBody,
+      'upgrade-cycle' => l10n.literacyUpgradeCycleBody,
+      'the-24-hour-rule' => l10n.literacyThe24HourRuleBody,
+      'off-season-steals' => l10n.literacyOffSeasonStealsBody,
+      'textbook-hack' => l10n.literacyTextbookHackBody,
+      'micro-savings' => l10n.literacyMicroSavingsBody,
+      'emergency-cushion' => l10n.literacyEmergencyCushionBody,
+      'compound-interest' => l10n.literacyCompoundInterestBody,
+      'the-50-30-20-guide' => l10n.literacyThe503020GuideBody,
+      'invisible-leaks' => l10n.literacyInvisibleLeaksBody,
+      'the-hour-value' => l10n.literacyTheHourValueBody,
+      'credit-trap' => l10n.literacyCreditTrapBody,
+      'wishlist-trick' => l10n.literacyWishlistTrickBody,
+      _ => '',
+    };
+
+// -------------------------------------------------------------------- badges
+
+String achievementCategoryLabel(AppLocalizations l10n, AchievementCategory c) =>
+    switch (c) {
+      AchievementCategory.savings => l10n.achievementCategorySavings,
+      AchievementCategory.budgetControl =>
+        l10n.achievementCategoryBudgetControl,
+      AchievementCategory.habitStreak => l10n.achievementCategoryHabitStreak,
+      AchievementCategory.special => l10n.achievementCategorySpecial,
+    };
+
+String achievementBadgeTitle(AppLocalizations l10n, AchievementBadge badge) =>
+    switch (badge.id) {
+      'first-seed' => l10n.badgeFirstSeedTitle,
+      'goal-crusher' => l10n.badgeGoalCrusherTitle,
+      'fortress' => l10n.badgeFortressTitle,
+      'speed-demon' => l10n.badgeSpeedDemonTitle,
+      'tracking-ninja' => l10n.badgeTrackingNinjaTitle,
+      'master-balancer' => l10n.badgeMasterBalancerTitle,
+      'under-budget' => l10n.badgeUnderBudgetTitle,
+      'category-boss' => l10n.badgeCategoryBossTitle,
+      'daily-driver' => l10n.badgeDailyDriverTitle,
+      'thirty-day-legend' => l10n.badgeThirtyDayLegendTitle,
+      'payday-first' => l10n.badgePaydayFirstTitle,
+      'unsubscriber' => l10n.badgeUnsubscriberTitle,
+      'night-owl-tracker' => l10n.badgeNightOwlTrackerTitle,
+      'financial-master' => l10n.badgeFinancialMasterTitle,
+      _ => badge.id,
+    };
+
+String achievementBadgeDescription(
+  AppLocalizations l10n,
+  AchievementBadge badge,
+) =>
+    switch (badge.id) {
+      'first-seed' => l10n.badgeFirstSeedDescription,
+      'goal-crusher' => l10n.badgeGoalCrusherDescription,
+      'fortress' => l10n.badgeFortressDescription,
+      'speed-demon' => l10n.badgeSpeedDemonDescription,
+      'tracking-ninja' => l10n.badgeTrackingNinjaDescription,
+      'master-balancer' => l10n.badgeMasterBalancerDescription,
+      'under-budget' => l10n.badgeUnderBudgetDescription,
+      'category-boss' => l10n.badgeCategoryBossDescription,
+      'daily-driver' => l10n.badgeDailyDriverDescription,
+      'thirty-day-legend' => l10n.badgeThirtyDayLegendDescription,
+      'payday-first' => l10n.badgePaydayFirstDescription,
+      'unsubscriber' => l10n.badgeUnsubscriberDescription,
+      'night-owl-tracker' => l10n.badgeNightOwlTrackerDescription,
+      'financial-master' => l10n.badgeFinancialMasterDescription,
+      _ => '',
     };
 
 String widgetSizeLabel(AppLocalizations l10n, WidgetSize s) => switch (s) {
