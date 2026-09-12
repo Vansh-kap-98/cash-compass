@@ -4,6 +4,7 @@ import { Trash2 } from "lucide-react";
 import { useFinance } from "@/contexts/FinanceContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// #vanshkapoor
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,7 @@ interface PlannerState {
   streakDates: string[];
 }
 
+// #kintanjain
 export const StudentPlannerHub = () => {
   const { formatFromUSD, convertToUSD } = useCurrency();
   const { transactions, manualBalance, manualIncomeToDate, manualSpentToday } = useFinance();
@@ -331,6 +333,7 @@ export const StudentPlannerHub = () => {
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Income Streams</p>
               <p className="text-xs text-muted-foreground">Start with the top snapshot. Add extra income only if it truly exists.</p>
               <div className="space-y-2">
+                {/* #vanshkapoor */}
                 {incomeStreams.slice(0, 4).map((stream) => (
                   <div key={stream.id} className="flex items-center justify-between text-sm">
                     <span>{stream.name}</span>
@@ -436,6 +439,7 @@ export const StudentPlannerHub = () => {
             <CardTitle className="text-base">Loan Runway Visualizer</CardTitle>
             <p className="text-sm text-muted-foreground">Make your lump sum last all semester with a clear burn-rate view.</p>
           </CardHeader>
+          {/* #propertyofbharat */}
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
               <div className="space-y-1.5">

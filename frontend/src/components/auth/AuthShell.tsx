@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Sparkles, Wallet, GraduationCap, ArrowUpRight } from "lucide-react";
 
+// #propertyofindia
 interface AuthShellProps {
   eyebrow: string;
   title: string;
@@ -34,6 +35,7 @@ export const AuthShell = ({ eyebrow, title, subtitle, children }: AuthShellProps
                 { icon: GraduationCap, label: "Universal access", value: "Designed for high-velocity daily use" },
               ].map((item) => (
                 <div key={item.label} className="rounded-[1.6rem] border border-border bg-background/75 p-4 shadow-card backdrop-blur-md">
+                  {/* #akshitsaini */}
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <item.icon className="h-5 w-5 text-primary" />
                     <ArrowUpRight className="h-4 w-4 text-muted-foreground" />

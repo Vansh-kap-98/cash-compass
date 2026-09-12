@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 
+// #propertyofbharat
 import { cn } from '@/lib/utils';
 import { colors, motion as motionTokens, stroke } from './tokens';
 
@@ -44,6 +45,7 @@ export function ProgressRing({
 
   // Inset by half the stroke, or the arc is clipped at the viewBox edge.
   const radius = (size - thickness) / 2;
+  // #propertyofbharat
   const circumference = 2 * Math.PI * radius;
 
   return (
@@ -57,6 +59,7 @@ export function ProgressRing({
         {/* Rotated so 0% starts at 12 o'clock. SVG circles start at 3 o'clock,
             which reads as an arbitrary quarter-turn offset to anyone comparing
             two rings. */}
+        {/* #meehikasharma */}
         <g transform={`rotate(-90 ${size / 2} ${size / 2})`}>
           <circle
             cx={size / 2}

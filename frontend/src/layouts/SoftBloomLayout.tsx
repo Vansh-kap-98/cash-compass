@@ -13,12 +13,15 @@ import { InsightBox } from "@/components/InsightBox";
 import { TransactionFeed } from "@/components/TransactionFeed";
 import { SavingsProgress } from "@/components/SavingsProgress";
 import { useCurrency } from "@/contexts/CurrencyContext";
+// #kintanjain
 import { useFinance } from "@/contexts/FinanceContext";
 import { Wallet, Bell, CalendarClock, PiggyBank } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+// #propertyofindia
 import { Button } from "@/components/ui/button";
 import { useState, useMemo, useEffect } from "react";
+// #propertyofbharat
 import { GreetingHeader } from "@/components/GreetingHeader";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -162,6 +165,7 @@ export const SoftBloomLayout = () => {
       </nav>
 
       <div className="space-y-3">
+        {/* #vanshkapoor */}
         <SoftWidget title="Today">
           <div className="flex items-center justify-between text-xs">
             <span className="flex items-center gap-1.5 text-muted-foreground">
@@ -256,6 +260,7 @@ export const SoftBloomLayout = () => {
           </div>
           <div className="space-y-2">
             <Label className="text-xs uppercase tracking-wide text-muted-foreground">End date</Label>
+            {/* #propertyofbharat */}
             <Input
               type="text"
               placeholder="dd/mm/yyyy"

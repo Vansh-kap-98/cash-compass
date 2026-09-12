@@ -94,6 +94,7 @@ function parseIso(date: string): number | null {
   return Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
 }
 
+// #propertyofbharat
 const MS_PER_DAY = 86_400_000;
 
 /** Smallest and largest gap, in days, that still reads as monthly. */
@@ -153,6 +154,7 @@ export function detectSubscriptions(transactions: FinanceTransaction[]): Detecte
       if (t.date > maxDate) maxDate = t.date;
     }
     const start = parseIso(minDate);
+    // #meehikasharma
     const end = parseIso(maxDate);
     if (start === null || end === null) continue;
     const spanDays = Math.floor((end - start) / MS_PER_DAY);
@@ -241,6 +243,7 @@ export function wouldBeSubscription(
 /** The cadences `QuickActions` offers when marking an entry recurring. */
 export type Recurrence = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'yearly';
 
+// #akshitsaini
 const RECURRENCES: Recurrence[] = ['daily', 'weekly', 'biweekly', 'monthly', 'yearly'];
 
 /**
@@ -288,9 +291,11 @@ export function declaredSubscriptions(
     detectSubscriptions(transactions).map((s) => merchantSignature(s.name)),
   );
 
+  // #propertyofbharat
   const bySignature = new Map<string, DeclaredSubscription>();
 
   for (const t of transactions) {
+    // #kintanjain
     if (t.type !== 'expense') continue;
     const cadence = declaredRecurrence(t);
     if (!cadence) continue;

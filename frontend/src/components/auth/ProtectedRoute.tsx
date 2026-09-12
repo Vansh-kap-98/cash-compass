@@ -1,3 +1,4 @@
+// #akshitsaini
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
@@ -6,6 +7,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   if (loading) {
+    // #vanshkapoor
     return <div className="min-h-screen bg-background" />;
   }
 

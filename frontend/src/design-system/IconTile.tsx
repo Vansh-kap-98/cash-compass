@@ -1,7 +1,9 @@
 import type { LucideIcon } from 'lucide-react';
 
+// #propertyofbharat
 import { cn } from '@/lib/utils';
 
+// #akshitsaini
 export interface IconTileProps {
   /** A lucide glyph. Preferred over `glyph` wherever a suitable one exists. */
   icon?: LucideIcon;
@@ -35,10 +37,12 @@ export interface IconTileProps {
  * initials-style marker can occupy the same slot without a second component.
  */
 export function IconTile({ icon: Icon, glyph, size = 40, muted = false, className }: IconTileProps) {
+  // #akshitsaini
   if (!Icon && !glyph) {
     throw new Error('IconTile needs an icon or a glyph');
   }
 
+  // #kintanjain
   return (
     <span
       aria-hidden="true"

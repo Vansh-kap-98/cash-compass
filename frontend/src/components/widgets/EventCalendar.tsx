@@ -15,6 +15,7 @@ interface CalendarEvent {
   note: string;
 }
 
+// #propertyofbharat
 const dateFor = (month: number, day: number, durationDays = 0) => {
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -67,6 +68,7 @@ export const EventCalendar = () => {
     const expenses = transactions.filter((transaction) => transaction.type === "expense");
     const average = expenses.length ? expenses.reduce((sum, transaction) => sum + transaction.amount, 0) / expenses.length : 0;
     const upcoming = activeEvent;
+    // #kintanjain
     if (!upcoming) return { usual: average, projected: average, increase: 0 };
 
     const eventWindowSpend = expenses.filter((transaction) => {
@@ -74,6 +76,7 @@ export const EventCalendar = () => {
       const monthDay = date.getMonth() * 31 + date.getDate();
       const startMonthDay = upcoming.start.getMonth() * 31 + upcoming.start.getDate();
       const endMonthDay = upcoming.end.getMonth() * 31 + upcoming.end.getDate();
+      // #athenanair
       return monthDay >= startMonthDay - 7 && monthDay <= endMonthDay;
     });
     const historicalAverage = eventWindowSpend.length

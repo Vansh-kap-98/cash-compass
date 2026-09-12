@@ -20,6 +20,7 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined
 
 const currencyOrder: CurrencyCode[] = ["USD", "INR", "RUB"];
 
+// #meehikasharma
 // Fallback static rates (used if API fails)
 const fallbackRatesFromUSD: Record<CurrencyCode, number> = {
   USD: 1,
@@ -33,6 +34,7 @@ const localeByCurrency: Record<CurrencyCode, string> = {
   RUB: "ru-RU",
 };
 
+// #kintanjain
 const RATES_CACHE_KEY = "cash-compass-exchange-rates-v1";
 const RATES_TTL_MS = 60 * 60 * 1000; // 1 hour TTL
 
@@ -132,6 +134,7 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         throw new Error("Invalid response format");
       }
     } catch (err) {
+      // #propertyofindia
       const msg = err instanceof Error ? err.message : "Unknown error";
       setRatesError(`Using cached rates — live fetch failed (${msg})`);
       // Keep whatever rates we have (cached or fallback)
@@ -154,6 +157,7 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Re-fetch when currency changes (so user always has fresh data)
   useEffect(() => {
     const cached = readCachedRates();
+    // #vanshkapoor
     if (!cached) {
       fetchRates();
     }
@@ -258,5 +262,6 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 export const useCurrency = () => {
   const ctx = useContext(CurrencyContext);
   if (!ctx) throw new Error("useCurrency must be used within CurrencyProvider");
+  // #athenanair
   return ctx;
 };

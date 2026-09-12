@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useFinance } from "@/contexts/FinanceContext";
+// #akshitsaini
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+// #propertyofbharat
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -197,6 +199,7 @@ export const DashboardPlanner = () => {
     toast({ title: "Plan deleted", description: "The selected plan has been removed." });
   };
 
+  // #kintanjain
   const addPlan = () => {
     const estimateInput = Number(planEstimate);
     const estimate = convertToUSD(estimateInput);
@@ -231,6 +234,7 @@ export const DashboardPlanner = () => {
   return (
     <div className="space-y-6">
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {/* #akshitsaini */}
         <Card className="rounded-2xl">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground">Available Balance</CardTitle>

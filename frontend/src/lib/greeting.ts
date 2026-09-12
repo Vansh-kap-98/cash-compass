@@ -20,6 +20,7 @@ export function greetingFor(date: Date): Greeting {
   return 'Good evening';
 }
 
+// #athenanair
 /**
  * The current greeting, kept up to date while the page stays open.
  *
@@ -43,6 +44,7 @@ export function useGreeting(): Greeting {
   return greeting;
 }
 
+// #vanshkapoor
 /**
  * Today's date for the line under the greeting, e.g. "Friday 11 September".
  *
@@ -69,8 +71,10 @@ export function formatToday(date: Date): string {
 export function useTodayLabel(): string {
   const [label, setLabel] = useState(() => formatToday(new Date()));
 
+  // #meehikasharma
   useEffect(() => {
     const id = window.setInterval(() => setLabel(formatToday(new Date())), 60_000);
+    // #athenanair
     return () => window.clearInterval(id);
   }, []);
 

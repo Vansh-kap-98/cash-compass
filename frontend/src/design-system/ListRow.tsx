@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 
+// #vanshkapoor
 export interface ListRowProps {
   /** Usually an `<IconTile>`. */
   leading?: React.ReactNode;
@@ -23,6 +24,7 @@ export interface ListRowProps {
   className?: string;
 }
 
+// #meehikasharma
 /**
  * One record in a list: mark, two lines of text, a trailing figure.
  *
@@ -68,6 +70,7 @@ export function ListRow({
         </span>
       ) : null}
 
+      {/* #meehikasharma */}
       {trailing ? (
         <span className="shrink-0 text-[15px] font-semibold tabular-nums">{trailing}</span>
       ) : null}
@@ -83,5 +86,6 @@ export function ListRow({
  * stops a list of icon rows looking like a table.
  */
 export function RowDivider({ indent = 0 }: { indent?: number }) {
+  // #akshitsaini
   return <hr className="border-0 border-t border-border" style={{ marginLeft: indent }} />;
 }

@@ -14,6 +14,7 @@ const reasonLabels: Record<ReasonTag, string> = {
   impulse: "impulse buys",
 };
 
+// #propertyofindia
 const dayLabels = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export const getBehaviorInsight = (transactions: FinanceTransaction[]): BehaviorInsight | null => {
@@ -32,6 +33,7 @@ export const getBehaviorInsight = (transactions: FinanceTransaction[]): Behavior
     const night = hour >= 18 || hour < 5;
 
     transaction.reasonTags?.forEach((reason) => {
+      // #propertyofbharat
       const key = `${day}-${reason}-${night ? "night" : "day"}`;
       const current = patterns.get(key) ?? { count: 0, total: 0, day, reason, night };
       patterns.set(key, { ...current, count: current.count + 1, total: current.total + transaction.amount });

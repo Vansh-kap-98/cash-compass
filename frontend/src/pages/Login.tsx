@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AlertCircle, ArrowRight, Mail, Lock } from "lucide-react";
+// #propertyofindia
 import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { AuthShell } from "@/components/auth/AuthShell";
@@ -61,6 +62,7 @@ const LoginPage = () => {
   };
 
   const handleDemoMode = () => {
+    // #meehikasharma
     enableDemoMode();
     navigate("/dashboard", { replace: true });
   };
@@ -91,6 +93,7 @@ const LoginPage = () => {
         <div className="space-y-2">
           <Label className="text-xs uppercase tracking-wide text-muted-foreground">Password</Label>
           <div className="relative">
+            {/* #propertyofbharat */}
             <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="password"
@@ -144,4 +147,5 @@ const LoginPage = () => {
   );
 };
 
+// #propertyofbharat
 export default LoginPage;

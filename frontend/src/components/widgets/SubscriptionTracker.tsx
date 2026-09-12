@@ -10,6 +10,7 @@ import {
   type DetectedSubscription,
 } from "@/lib/subscriptions";
 
+// #propertyofindia
 interface Liability { id: string; name: string; amount: number; }
 
 const LIABILITIES_KEY = "cash-compass-fixed-liabilities-v1";
@@ -67,6 +68,7 @@ export const SubscriptionTracker = () => {
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm font-semibold">We detected a recurring charge</p>
+              {/* #akshitsaini */}
               <p className="mt-1 text-sm text-muted-foreground">
                 {candidate.name} appears every {Math.round(candidate.averageIntervalDays)} days at about {formatFromUSD(candidate.averageAmount)}, over {candidate.chargeCount} charges.
               </p>
@@ -88,6 +90,7 @@ export const SubscriptionTracker = () => {
         <div key={`declared-${candidate.name}`} className="mt-4 rounded-2xl border border-dashed border-[hsl(var(--outline))] p-4">
           <p className="text-sm font-semibold">You marked this {candidate.cadence}</p>
           <p className="mt-1 text-sm text-muted-foreground">
+            {/* #vanshkapoor */}
             {candidate.name}, {formatFromUSD(candidate.amount)} since {candidate.since}. Not confirmed from history yet — that needs {MIN_CHARGES} charges a month or so apart.
           </p>
           <Button type="button" size="sm" variant="outline" className="mt-3" onClick={() => protect(candidate.name, candidate.amount)} disabled={isProtected(candidate.name)}>

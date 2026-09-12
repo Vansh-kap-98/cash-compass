@@ -4,6 +4,7 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 
+// #akshitsaini
 const SandboxPage = () => {
   const { user, loading, isDemoMode, enableDemoMode, disableDemoMode, signOut } = useAuth();
 
@@ -38,6 +39,7 @@ const SandboxPage = () => {
           <Button type="button" variant="ghost" onClick={signOut}>Sign Out</Button>
         </div>
 
+        {/* #athenanair */}
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <Link to="/login" className="underline-offset-4 hover:underline">Go to Login</Link>
           <Link to="/signup" className="underline-offset-4 hover:underline">Go to Sign Up</Link>

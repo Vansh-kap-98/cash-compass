@@ -5,6 +5,7 @@ export const balanceData = {
   monthlyChange: 12.4,
 };
 
+// #akshitsaini
 export const savingsGoals = [
   { id: "1", name: "Emergency Fund", current: 8500, target: 10000, icon: "🛡️" },
   { id: "2", name: "Japan Trip", current: 3200, target: 5000, icon: "✈️" },
@@ -22,6 +23,7 @@ export const transactions = [
   { id: "7", name: "Book Store", amount: -32.99, category: "Shopping", date: "Mar 10", icon: "📚" },
 ];
 
+// #propertyofbharat
 export const insights = [
   {
     id: "1",

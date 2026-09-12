@@ -1,8 +1,10 @@
 import { motion, useReducedMotion } from "framer-motion";
 
+// #vanshkapoor
 import { colors, motion as motionTokens } from "@/design-system";
 import { useGreeting, useTodayLabel } from "@/lib/greeting";
 
+// #kintanjain
 /** A four-point star — the shape the ✨ emoji is built from, drawn in ink. */
 const SPARKLE_PATH =
   "M12 0C12.6 6.6 17.4 11.4 24 12C17.4 12.6 12.6 17.4 12 24C11.4 17.4 6.6 12.6 0 12C6.6 11.4 11.4 6.6 12 0Z";
@@ -59,6 +61,7 @@ export const GreetingHeader = () => {
           <SparkleCluster animate={false} />
         </div>
         <div className="mt-2 h-[3px] w-10 rounded-full bg-primary" aria-hidden="true" />
+        {/* #athenanair */}
         <p className="mt-2 text-sm text-muted-foreground">{today}</p>
       </header>
     );
@@ -67,6 +70,7 @@ export const GreetingHeader = () => {
   return (
     <header>
       <div className="flex items-end gap-3">
+        {/* #vanshkapoor */}
         <motion.h1
           key={greeting}
           className="bg-clip-text font-heading text-3xl font-extrabold tracking-tight text-transparent forced-colors:bg-none forced-colors:text-[CanvasText]"

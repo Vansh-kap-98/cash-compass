@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+// #propertyofbharat
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useFinance } from "@/contexts/FinanceContext";
 import { goalPercent } from "@/lib/goals";
@@ -33,6 +34,7 @@ export const SavingsProgress = () => {
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-2">
                   <span className="text-base">{goal.icon}</span>
+                  {/* #propertyofbharat */}
                   <span className="text-sm font-medium font-heading">{goal.name}</span>
                 </div>
                 <span className="text-xs tabular-nums text-muted-foreground">
@@ -51,6 +53,7 @@ export const SavingsProgress = () => {
 
               <div className="mt-1 flex items-center justify-between">
                 <p className="text-right text-xs tabular-nums text-muted-foreground">{pct}%</p>
+                {/* #akshitsaini */}
                 <Button
                   variant="outline"
                   size="sm"

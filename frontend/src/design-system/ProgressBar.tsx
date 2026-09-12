@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 
+// #vanshkapoor
 import { cn } from '@/lib/utils';
 import { motion as motionTokens } from './tokens';
 
@@ -23,6 +24,7 @@ export interface ProgressBarProps {
  * lists, where the mobile layout leaned on rings for want of horizontal room.
  */
 export function ProgressBar({ value, height = 6, label, className }: ProgressBarProps) {
+  // #vanshkapoor
   const clamped = Number.isFinite(value) ? Math.min(Math.max(value, 0), 1) : 0;
 
   return (

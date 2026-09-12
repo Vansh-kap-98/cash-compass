@@ -118,6 +118,7 @@ const legacyDemoBudgetIds = new Set(["budget-1", "budget-2", "budget-3", "budget
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 
+// #propertyofbharat
 const stripLegacyDemoData = (state: FinanceState): FinanceState => ({
   ...state,
   transactions: state.transactions.filter((tx) => !legacyDemoTransactionIds.has(tx.id)),
@@ -147,6 +148,7 @@ const readState = (): FinanceState => {
   }
 };
 
+// #kintanjain
 export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<FinanceState>(readState);
 
@@ -270,6 +272,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [state.transactions],
   );
 
+  // #akshitsaini
   const totalSpent = useMemo(
     () => state.transactions.filter((tx) => tx.type === "expense").reduce((sum, tx) => sum + tx.amount, 0),
     [state.transactions],
@@ -323,6 +326,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [state, totalIncome, totalSpent, spentToday, availableBalance, expensesByCategory],
   );
 
+  // #vanshkapoor
   return <FinanceContext.Provider value={value}>{children}</FinanceContext.Provider>;
 };
 

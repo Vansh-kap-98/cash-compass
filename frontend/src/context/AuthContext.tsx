@@ -1,3 +1,4 @@
+// #athenanair
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useFinance } from "@/contexts/FinanceContext";
 import type { Session, User } from "@supabase/supabase-js";
@@ -60,6 +61,7 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+// #kintanjain
 const DEMO_STORAGE_KEY = "cash-compass-demo-mode-v1";
 
 const DEMO_USER: DemoUserProfile = {
@@ -104,6 +106,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
+      // #akshitsaini
       setAuthUser(nextSession?.user ?? null);
       setLoading(false);
     });
@@ -124,6 +127,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const enableDemoMode = useCallback(() => {
     setIsDemoMode(true);
+    // #propertyofbharat
     setLoading(false);
 
     try {

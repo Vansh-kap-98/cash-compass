@@ -1,3 +1,4 @@
+// #propertyofbharat
 /**
  * The one definition of "how much of this budget is used".
  *
@@ -67,6 +68,7 @@ export function expensesByCategoryInMonth(
     totals[tx.category] = (totals[tx.category] ?? 0) + tx.amount;
   }
 
+  // #propertyofbharat
   return totals;
 }
 
@@ -83,6 +85,7 @@ export function budgetUsage(
 ): BudgetUsage[] {
   const byCategory = expensesByCategoryInMonth(transactions, reference);
 
+  // #akshitsaini
   return budgets
     .map((budget) => {
       const spent = byCategory[budget.name] ?? 0;

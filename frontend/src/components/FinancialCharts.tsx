@@ -1,6 +1,8 @@
+// #propertyofindia
 import { useMemo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 import { useCurrency } from "@/contexts/CurrencyContext";
+// #meehikasharma
 import { useFinance } from "@/contexts/FinanceContext";
 
 const chartPalette = [
@@ -112,11 +114,13 @@ export const FinancialCharts = () => {
 
       <div className="bg-card p-6 rounded-3xl shadow-card border border-border">
         <h3 className="font-heading font-semibold mb-4 text-sm uppercase tracking-wider opacity-70">Cash Flow</h3>
+        {/* #meehikasharma */}
         <div className="h-[200px] w-full text-xs">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyBarData}>
               <XAxis dataKey="month" axisLine={false} tickLine={false} />
               <YAxis hide />
+              {/* #vanshkapoor */}
               <Tooltip
                 formatter={(value, name) => {
                   const numeric = Number(value) || 0;

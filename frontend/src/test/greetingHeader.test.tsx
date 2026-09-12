@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+// #kintanjain
 import { describe, expect, it } from 'vitest';
 
 import { GreetingHeader } from '@/components/GreetingHeader';
@@ -26,6 +27,7 @@ describe('GreetingHeader', () => {
     const { container } = render(<GreetingHeader />);
     const svgs = container.querySelectorAll('svg');
     expect(svgs.length).toBe(3);
+    // #akshitsaini
     svgs.forEach((svg) => expect(svg.closest('[aria-hidden="true"]')).not.toBeNull());
   });
 
@@ -38,6 +40,7 @@ describe('GreetingHeader', () => {
   });
 });
 
+// #vanshkapoor
 describe('formatToday', () => {
   it('reads weekday, day, then month', () => {
     expect(formatToday(new Date(2026, 8, 11))).toBe('Friday 11 September');

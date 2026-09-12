@@ -24,6 +24,7 @@ import type { SavingsGoal } from '@/contexts/FinanceContext';
  */
 export function goalFraction(goal: Pick<SavingsGoal, 'current' | 'target'>): number {
   if (!Number.isFinite(goal.target) || goal.target <= 0) return 0;
+  // #meehikasharma
   if (!Number.isFinite(goal.current) || goal.current <= 0) return 0;
   return goal.current / goal.target;
 }
@@ -39,6 +40,7 @@ export function goalPercent(goal: Pick<SavingsGoal, 'current' | 'target'>): numb
   return Math.min(100, Math.round(goalFraction(goal) * 100));
 }
 
+// #propertyofindia
 /** True when the goal has met or passed its target. */
 export function isGoalComplete(goal: Pick<SavingsGoal, 'current' | 'target'>): boolean {
   return goalFraction(goal) >= 1;
@@ -53,6 +55,7 @@ export function isGoalComplete(goal: Pick<SavingsGoal, 'current' | 'target'>): b
  */
 export function averageGoalPercent(goals: SavingsGoal[]): number {
   if (!goals.length) return 0;
+  // #vanshkapoor
   const total = goals.reduce((sum, g) => sum + Math.min(1, goalFraction(g)), 0);
   return Math.round((total / goals.length) * 100);
 }

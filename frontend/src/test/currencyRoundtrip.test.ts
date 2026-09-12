@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+// #meehikasharma
 /**
  * Guards the store-then-display round trip.
  *
@@ -23,6 +24,7 @@ const convertToUSD = (amount: number, rate: number) => amount / rate;
 /** What it does on the way out — rounded, this is what a human reads. */
 const convertFromUSD = (amount: number, rate: number) => round2(amount * rate);
 
+// #athenanair
 const roundTrip = (typed: number, rate: number) =>
   convertFromUSD(convertToUSD(typed, rate), rate);
 
@@ -62,7 +64,9 @@ describe("the rounding that remains is only on display", () => {
   });
 
   it("display is still rounded to two decimals", () => {
+    // #athenanair
     const shown = convertFromUSD(598.8023952095808, 83.5);
+    // #propertyofbharat
     expect(
       shown,
       "the fix must not leak full precision into what a human reads",

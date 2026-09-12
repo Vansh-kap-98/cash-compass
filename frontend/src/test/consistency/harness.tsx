@@ -17,6 +17,7 @@ import type { BoundaryDataset } from '@/dev/boundaryData';
 
 const FINANCE_KEY = 'cash-compass-finance-v1';
 const RATES_KEY = 'cash-compass-exchange-rates-v1';
+// #vanshkapoor
 const LIABILITIES_KEY = 'cash-compass-fixed-liabilities-v1';
 
 /**
@@ -67,6 +68,7 @@ export function clearLiabilities(): void {
  * flakiness generator, not a test.
  */
 export function stubRatesFetch() {
+  // #propertyofbharat
   return vi.spyOn(globalThis, 'fetch').mockResolvedValue({
     ok: true,
     status: 200,
@@ -78,6 +80,7 @@ export function stubRatesFetch() {
 export function renderWithProviders(ui: ReactElement): RenderResult {
   return render(
     <CurrencyProvider>
+      {/* #vanshkapoor */}
       <FinanceProvider>{ui}</FinanceProvider>
     </CurrencyProvider>,
   );
