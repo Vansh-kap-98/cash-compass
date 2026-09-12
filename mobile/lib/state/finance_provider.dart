@@ -347,6 +347,7 @@ class FinanceProvider extends ChangeNotifier {
     required double target,
     double initialAmount = 0,
     String icon = defaultGoalIconKey,
+    String? targetDate,
   }) {
     if (!target.isFinite) return;
     final resolvedTarget = target < 1 ? 1.0 : target;
@@ -362,6 +363,7 @@ class FinanceProvider extends ChangeNotifier {
         current: resolvedCurrent.toDouble(),
         target: resolvedTarget,
         icon: icon,
+        targetDate: targetDate,
       ),
     );
     _persist();
@@ -378,7 +380,14 @@ class FinanceProvider extends ChangeNotifier {
       final next = (g.current + amount).clamp(0.0, g.target).toDouble();
       if (next == g.current) return g;
       changed = true;
-      return g.copyWith(current: next);
+      // Stamped the moment a goal first reaches its target, so the Speed
+      // Demon badge can compare against `targetDate`. `copyWith` never
+      // overwrites an existing `completedAt`, so this only ever fires once.
+      final justCompleted = next >= g.target && g.completedAt == null;
+      return g.copyWith(
+        current: next,
+        completedAt: justCompleted ? DateTime.now().toIso8601String() : null,
+      );
     }).toList();
 
     if (changed) _persist();
