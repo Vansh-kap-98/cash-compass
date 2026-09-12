@@ -126,12 +126,12 @@ across Savings / Budget Control / Habit & Streak / Milestones
 Settings row, with a snackbar on unlock. Unlock rules are pure and unit
 tested in `test/logic/badges_test.dart`.
 
-9 badges from the original 25-badge request were dropped rather than
-force-fit — four need social features that don't exist (shared goals, friend
-leaderboards, gift goals, multi-device sync; tracked as separate follow-up
-issues), and Momentum Build was folded into Daily Driver / 30-Day Legend, the
-same mechanism at different thresholds. Two more (Fortress, Speed Demon) were
-reinterpreted rather than dropped — see the doc comment on
+5 badges from the original 21-badge request were dropped or folded rather
+than force-fit — four need social features that don't exist (shared goals,
+friend leaderboards, gift goals, multi-device sync; tracked as separate
+follow-up issues), and Momentum Build was folded into Daily Driver / 30-Day
+Legend, the same mechanism at different thresholds. Two more (Fortress,
+Speed Demon) were reinterpreted rather than dropped — see the doc comment on
 `achievementBadges` for the full reasoning.
 
 Iron Shield and Zero Impulse originally needed a withdrawal action and a

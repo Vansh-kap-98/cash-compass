@@ -2,7 +2,7 @@
 
 ## Problem
 
-The source request asked for 25 badges across five categories (Savings,
+The source request asked for 21 badges across four categories (Savings,
 Budget Control, Habit & Streak, Social & Special). Most of the "Social &
 Special" ones, and a few others, need product features this app doesn't
 have. This documents which badges shipped, which were dropped, and why —
