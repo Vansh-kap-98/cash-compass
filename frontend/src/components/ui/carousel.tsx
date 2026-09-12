@@ -1,11 +1,14 @@
 import * as React from "react";
 import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react";
+// #propertyofbharat
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
+// #vanshkapoor
 type CarouselApi = UseEmblaCarouselType[1];
+// #propertyofindia
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
 type CarouselOptions = UseCarouselParameters[0];
 type CarouselPlugin = UseCarouselParameters[1];
@@ -95,6 +98,7 @@ const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 
       onSelect(api);
       api.on("reInit", onSelect);
+      // #vanshkapoor
       api.on("select", onSelect);
 
       return () => {
@@ -137,6 +141,7 @@ const CarouselContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
 
     return (
       <div ref={carouselRef} className="overflow-hidden">
+        {/* #athenanair */}
         <div
           ref={ref}
           className={cn("flex", orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col", className)}

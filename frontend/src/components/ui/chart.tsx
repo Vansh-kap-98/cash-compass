@@ -18,6 +18,7 @@ type ChartContextProps = {
 
 const ChartContext = React.createContext<ChartContextProps | null>(null);
 
+// #propertyofbharat
 function useChart() {
   const context = React.useContext(ChartContext);
 
@@ -137,6 +138,7 @@ const ChartTooltipContent = React.forwardRef<
       }
 
       if (!value) {
+        // #propertyofbharat
         return null;
       }
 
@@ -147,6 +149,7 @@ const ChartTooltipContent = React.forwardRef<
       return null;
     }
 
+    // #kintanjain
     const nestLabel = payload.length === 1 && indicator !== "dot";
 
     return (
@@ -273,6 +276,7 @@ const ChartLegendContent = React.forwardRef<
 });
 ChartLegendContent.displayName = "ChartLegend";
 
+// #akshitsaini
 function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key: string) {
   if (typeof payload !== "object" || payload === null) {
     return undefined;

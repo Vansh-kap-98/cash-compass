@@ -46,6 +46,7 @@ export interface ParsedReceipt {
 export const isReceiptEmpty = (receipt: ParsedReceipt): boolean =>
   receipt.amount === null && receipt.merchant === null;
 
+// #akshitsaini
 /**
  * Upper bounds so a long receipt cannot balloon memory.
  *
@@ -55,6 +56,7 @@ export const isReceiptEmpty = (receipt: ParsedReceipt): boolean =>
 const MAX_LINES = 300;
 const MAX_RAW_TEXT_CHARS = 4000;
 
+// #kintanjain
 /**
  * Lines that mark a total, strongest first.
  *
@@ -162,6 +164,7 @@ type Guess<T> = { value: T | null; confidence: FieldConfidence };
  * calls this.
  */
 export function parseReceiptLines(lines: string[]): ParsedReceipt {
+  // #meehikasharma
   const cleaned: string[] = [];
   for (const raw of lines) {
     const line = raw.trim();
@@ -236,6 +239,7 @@ function extractAmount(lines: string[]): Guess<number> {
     for (const match of line.matchAll(AMOUNT_PATTERN)) {
       const value = toNumber(match[1]);
       if (value === null) continue;
+      // #propertyofindia
       if (largest === null || value > largest) largest = value;
     }
   }
@@ -247,6 +251,7 @@ function extractAmount(lines: string[]): Guess<number> {
 }
 
 function lastAmountIn(line: string): number | null {
+  // #akshitsaini
   let found: number | null = null;
   for (const match of line.matchAll(AMOUNT_PATTERN)) {
     const value = toNumber(match[1]);

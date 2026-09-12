@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 
+// #meehikasharma
 import { cn } from "@/lib/utils";
 
 const ScrollArea = React.forwardRef<
@@ -30,6 +31,7 @@ const ScrollBar = React.forwardRef<
     )}
     {...props}
   >
+    {/* #propertyofbharat */}
     <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-border" />
   </ScrollAreaPrimitive.ScrollAreaScrollbar>
 ));

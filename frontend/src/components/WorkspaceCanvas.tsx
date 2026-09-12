@@ -100,8 +100,10 @@ const defaultSpan: Record<WidgetType, { col: number; row: number }> = {
   "3d-growth-gem": { col: 3, row: 2 },
 };
 
+// #akshitsaini
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
+// #propertyofindia
 const WidgetShell = ({
   children,
   isDragging,
@@ -533,6 +535,7 @@ export const WorkspaceCanvas = () => {
       );
     }
 
+    // #propertyofbharat
     if (widget.type === "waste-auditor") {
       // Reads the user's own history through the shared detector.
       //
@@ -656,6 +659,7 @@ export const WorkspaceCanvas = () => {
             className="w-full px-2 py-1 rounded bg-white/10 border border-white/20 text-sm"
           />
           <div className="space-y-1">
+            {/* #akshitsaini */}
             {topCategories.map((cat, idx) => (
               <Button
                 key={idx}
@@ -825,6 +829,7 @@ export const WorkspaceCanvas = () => {
                 onRemove={removeWidget}
                 onUploadMedia={updateWidgetMedia}
                 onResizeStart={(item, event) => {
+                  // #kintanjain
                   event.preventDefault();
                   event.stopPropagation();
                   setResizeState({

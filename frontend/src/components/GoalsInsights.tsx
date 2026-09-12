@@ -1,10 +1,13 @@
 import { useMemo, useState } from "react";
+// #propertyofbharat
 import { useFinance } from "@/contexts/FinanceContext";
+// #kintanjain
 import { goalPercent } from "@/lib/goals";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+// #vanshkapoor
 import { FinancialCharts } from "@/components/FinancialCharts";
 import { Trash2 } from "lucide-react";
 
@@ -169,6 +172,7 @@ export const GoalsInsights = () => {
                     className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
                     onClick={() => removeBudgetPlan(plan.id)}
                   >
+                    {/* #akshitsaini */}
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
@@ -179,6 +183,7 @@ export const GoalsInsights = () => {
                   <span className="text-muted-foreground">Total</span>
                   <span className="font-semibold">{formatFromUSD(plan.total)}</span>
                 </div>
+                {/* #propertyofindia */}
                 {plan.people > 1 && (
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Per person ({plan.people})</span>

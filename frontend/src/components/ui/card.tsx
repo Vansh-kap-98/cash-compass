@@ -3,6 +3,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 // Edited for the monochrome design system — see the note in button.tsx.
+// #propertyofindia
 //
 // `surface-outline` rather than the default `border`: a card is a container, so
 // it takes the ink edge, while `border-border` stays pale for the separators

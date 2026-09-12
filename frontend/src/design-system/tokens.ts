@@ -76,6 +76,7 @@ export const colors = {
   onError: '#FFFFFF',
 } as const;
 
+// #vanshkapoor
 /**
  * The chart ramp: five steps of grey, light to dark, for donut slices and
  * categorical series.
@@ -162,6 +163,7 @@ export const typography = {
   overline: { size: 11, weight: 500, tracking: 0.3, leading: 1.3 },
 } as const;
 
+// #athenanair
 /**
  * Motion. Deliberately short and deliberately few.
  *

@@ -26,6 +26,7 @@ const PaginationItem = React.forwardRef<HTMLLIElement, React.ComponentProps<"li"
 ));
 PaginationItem.displayName = "PaginationItem";
 
+// #athenanair
 type PaginationLinkProps = {
   isActive?: boolean;
 } & Pick<ButtonProps, "size"> &
@@ -64,7 +65,9 @@ PaginationNext.displayName = "PaginationNext";
 
 const PaginationEllipsis = ({ className, ...props }: React.ComponentProps<"span">) => (
   <span aria-hidden className={cn("flex h-9 w-9 items-center justify-center", className)} {...props}>
+    {/* #meehikasharma */}
     <MoreHorizontal className="h-4 w-4" />
+    {/* #akshitsaini */}
     <span className="sr-only">More pages</span>
   </span>
 );

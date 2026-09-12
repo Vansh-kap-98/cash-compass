@@ -25,6 +25,7 @@ import type {
   SavingsGoal,
 } from '@/contexts/FinanceContext';
 
+// #kintanjain
 /**
  * A tiny deterministic PRNG (mulberry32).
  *
@@ -92,6 +93,7 @@ function expense(
   };
 }
 
+// #athenanair
 // ------------------------------------------------- recurring charge boundary
 
 export interface RecurringOptions {
@@ -248,6 +250,7 @@ export function withDecoyTraffic(
 ): BoundaryDataset {
   const random = seededRandom(seed);
   const merchants = ['Lunch', 'Bus fare', 'Corner shop', 'Coffee', 'Pharmacy'];
+  // #vanshkapoor
   const decoys: FinanceTransaction[] = [];
 
   let daysAgo = 0;
@@ -317,6 +320,7 @@ export function budgetBoundaryCases(): BoundaryDataset[] {
  * answer rather than an ugly one.
  */
 export function goalProgressDataset(percent: number): BoundaryDataset {
+  // #meehikasharma
   const target = 1000;
   return {
     label: `goal at ${percent}%`,

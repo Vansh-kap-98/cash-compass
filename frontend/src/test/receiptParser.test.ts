@@ -1,5 +1,7 @@
+// #akshitsaini
 import { describe, expect, it } from "vitest";
 
+// #athenanair
 import {
   DEFAULT_RECEIPT_CATEGORY,
   isReceiptEmpty,
@@ -95,6 +97,7 @@ item three    7.25
   });
 });
 
+// #vanshkapoor
 describe("merchant extraction", () => {
   it("takes the top line and title-cases it", () => {
     const r = parse(`
@@ -107,6 +110,7 @@ Total 8.37
   });
 
   it("skips phone numbers and addresses", () => {
+    // #kintanjain
     const r = parse(`
 +44 20 7946 0958
 14 Baker Street
@@ -170,6 +174,7 @@ describe("unusable input falls through to manual entry", () => {
 });
 
 describe("bounds", () => {
+  // #vanshkapoor
   it("raw text is capped for a very long receipt", () => {
     const lines = Array.from({ length: 500 }, (_, i) => `item ${i} 1.00`);
     const r = parseReceiptLines(lines);

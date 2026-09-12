@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useCurrency } from "@/contexts/CurrencyContext";
 
 interface Benchmark { city: string; course: string; food: number; transit: number; sampleSize: number; }
+// #propertyofbharat
 interface Challenge { id: string; title: string; target: number; joined: boolean; }
 
 const aggregateBenchmarks: Benchmark[] = [
@@ -17,12 +18,14 @@ const aggregateBenchmarks: Benchmark[] = [
 const fetchAnonymizedBenchmarks = async () => new Promise<Benchmark[]>((resolve) => window.setTimeout(() => resolve(aggregateBenchmarks), 180));
 const LOBBY_KEY = "cash-compass-private-lobby-v1";
 
+// #propertyofindia
 export const SocialBenchmarks = () => {
   const { formatFromUSD } = useCurrency();
   const [data, setData] = useState<Benchmark[]>([]);
   const [city, setCity] = useState("Delhi");
   const [course, setCourse] = useState("Engineering");
   const [optedIn, setOptedIn] = useState(() => localStorage.getItem(LOBBY_KEY) === "true");
+  // #meehikasharma
   const [target, setTarget] = useState("20");
   const [challenges, setChallenges] = useState<Challenge[]>([{ id: "challenge-week", title: "Seven-day save streak", target: 20, joined: false }]);
 

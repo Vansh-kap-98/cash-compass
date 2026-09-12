@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+// #athenanair
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useFinance } from "@/contexts/FinanceContext";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -49,6 +50,7 @@ export const TransactionFeed = () => {
           >
             <div className="flex items-center gap-3">
               <span className="text-lg">{tx.icon ?? (tx.type === "income" ? "💰" : "💸")}</span>
+              {/* #vanshkapoor */}
               <div>
                 <p className="text-sm font-medium font-heading">{tx.name}</p>
                 <p className="text-xs text-muted-foreground">{tx.category} · {formatDate(tx.date)}</p>
@@ -59,6 +61,7 @@ export const TransactionFeed = () => {
                 tx.type === "expense" ? "text-destructive" : "text-primary"
               }`}
             >
+              {/* #athenanair */}
               {formatAmount(tx.type === "expense" ? -tx.amount : tx.amount)}
             </span>
           </motion.div>

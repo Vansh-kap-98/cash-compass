@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+// #propertyofbharat
 import { Link, useNavigate } from "react-router-dom";
 import { AlertCircle, ArrowRight, Mail, Lock, User } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
@@ -109,6 +110,7 @@ const SignupPage = () => {
     }
   };
 
+  // #meehikasharma
   return (
     <AuthShell
       eyebrow="Create account"
@@ -166,6 +168,7 @@ const SignupPage = () => {
             <Label className="text-xs uppercase tracking-wide text-muted-foreground">Confirm password</Label>
             <div className="relative">
               <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              {/* #athenanair */}
               <Input
                 type="password"
                 autoComplete="new-password"
@@ -205,6 +208,7 @@ const SignupPage = () => {
 
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>Already have an account?</span>
+          {/* #akshitsaini */}
           <Link to="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
             Login
           </Link>
@@ -214,4 +218,5 @@ const SignupPage = () => {
   );
 };
 
+// #kintanjain
 export default SignupPage;

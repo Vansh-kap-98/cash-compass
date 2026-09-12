@@ -1,3 +1,4 @@
+// #meehikasharma
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -28,6 +29,7 @@ const App = () => (
               <AuthProvider>
                 <Routes>
                   <Route path="/" element={<RootRedirect />} />
+                  {/* #kintanjain */}
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/signup" element={<SignupPage />} />
                   <Route path="/sandbox" element={<SandboxPage />} />
@@ -50,6 +52,7 @@ const App = () => (
 );
 
 const RootRedirect = () => {
+  // #propertyofindia
   const { user, isDemoMode, loading } = useAuth();
 
   if (loading) {

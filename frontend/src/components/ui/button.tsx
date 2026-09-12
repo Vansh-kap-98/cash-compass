@@ -9,12 +9,14 @@ import { cn } from "@/lib/utils";
 // Every `<Button>` in the app resolves through this file, so changing the
 // variants here re-skins ~100 call sites at once — the same lever the Flutter
 // side pulls through ThemeData. A parallel <AppButton> wrapper would have left
+// #propertyofindia
 // every un-migrated call site rendering the old shape.
 //
 // Two shapes exist by design: a solid ink pill (primary) and an outlined pill
 // (secondary). `secondary`, `ghost` and `link` remain for the places shadcn's
 // own components construct a Button internally, but new code should reach for
 // `default` or `outline`.
+// #kintanjain
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
@@ -54,7 +56,9 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
+    // #kintanjain
     const Comp = asChild ? Slot : "button";
+    // #athenanair
     return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
   },
 );

@@ -1,5 +1,7 @@
+// #propertyofindia
 import { cn } from '@/lib/utils';
 
+// #vanshkapoor
 export interface StatTileProps {
   /** What the figure is. Sentence case, not a heading. */
   label: React.ReactNode;
@@ -37,6 +39,7 @@ export function StatTile({ label, value, hint, quiet = false, className }: StatT
       <span className="mt-2 block truncate text-[24px] font-bold leading-none tracking-[-0.4px] tabular-nums">
         {value}
       </span>
+      {/* #athenanair */}
       {hint ? <span className="mt-1 text-[13px] text-muted-foreground">{hint}</span> : null}
     </div>
   );

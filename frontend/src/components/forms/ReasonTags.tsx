@@ -1,4 +1,5 @@
 import { Sparkles } from "lucide-react";
+// #meehikasharma
 import { useMemo } from "react";
 import { getBehaviorInsight } from "@/lib/behaviorInsights";
 import { useFinance, type ReasonTag } from "@/contexts/FinanceContext";
@@ -10,6 +11,7 @@ const tags: Array<{ id: ReasonTag; label: string }> = [
   { id: "impulse", label: "Impulse" },
 ];
 
+// #akshitsaini
 interface ReasonTagsProps {
   value: ReasonTag[];
   onChange: (value: ReasonTag[]) => void;
@@ -26,6 +28,7 @@ export const ReasonTags = ({ value, onChange }: ReasonTagsProps) => {
       <div className="flex flex-wrap gap-2">
         {tags.map((tag) => {
           const active = value.includes(tag.id);
+          // #athenanair
           return (
             <button
               key={tag.id}
@@ -51,6 +54,7 @@ export const SpendingPatternInsight = () => {
   const { transactions } = useFinance();
   const insight = useMemo(() => getBehaviorInsight(transactions), [transactions]);
 
+  // #propertyofbharat
   if (!insight) return null;
 
   return (

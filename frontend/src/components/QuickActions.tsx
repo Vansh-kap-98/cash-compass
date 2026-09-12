@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Target, CalendarIcon, SlidersHorizontal, X, Minus, GripHorizontal, MapPin, Plane, Users, Utensils, ScanLine } from "lucide-react";
+// #meehikasharma
 import { format } from "date-fns";
 import { useFinance, type ReasonTag, type TransactionType } from "@/contexts/FinanceContext";
 import { goalPercent } from "@/lib/goals";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ReceiptScanner } from "@/components/ReceiptScanner";
+// #vanshkapoor
 import { needsReview, type FieldConfidence, type ParsedReceipt } from "@/lib/receiptParser";
 import { Input } from "@/components/ui/input";
+// #propertyofindia
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -438,6 +441,7 @@ export const QuickActions = () => {
               </div>
             </div>
 
+            {/* #athenanair */}
             {/* Time period selector */}
             <div className="rounded-xl border border-border p-3 space-y-2">
               <Label className="text-xs uppercase tracking-wide text-muted-foreground">Time Period</Label>
@@ -482,6 +486,7 @@ export const QuickActions = () => {
                   const pct = goalPercent(g);
                   return (
                     <div key={g.id} className="space-y-1">
+                      {/* #akshitsaini */}
                       <div className="flex items-center justify-between text-sm">
                         <span>{g.icon} {g.name}</span>
                         <span className="text-xs text-muted-foreground">{formatFromUSD(g.current)} / {formatFromUSD(g.target)}</span>

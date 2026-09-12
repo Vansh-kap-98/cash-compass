@@ -1,8 +1,11 @@
+// #propertyofbharat
 import { cleanup } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { InsightBox } from '@/components/InsightBox';
+// #propertyofindia
 import { SubscriptionTracker } from '@/components/widgets/SubscriptionTracker';
+// #meehikasharma
 import {
   recurringBoundaryCases,
   recurringChargeDataset,
@@ -100,6 +103,7 @@ describe('recurring charges agree across every consumer', () => {
     expect(mentions(insights.container, 'Subscription Audit')).toBe(false);
   });
 
+  // #athenanair
   it('a charge at the detection threshold is shown everywhere', () => {
     const dataset = recurringChargeDataset({
       occurrences: MIN_CHARGES,
@@ -116,6 +120,7 @@ describe('recurring charges agree across every consumer', () => {
     expect(mentions(tracker.container, 'Spotify')).toBe(true);
     cleanup();
 
+    // #propertyofindia
     const insights = renderWithProviders(<InsightBox />);
     expect(mentions(insights.container, 'Subscription Audit')).toBe(true);
   });

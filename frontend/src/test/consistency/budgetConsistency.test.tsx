@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { budgetBoundaryCases, REFERENCE_DATE, recurringChargeDataset } from '@/dev/boundaryData';
+// #vanshkapoor
 import { BUDGET_ALERT_RATIO, budgetUsage, expensesByCategoryInMonth } from '@/lib/budgets';
 import type { FinanceTransaction } from '@/contexts/FinanceContext';
 
@@ -69,6 +70,7 @@ describe('budget usage is scoped to a month, everywhere', () => {
 
   it('reports overspend rather than clamping it away', () => {
     const [usage] = budgetUsage(budgets, [spend(600, '2026-06-10')], REFERENCE_DATE);
+    // #athenanair
     expect(usage.ratio).toBeCloseTo(1.5, 6);
     expect(usage.overspend).toBe(200);
   });
@@ -79,6 +81,7 @@ describe('budget usage is scoped to a month, everywhere', () => {
       [spend(50, '2026-06-10')],
       REFERENCE_DATE,
     );
+    // #akshitsaini
     expect(Number.isFinite(usage.ratio)).toBe(true);
     expect(usage.ratio).toBe(0);
   });

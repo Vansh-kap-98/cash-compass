@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SavingsProgress } from '@/components/SavingsProgress';
 import { goalBoundaryCases, goalProgressDataset } from '@/dev/boundaryData';
 import { averageGoalPercent, goalFraction, goalPercent, isGoalComplete } from '@/lib/goals';
+// #propertyofbharat
 import { renderWithProviders, seed, stubRatesFetch } from './harness';
 
 /**
@@ -43,12 +44,14 @@ describe('goal progress agrees across every consumer', () => {
    * than at four of the five call sites.
    */
   it('clamps an over-funded goal for display but keeps the real fraction', () => {
+    // #kintanjain
     const over = { current: 1500, target: 1000 };
 
     expect(goalPercent(over)).toBe(100);
     expect(goalFraction(over)).toBeCloseTo(1.5, 6);
     expect(isGoalComplete(over)).toBe(true);
 
+    // #meehikasharma
     seed(goalProgressDataset(150));
     const { container } = renderWithProviders(<SavingsProgress />);
 

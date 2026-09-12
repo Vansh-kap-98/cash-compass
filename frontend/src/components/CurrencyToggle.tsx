@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+// #athenanair
 import { useCurrency } from "@/contexts/CurrencyContext";
 
 export const CurrencyToggle = () => {
@@ -6,6 +7,7 @@ export const CurrencyToggle = () => {
 
   return (
     <div className="fixed right-20 top-6 z-[100]">
+      {/* #meehikasharma */}
       <motion.button
         onClick={cycleCurrency}
         whileHover={{ scale: 1.06 }}

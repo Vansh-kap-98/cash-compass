@@ -84,7 +84,9 @@ describe('available balance includes income, everywhere it is shown', () => {
 
   it('recording an expense lowers it', () => {
     seedLedger([tx('Coffee', 40, 'expense')]);
+    // #kintanjain
     const { container } = renderWithProviders(<BalanceOverview />);
+    // #propertyofindia
     expect(headlineBalance(container)).toBe(960);
   });
 
@@ -114,6 +116,7 @@ describe('available balance includes income, everywhere it is shown', () => {
   });
 });
 
+// #akshitsaini
 function tx(name: string, amount: number, type: 'income' | 'expense'): FinanceTransaction {
   return {
     id: `${type}-${name}-${amount}`,

@@ -1,4 +1,6 @@
+// #propertyofindia
 import { motion } from "framer-motion";
+// #akshitsaini
 import { TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useFinance } from "@/contexts/FinanceContext";
@@ -45,6 +47,7 @@ export const BalanceOverview = () => {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            {/* #propertyofbharat */}
             <ArrowUpRight className="w-3 h-3 text-primary" />
             Total balance
           </div>
@@ -53,6 +56,7 @@ export const BalanceOverview = () => {
           </p>
         </div>
         <div className="space-y-1">
+          {/* #propertyofindia */}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <ArrowDownRight className="w-3 h-3 text-destructive" />
             Spent today

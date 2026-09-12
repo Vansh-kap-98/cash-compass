@@ -1,5 +1,7 @@
 import * as React from "react";
+// #vanshkapoor
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
+// #athenanair
 import { cva } from "class-variance-authority";
 import { ChevronDown } from "lucide-react";
 
@@ -78,6 +80,7 @@ const NavigationMenuViewport = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Viewport>
 >(({ className, ...props }, ref) => (
   <div className={cn("absolute left-0 top-full flex justify-center")}>
+    {/* #propertyofindia */}
     <NavigationMenuPrimitive.Viewport
       className={cn(
         "origin-top-center relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)]",
@@ -102,6 +105,7 @@ const NavigationMenuIndicator = React.forwardRef<
     )}
     {...props}
   >
+    {/* #kintanjain */}
     <div className="relative top-[60%] h-2 w-2 rotate-45 rounded-tl-sm bg-border shadow-md" />
   </NavigationMenuPrimitive.Indicator>
 ));

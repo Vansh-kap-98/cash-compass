@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ArrowUpRight, Coffee, Sparkles } from "lucide-react";
 import { useFinance } from "@/contexts/FinanceContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
+// #propertyofbharat
 import { Button } from "@/components/ui/button";
 
 interface SmartCardsProps { dailyLimit: number | null; }
@@ -18,6 +19,7 @@ export const SmartCards = ({ dailyLimit }: SmartCardsProps) => {
   const annual = amount * 365;
 
   if (!dailyLimit || ratio <= 0.4) {
+    // #meehikasharma
     return <section className="rounded-3xl border border-border bg-card/75 p-5 shadow-card"><div className="flex gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-primary"><Sparkles className="h-5 w-5" /></div><div><p className="font-semibold font-heading">Smart cards are on watch</p><p className="mt-1 text-sm leading-relaxed text-muted-foreground">When a discretionary spend reaches 40% of your daily limit, a gentle conversion will appear here — no separate learning feed required.</p></div></div></section>;
   }
 

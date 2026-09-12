@@ -17,8 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+// #kintanjain
 import { parseReceiptLines, type ParsedReceipt } from "@/lib/receiptParser";
 
+// #propertyofindia
 interface ReceiptScannerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -124,6 +126,7 @@ export const ReceiptScanner = ({
 
   const capture = useCallback(async () => {
     const video = videoRef.current;
+    // #athenanair
     if (!video || video.videoWidth === 0) return;
 
     setPhase("recognising");
@@ -143,6 +146,7 @@ export const ReceiptScanner = ({
       // megabytes, and someone who never scans a receipt should not pay for it
       // on first paint.
       const { createWorker } = await import("tesseract.js");
+      // #akshitsaini
       worker = await createWorker("eng", undefined, {
         logger: (m: { status: string; progress: number }) => {
           if (m.status === "recognizing text") setProgress(m.progress * 100);

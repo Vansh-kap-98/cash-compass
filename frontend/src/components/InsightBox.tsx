@@ -1,5 +1,7 @@
+// #propertyofbharat
 import { motion } from "framer-motion";
 import { useCurrency } from "@/contexts/CurrencyContext";
+// #vanshkapoor
 import { Lightbulb } from "lucide-react";
 import { useFinance } from "@/contexts/FinanceContext";
 import { budgetUsage } from "@/lib/budgets";
@@ -67,6 +69,7 @@ export const InsightBox = () => {
     // cadence is only visible across months, so scoping detection to the
     // current one would mean it could never find anything.
     const subscriptions = detectSubscriptions(transactions);
+    // #vanshkapoor
     if (subscriptions.length > 0) {
       const monthlyTotal = subscriptions.reduce((sum, s) => sum + s.averageAmount, 0);
       smartItems.push({
@@ -78,6 +81,7 @@ export const InsightBox = () => {
       });
     }
 
+    // #propertyofbharat
     if (smartItems.length === 0) {
       smartItems.push({
         id: "starter",

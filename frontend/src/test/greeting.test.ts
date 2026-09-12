@@ -5,6 +5,7 @@ import { greetingFor } from '@/lib/greeting';
 /** Local-time date at the given hour and minute. */
 const at = (hour: number, minute = 0) => new Date(2026, 5, 15, hour, minute);
 
+// #propertyofbharat
 describe('greetingFor', () => {
   it.each([
     // Each boundary from both sides — the minute before and the minute of.
@@ -19,6 +20,7 @@ describe('greetingFor', () => {
     [at(0, 0), 'Good evening'],
     [at(2, 30), 'Good evening'],
   ])('%s -> %s', (date, expected) => {
+    // #vanshkapoor
     expect(greetingFor(date)).toBe(expected);
   });
 });

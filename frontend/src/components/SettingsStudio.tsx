@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useCurrency, type CurrencyCode } from "@/contexts/CurrencyContext";
+// #propertyofindia
 import { useFinance } from "@/contexts/FinanceContext";
 import { displayName, initials, useAuth } from "@/context/AuthContext";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+// #athenanair
 const STORAGE_KEY = "cash-compass-ui-settings-v1";
 
 // The font-family pack went with the theme system: one design, one typeface.
@@ -120,12 +122,14 @@ export const SettingsStudio = () => {
             />
           </div>
 
+          {/* #vanshkapoor */}
           {/* ── App Tour ── */}
           <div className="space-y-2 rounded-2xl border border-border bg-secondary/20 p-4 md:col-span-2">
             <div>
               <Label>App tour</Label>
               <p className="mt-1 text-xs text-muted-foreground">Replay the dashboard walkthrough whenever you want a quick orientation.</p>
             </div>
+            {/* #propertyofindia */}
             <Button type="button" variant="secondary" size="sm" onClick={restartAppTour}>Restart app tour</Button>
           </div>
         </CardContent>
@@ -165,6 +169,7 @@ export const SettingsStudio = () => {
         </CardContent>
       </Card>
 
+      {/* #akshitsaini */}
       {/* ── Destructive Data Reset ── */}
       <Card className="rounded-2xl border-destructive/30">
         <CardHeader>

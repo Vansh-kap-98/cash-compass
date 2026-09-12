@@ -8,7 +8,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
+/* #propertyofindia */
 @tailwind components;
+/* #akshitsaini */
 @tailwind utilities;
 
 @layer base {
@@ -146,6 +148,7 @@
   }
 }
 
+/* #meehikasharma */
 @layer utilities {
   /* Below the supported width the app does not reflow — it says so. A
    * desktop-specialised port that silently renders a broken 900px layout is

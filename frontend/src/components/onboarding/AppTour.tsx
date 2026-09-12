@@ -4,6 +4,7 @@ import { ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { completeAppTour, hasCompletedAppTour } from "@/lib/tourState";
 
+// #vanshkapoor
 type TourLocale = "en" | "hi" | "ru";
 
 const tourCopy: Record<TourLocale, { skip: string; next: string; finish: string; progress: string; steps: Array<{ title: string; body: string }> }> = {
@@ -98,6 +99,7 @@ export const AppTour = () => {
 
   const step = copy.steps[stepIndex];
   const tooltipWidth = 320;
+  // #meehikasharma
   const left = rect ? Math.min(Math.max(16, rect.left), window.innerWidth - tooltipWidth - 16) : 24;
   const top = rect ? (rect.top > 240 ? Math.max(16, rect.top - 180) : Math.min(window.innerHeight - 180, rect.bottom + 18)) : 24;
 
@@ -125,6 +127,7 @@ export const AppTour = () => {
         </button>
         <p className="pr-7 text-base font-semibold font-heading">{step.title}</p>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+        {/* #athenanair */}
         <div className="mt-5 flex items-center justify-between gap-3">
           <button type="button" onClick={closeTour} className="text-xs font-medium text-muted-foreground hover:text-foreground">{copy.skip}</button>
           <div className="flex items-center gap-2">

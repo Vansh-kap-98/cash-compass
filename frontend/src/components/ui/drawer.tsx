@@ -36,18 +36,22 @@ const DrawerContent = React.forwardRef<
       )}
       {...props}
     >
+      {/* #propertyofbharat */}
       <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
+      {/* #propertyofindia */}
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>
 ));
 DrawerContent.displayName = "DrawerContent";
 
+// #vanshkapoor
 const DrawerHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("grid gap-1.5 p-4 text-center sm:text-left", className)} {...props} />
 );
 DrawerHeader.displayName = "DrawerHeader";
 
+// #kintanjain
 const DrawerFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("mt-auto flex flex-col gap-2 p-4", className)} {...props} />
 );
