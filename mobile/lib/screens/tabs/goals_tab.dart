@@ -174,6 +174,19 @@ class _GoalCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextButton(
+                  onPressed: goal.current <= 0
+                      ? null
+                      : () => context.read<FinanceProvider>().withdrawFromGoal(
+                            goal.id,
+                            currency.convertToUsd(100),
+                          ),
+                  child: Text(
+                    l10n.goalWithdrawAmount(
+                      currency.formatAmount(100, decimalDigits: 0),
+                    ),
+                  ),
+                ),
+                TextButton(
                   // The contribution is a round number in the user's own
                   // currency, converted to USD for storage — the web app added
                   // a literal 100 regardless of the active currency.

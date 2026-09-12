@@ -120,27 +120,51 @@ actually been run against it — do that before trusting this row.
 
 ## Rewards & Badges
 
-**🟡 Built, not yet verified on a machine with the Flutter SDK.** 14 badges
+**🟡 Built, not yet verified on a machine with the Flutter SDK.** 16 badges
 across Savings / Budget Control / Habit & Streak / Milestones
 (`lib/logic/badges.dart`, `AchievementsProvider`), browsable from a new
 Settings row, with a snackbar on unlock. Unlock rules are pure and unit
 tested in `test/logic/badges_test.dart`.
 
-11 badges from the original 25-badge request were dropped rather than
-force-fit: four need social features that don't exist (shared goals, friend
-leaderboards, gift goals, multi-device sync), and two more (Iron Shield,
-Zero Impulse) need a withdrawal action and a wishlist feature respectively,
-neither of which exist. Two others were reinterpreted rather than dropped —
-see the doc comment on `achievementBadges` for the full reasoning.
+9 badges from the original 25-badge request were dropped rather than
+force-fit — four need social features that don't exist (shared goals, friend
+leaderboards, gift goals, multi-device sync; tracked as separate follow-up
+issues), and Momentum Build was folded into Daily Driver / 30-Day Legend, the
+same mechanism at different thresholds. Two more (Fortress, Speed Demon) were
+reinterpreted rather than dropped — see the doc comment on
+`achievementBadges` for the full reasoning.
 
-Two small model additions ride along with this: `SavingsGoal.targetDate`
-(for Speed Demon) and `SavingsGoal.completedAt` (stamped by
-`FinanceProvider.contributeToGoal`), both nullable and backward-compatible
-with goals saved before this shipped.
+Iron Shield and Zero Impulse originally needed a withdrawal action and a
+wishlist feature that didn't exist; both shipped in a follow-up pass once
+those landed (see below).
+
+Three small model additions ride along with this: `SavingsGoal.targetDate`
+(for Speed Demon), `SavingsGoal.completedAt` (stamped by
+`FinanceProvider.contributeToGoal`), and `SavingsGoal.createdAt` (for Iron
+Shield) — all nullable and backward-compatible with goals saved before this
+shipped.
 
 **To finish verifying:** same as Financial Literacy Cards above — no local
 Flutter/Dart toolchain was available while writing this, so run `flutter
 analyze` and `flutter test` before trusting this row.
+
+## Goal withdrawals
+
+**🟡 Built, not yet verified.** `FinanceProvider.withdrawFromGoal` — the
+counterpart to the existing contribute action, floored at zero — with a
+"Withdraw" button next to "Add" on each goal card in the Goals tab. Added
+specifically to make the Iron Shield badge meaningful (previously there was
+no way to touch a goal's balance downward at all, so "went a month without
+withdrawing" would have been permanently true).
+
+## Wishlist
+
+**🟡 Built, not yet verified.** A new `WishlistProvider` + "Wishlist" screen
+(reachable from Settings): add an item with a name and amount, then later
+mark it purchased or skipped. Backs the Zero Impulse badge, which needs a
+skip recorded at least 48 hours after the item was added. This is the first
+feature this app has that models the "Wishlist Trick" literacy card, rather
+than just describing it.
 
 ---
 

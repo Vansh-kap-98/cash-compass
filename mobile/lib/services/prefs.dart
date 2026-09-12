@@ -37,6 +37,7 @@ abstract final class PrefsKeys {
   static const geoProfile = 'cash-compass-geo-profile-v1';
   static const literacyCards = 'cash-compass-literacy-cards-v1';
   static const achievements = 'cash-compass-achievements-v1';
+  static const wishlist = 'cash-compass-wishlist-v1';
   static const demoMode = 'cash-compass-demo-mode-v1';
   static const completedTour = 'cash-compass-has-completed-tour-v1';
   static const theme = 'dashboard-theme';

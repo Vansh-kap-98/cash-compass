@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../dev/log.dart';
 import '../logic/badges.dart';
+import '../models/wishlist_item.dart';
 import '../services/prefs.dart';
 import 'finance_provider.dart';
 
@@ -24,6 +25,10 @@ class AchievementsProvider extends ChangeNotifier {
   List<String> activityDates = [];
   List<String> savingsActivityDates = [];
   Set<String> canceledSubscriptionSignatures = {};
+
+  /// ISO-8601 timestamp of the most recent withdrawal from any goal. Read by
+  /// the Iron Shield badge.
+  String? lastWithdrawalDate;
 
   bool loaded = false;
 
@@ -47,6 +52,7 @@ class AchievementsProvider extends ChangeNotifier {
     activityDates = _stringList(j['activityDates']);
     savingsActivityDates = _stringList(j['savingsActivityDates']);
     canceledSubscriptionSignatures = _stringSet(j['canceledSubscriptionSignatures']);
+    lastWithdrawalDate = j['lastWithdrawalDate'] as String?;
   }
 
   static Set<String> _stringSet(Object? raw) =>
@@ -61,6 +67,7 @@ class AchievementsProvider extends ChangeNotifier {
         'savingsActivityDates': savingsActivityDates,
         'canceledSubscriptionSignatures':
             canceledSubscriptionSignatures.toList(),
+        if (lastWithdrawalDate != null) 'lastWithdrawalDate': lastWithdrawalDate,
       };
 
   /// Marks a detected subscription (keyed by `merchantSignature`) as
@@ -88,14 +95,18 @@ class AchievementsProvider extends ChangeNotifier {
   void recompute({
     required FinanceProvider finance,
     required int readLiteracyCardCount,
+    List<WishlistItem> wishlistItems = const [],
   }) {
+    final now = DateTime.now();
     final today = todayIso();
     var changed = false;
 
     var savingsActivityToday = false;
+    var withdrawalHappened = false;
     for (final g in finance.goals) {
       final previous = _lastKnownGoalCurrent[g.id] ?? g.current;
       if (g.current > previous) savingsActivityToday = true;
+      if (g.current < previous) withdrawalHappened = true;
       _lastKnownGoalCurrent[g.id] = g.current;
     }
 
@@ -105,6 +116,10 @@ class AchievementsProvider extends ChangeNotifier {
     }
     if (savingsActivityToday && !savingsActivityDates.contains(today)) {
       savingsActivityDates = [...savingsActivityDates, today];
+      changed = true;
+    }
+    if (withdrawalHappened) {
+      lastWithdrawalDate = now.toIso8601String();
       changed = true;
     }
 
@@ -117,6 +132,9 @@ class AchievementsProvider extends ChangeNotifier {
         activityDates: activityDates,
         savingsActivityDates: savingsActivityDates,
         canceledSubscriptionSignatures: canceledSubscriptionSignatures,
+        lastWithdrawalDate: lastWithdrawalDate,
+        wishlistItems: wishlistItems,
+        now: now,
       ),
     );
 

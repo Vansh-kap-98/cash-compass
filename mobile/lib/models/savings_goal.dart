@@ -11,6 +11,7 @@ class SavingsGoal {
     required this.icon,
     this.targetDate,
     this.completedAt,
+    this.createdAt,
   });
 
   final String id;
@@ -28,8 +29,16 @@ class SavingsGoal {
 
   /// ISO-8601 timestamp of the moment [current] first reached [target].
   /// Stamped once by `FinanceProvider.contributeToGoal` and never cleared, so
-  /// a later contribution (there is no withdrawal) cannot erase it.
+  /// a later contribution cannot erase it. Not un-set by a later withdrawal —
+  /// a goal that was once completed stays "completed" for this purpose.
   final String? completedAt;
+
+  /// ISO-8601 timestamp of when the goal was created. Null for goals created
+  /// before this field existed.
+  ///
+  /// Used only by the Iron Shield badge (`lib/logic/badges.dart`), which
+  /// needs to know a goal has existed for a while — nothing else reads it.
+  final String? createdAt;
 
   /// Completion in the range 0..1. Guards against a zero or negative target.
   double get progress =>
@@ -45,6 +54,7 @@ class SavingsGoal {
         icon: icon,
         targetDate: targetDate,
         completedAt: completedAt ?? this.completedAt,
+        createdAt: createdAt,
       );
 
   Map<String, dynamic> toJson() => {
@@ -55,6 +65,7 @@ class SavingsGoal {
         'icon': icon,
         if (targetDate != null) 'targetDate': targetDate,
         if (completedAt != null) 'completedAt': completedAt,
+        if (createdAt != null) 'createdAt': createdAt,
       };
 
   factory SavingsGoal.fromJson(Map<String, dynamic> j) => SavingsGoal(
@@ -67,5 +78,6 @@ class SavingsGoal {
         icon: j['icon'] as String? ?? defaultGoalIconKey,
         targetDate: j['targetDate'] as String?,
         completedAt: j['completedAt'] as String?,
+        createdAt: j['createdAt'] as String?,
       );
 }

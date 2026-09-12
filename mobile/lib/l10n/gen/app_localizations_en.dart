@@ -1841,4 +1841,59 @@ class AppLocalizationsEn extends AppLocalizations {
   String achievementUnlockedSnackbar(String title) {
     return 'Badge unlocked: $title';
   }
+
+  @override
+  String get settingsWishlist => 'Wishlist';
+
+  @override
+  String get settingsWishlistSubtitle => 'Track things you\'re thinking about buying';
+
+  @override
+  String get wishlistScreenTitle => 'Wishlist';
+
+  @override
+  String get wishlistEmpty => 'Nothing on your wishlist yet. Add something you\'re thinking about buying.';
+
+  @override
+  String get wishlistAddItem => 'Add item';
+
+  @override
+  String get wishlistFieldName => 'Item name';
+
+  @override
+  String get wishlistInvalid => 'Enter a name and a valid amount.';
+
+  @override
+  String get wishlistMarkPurchased => 'Mark purchased';
+
+  @override
+  String get wishlistMarkSkipped => 'Skip it';
+
+  @override
+  String get wishlistStatusPurchased => 'Purchased';
+
+  @override
+  String get wishlistStatusSkipped => 'Skipped';
+
+  @override
+  String get badgeIronShieldTitle => 'Iron Shield';
+
+  @override
+  String get badgeIronShieldDescription => 'Went a full month without withdrawing from a savings goal.';
+
+  @override
+  String get badgeZeroImpulseTitle => 'Zero Impulse';
+
+  @override
+  String get badgeZeroImpulseDescription => 'Added a wishlist item, waited 48 hours, and skipped it.';
+
+  @override
+  String goalWithdrawAmount(String amount) {
+    return 'Withdraw $amount';
+  }
+
+  @override
+  String wishlistFieldAmount(String code) {
+    return 'Amount ($code)';
+  }
 }

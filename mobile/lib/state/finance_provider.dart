@@ -364,13 +364,13 @@ class FinanceProvider extends ChangeNotifier {
         target: resolvedTarget,
         icon: icon,
         targetDate: targetDate,
+        createdAt: DateTime.now().toIso8601String(),
       ),
     );
     _persist();
   }
 
-  /// Adds to a goal's balance, capped at its target. There is deliberately no
-  /// withdrawal path — the web app has none either.
+  /// Adds to a goal's balance, capped at its target.
   void contributeToGoal(String goalId, double amount) {
     if (!amount.isFinite || amount <= 0) return;
     var changed = false;
@@ -388,6 +388,25 @@ class FinanceProvider extends ChangeNotifier {
         current: next,
         completedAt: justCompleted ? DateTime.now().toIso8601String() : null,
       );
+    }).toList();
+
+    if (changed) _persist();
+  }
+
+  /// Removes from a goal's balance, floored at zero. The counterpart to
+  /// [contributeToGoal] — added alongside the Iron Shield badge
+  /// (`lib/logic/badges.dart`), which needs an actual withdrawal action to
+  /// measure "went a month without touching it" against.
+  void withdrawFromGoal(String goalId, double amount) {
+    if (!amount.isFinite || amount <= 0) return;
+    var changed = false;
+
+    goals = goals.map((g) {
+      if (g.id != goalId) return g;
+      final next = (g.current - amount).clamp(0.0, g.target).toDouble();
+      if (next == g.current) return g;
+      changed = true;
+      return g.copyWith(current: next);
     }).toList();
 
     if (changed) _persist();

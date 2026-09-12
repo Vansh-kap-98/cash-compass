@@ -3230,6 +3230,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Badge unlocked: {title}'**
   String achievementUnlockedSnackbar(String title);
+
+  /// No description provided for @settingsWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishlist'**
+  String get settingsWishlist;
+
+  /// No description provided for @settingsWishlistSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track things you\'re thinking about buying'**
+  String get settingsWishlistSubtitle;
+
+  /// No description provided for @wishlistScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishlist'**
+  String get wishlistScreenTitle;
+
+  /// No description provided for @wishlistEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on your wishlist yet. Add something you\'re thinking about buying.'**
+  String get wishlistEmpty;
+
+  /// No description provided for @wishlistAddItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get wishlistAddItem;
+
+  /// No description provided for @wishlistFieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Item name'**
+  String get wishlistFieldName;
+
+  /// No description provided for @wishlistInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name and a valid amount.'**
+  String get wishlistInvalid;
+
+  /// No description provided for @wishlistMarkPurchased.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark purchased'**
+  String get wishlistMarkPurchased;
+
+  /// No description provided for @wishlistMarkSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip it'**
+  String get wishlistMarkSkipped;
+
+  /// No description provided for @wishlistStatusPurchased.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchased'**
+  String get wishlistStatusPurchased;
+
+  /// No description provided for @wishlistStatusSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get wishlistStatusSkipped;
+
+  /// No description provided for @badgeIronShieldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Iron Shield'**
+  String get badgeIronShieldTitle;
+
+  /// No description provided for @badgeIronShieldDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Went a full month without withdrawing from a savings goal.'**
+  String get badgeIronShieldDescription;
+
+  /// No description provided for @badgeZeroImpulseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Zero Impulse'**
+  String get badgeZeroImpulseTitle;
+
+  /// No description provided for @badgeZeroImpulseDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Added a wishlist item, waited 48 hours, and skipped it.'**
+  String get badgeZeroImpulseDescription;
+
+  /// No description provided for @goalWithdrawAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw {amount}'**
+  String goalWithdrawAmount(String amount);
+
+  /// No description provided for @wishlistFieldAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount ({code})'**
+  String wishlistFieldAmount(String code);
 }
 
 class _AppLocalizationsDelegate

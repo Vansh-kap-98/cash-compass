@@ -15,6 +15,7 @@ import 'package:cash_compass/state/locale_provider.dart';
 import 'package:cash_compass/state/planner_provider.dart';
 import 'package:cash_compass/state/student_planner_provider.dart';
 import 'package:cash_compass/state/theme_provider.dart';
+import 'package:cash_compass/state/wishlist_provider.dart';
 import 'package:cash_compass/state/workspace_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -78,6 +79,7 @@ class TestStores {
     required this.auth,
     required this.literacyCards,
     required this.achievements,
+    required this.wishlist,
   });
 
   final FinanceProvider finance;
@@ -91,6 +93,7 @@ class TestStores {
   final AuthProvider auth;
   final LiteracyCardsProvider literacyCards;
   final AchievementsProvider achievements;
+  final WishlistProvider wishlist;
 
   /// Stores with nothing in them — where null and divide-by-zero faults live.
   factory TestStores.empty() {
@@ -107,6 +110,7 @@ class TestStores {
       auth: AuthProvider(prefs),
       literacyCards: LiteracyCardsProvider(prefs),
       achievements: AchievementsProvider(prefs),
+      wishlist: WishlistProvider(prefs),
     );
   }
 
@@ -227,6 +231,7 @@ Widget wrapScaffold({required TestStores stores, required Widget child}) {
       ChangeNotifierProvider.value(value: stores.auth),
       ChangeNotifierProvider.value(value: stores.literacyCards),
       ChangeNotifierProvider.value(value: stores.achievements),
+      ChangeNotifierProvider.value(value: stores.wishlist),
     ],
     child: child,
   );

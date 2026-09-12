@@ -1865,4 +1865,59 @@ class AppLocalizationsRu extends AppLocalizations {
   String achievementUnlockedSnackbar(String title) {
     return 'Значок получен: $title';
   }
+
+  @override
+  String get settingsWishlist => 'Список желаний';
+
+  @override
+  String get settingsWishlistSubtitle => 'Отслеживайте вещи, которые вы обдумываете купить';
+
+  @override
+  String get wishlistScreenTitle => 'Список желаний';
+
+  @override
+  String get wishlistEmpty => 'Пока в списке желаний ничего нет. Добавьте то, что вы обдумываете купить.';
+
+  @override
+  String get wishlistAddItem => 'Добавить';
+
+  @override
+  String get wishlistFieldName => 'Название';
+
+  @override
+  String get wishlistInvalid => 'Введите название и корректную сумму.';
+
+  @override
+  String get wishlistMarkPurchased => 'Отметить купленным';
+
+  @override
+  String get wishlistMarkSkipped => 'Пропустить';
+
+  @override
+  String get wishlistStatusPurchased => 'Куплено';
+
+  @override
+  String get wishlistStatusSkipped => 'Пропущено';
+
+  @override
+  String get badgeIronShieldTitle => 'Железный щит';
+
+  @override
+  String get badgeIronShieldDescription => 'Провели целый месяц, не снимая деньги с цели накопления.';
+
+  @override
+  String get badgeZeroImpulseTitle => 'Ноль импульса';
+
+  @override
+  String get badgeZeroImpulseDescription => 'Добавили вещь в список желаний, подождали 48 часов и отказались от покупки.';
+
+  @override
+  String goalWithdrawAmount(String amount) {
+    return 'Снять $amount';
+  }
+
+  @override
+  String wishlistFieldAmount(String code) {
+    return 'Сумма ($code)';
+  }
 }

@@ -10,6 +10,7 @@ library;
 import '../models/budget_category.dart';
 import '../models/savings_goal.dart';
 import '../models/transaction.dart';
+import '../models/wishlist_item.dart';
 
 /// The four groupings badges are organised under. Only one of the source
 /// spec's "Social & Special" badges survived triage (Financial Master), so
@@ -32,9 +33,7 @@ class AchievementBadge {
 /// Dropped from the source spec, and why:
 /// - Pack Leader, Podium Finish, Generous Heart, True North — need shared
 ///   goals, friend leaderboards, or multi-device sync, none of which exist.
-/// - Iron Shield — there is no withdrawal action to violate; the badge would
-///   be permanently (and meaninglessly) true.
-/// - Zero Impulse — needs a wishlist feature that does not exist.
+///   Tracked as follow-up issues rather than built here.
 /// - Momentum Build — folded into Daily Driver / 30-Day Legend, which are the
 ///   same streak mechanism at different thresholds.
 ///
@@ -43,11 +42,19 @@ class AchievementBadge {
 ///   reads as any single goal reaching [fortressThresholdUsd].
 /// - Speed Demon — needs a goal target date, which [SavingsGoal.targetDate]
 ///   now provides.
+///
+/// Shipped in a follow-up pass once their prerequisite feature landed:
+/// - Iron Shield — needed a withdrawal action, which didn't exist when the
+///   first batch of badges shipped. `FinanceProvider.withdrawFromGoal` and
+///   [SavingsGoal.createdAt] now make it meaningful instead of vacuously true.
+/// - Zero Impulse — needed a wishlist feature, which didn't exist either.
+///   `WishlistProvider` now backs it.
 const List<AchievementBadge> achievementBadges = [
   AchievementBadge(id: 'first-seed', category: AchievementCategory.savings),
   AchievementBadge(id: 'goal-crusher', category: AchievementCategory.savings),
   AchievementBadge(id: 'fortress', category: AchievementCategory.savings),
   AchievementBadge(id: 'speed-demon', category: AchievementCategory.savings),
+  AchievementBadge(id: 'iron-shield', category: AchievementCategory.savings),
   AchievementBadge(
     id: 'tracking-ninja',
     category: AchievementCategory.budgetControl,
@@ -62,6 +69,10 @@ const List<AchievementBadge> achievementBadges = [
   ),
   AchievementBadge(
     id: 'category-boss',
+    category: AchievementCategory.budgetControl,
+  ),
+  AchievementBadge(
+    id: 'zero-impulse',
     category: AchievementCategory.budgetControl,
   ),
   AchievementBadge(
@@ -113,6 +124,14 @@ const int thirtyDayLegendStreakDays = 30;
 /// Cards read to unlock Financial Master, per the source spec.
 const int financialMasterCardsRead = 15;
 
+/// How long a goal must exist, and how long since the last withdrawal from
+/// any goal, for Iron Shield — "a full month without touching your pot".
+const int ironShieldQuietDays = 30;
+
+/// How long a wishlist item must sit before a "skip" counts toward Zero
+/// Impulse, per the source spec.
+const int zeroImpulseWaitHours = 48;
+
 /// Everything the unlock rules need, gathered in one place so
 /// [evaluateUnlockedBadges] stays a pure function of its inputs.
 class AchievementInputs {
@@ -124,6 +143,8 @@ class AchievementInputs {
     required this.activityDates,
     required this.savingsActivityDates,
     required this.canceledSubscriptionSignatures,
+    this.lastWithdrawalDate,
+    this.wishlistItems = const [],
     this.now,
   });
 
@@ -143,6 +164,13 @@ class AchievementInputs {
 
   /// `merchantSignature` values the user marked as canceled.
   final Set<String> canceledSubscriptionSignatures;
+
+  /// ISO-8601 timestamp of the most recent withdrawal from any goal, from
+  /// `AchievementsProvider`'s own log. Null if none has ever happened.
+  final String? lastWithdrawalDate;
+
+  /// From `WishlistProvider.items`.
+  final List<WishlistItem> wishlistItems;
 
   /// Injectable for tests; defaults to the real current time.
   final DateTime? now;
@@ -169,7 +197,13 @@ Set<String> evaluateUnlockedBadges(AchievementInputs inputs) {
 
   if (_hasSpeedDemonGoal(inputs.goals)) unlocked.add('speed-demon');
 
+  if (_hasIronShieldGoal(inputs.goals, inputs.lastWithdrawalDate, now)) {
+    unlocked.add('iron-shield');
+  }
+
   if (_isTrackingNinja(inputs.transactions)) unlocked.add('tracking-ninja');
+
+  if (_hasZeroImpulseSkip(inputs.wishlistItems)) unlocked.add('zero-impulse');
 
   final monthEval = _previousMonthBudgetEvaluation(
     budgets: inputs.budgets,
@@ -217,6 +251,50 @@ bool _hasSpeedDemonGoal(List<SavingsGoal> goals) {
     if (completedDate == null) continue;
     final aheadBy = targetDate.difference(completedDate).inDays;
     if (aheadBy >= speedDemonAheadDays) return true;
+  }
+  return false;
+}
+
+/// True once at least one goal has existed quietly for [ironShieldQuietDays]:
+/// created that long ago, and no withdrawal (from *any* goal) has landed
+/// inside that same trailing window.
+///
+/// Goals created before `SavingsGoal.createdAt` existed (null) never qualify
+/// — there is no way to know how old they are, so they are silently excluded
+/// rather than guessed at.
+bool _hasIronShieldGoal(
+  List<SavingsGoal> goals,
+  String? lastWithdrawalDate,
+  DateTime now,
+) {
+  final lastWithdrawal =
+      lastWithdrawalDate == null ? null : DateTime.tryParse(lastWithdrawalDate);
+  if (lastWithdrawal != null &&
+      now.difference(lastWithdrawal).inDays < ironShieldQuietDays) {
+    return false;
+  }
+
+  for (final g in goals) {
+    final createdAt = g.createdAt;
+    if (createdAt == null) continue;
+    final created = DateTime.tryParse(createdAt);
+    if (created == null) continue;
+    if (now.difference(created).inDays >= ironShieldQuietDays) return true;
+  }
+  return false;
+}
+
+/// True once some wishlist item was added, left alone for at least
+/// [zeroImpulseWaitHours], and then explicitly skipped rather than bought.
+bool _hasZeroImpulseSkip(List<WishlistItem> items) {
+  for (final item in items) {
+    if (item.status != WishlistStatus.skipped) continue;
+    final resolvedAt = item.resolvedAt;
+    if (resolvedAt == null) continue;
+    final added = DateTime.tryParse(item.addedAt);
+    final resolved = DateTime.tryParse(resolvedAt);
+    if (added == null || resolved == null) continue;
+    if (resolved.difference(added).inHours >= zeroImpulseWaitHours) return true;
   }
   return false;
 }

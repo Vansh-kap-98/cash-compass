@@ -7,6 +7,7 @@ import '../logic/badges.dart';
 import '../state/achievements_provider.dart';
 import '../state/finance_provider.dart';
 import '../state/literacy_cards_provider.dart';
+import '../state/wishlist_provider.dart';
 
 /// Grid of every badge, grouped by category, showing locked/unlocked state.
 ///
@@ -35,6 +36,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             finance: context.read<FinanceProvider>(),
             readLiteracyCardCount:
                 context.read<LiteracyCardsProvider>().readCardIds.length,
+            wishlistItems: context.read<WishlistProvider>().items,
           );
       // Any celebration snackbar for a badge unlocked just now is already
       // handled by `DashboardScreen`'s listener; draining here only prevents

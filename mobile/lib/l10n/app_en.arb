@@ -929,4 +929,31 @@
       "title": { "type": "String" }
     }
   }
+  ,"settingsWishlist": "Wishlist"
+  ,"settingsWishlistSubtitle": "Track things you're thinking about buying"
+  ,"wishlistScreenTitle": "Wishlist"
+  ,"wishlistEmpty": "Nothing on your wishlist yet. Add something you're thinking about buying."
+  ,"wishlistAddItem": "Add item"
+  ,"wishlistFieldName": "Item name"
+  ,"wishlistInvalid": "Enter a name and a valid amount."
+  ,"wishlistMarkPurchased": "Mark purchased"
+  ,"wishlistMarkSkipped": "Skip it"
+  ,"wishlistStatusPurchased": "Purchased"
+  ,"wishlistStatusSkipped": "Skipped"
+  ,"badgeIronShieldTitle": "Iron Shield"
+  ,"badgeIronShieldDescription": "Went a full month without withdrawing from a savings goal."
+  ,"badgeZeroImpulseTitle": "Zero Impulse"
+  ,"badgeZeroImpulseDescription": "Added a wishlist item, waited 48 hours, and skipped it."
+  ,"goalWithdrawAmount": "Withdraw {amount}"
+  ,"@goalWithdrawAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  }
+  ,"wishlistFieldAmount": "Amount ({code})"
+  ,"@wishlistFieldAmount": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  }
 }
