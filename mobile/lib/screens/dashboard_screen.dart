@@ -12,6 +12,7 @@ import '../services/receipt_scanner.dart';
 import '../state/achievements_provider.dart';
 import '../state/finance_provider.dart';
 import '../state/literacy_cards_provider.dart';
+import '../state/wishlist_provider.dart';
 import '../widgets/add_entry_sheet.dart';
 import '../widgets/set_goal_sheet.dart';
 import 'budget_plan_screen.dart';
@@ -42,6 +43,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   FinanceProvider? _financeForAchievements;
   LiteracyCardsProvider? _literacyCardsForAchievements;
+  WishlistProvider? _wishlistForAchievements;
 
   @override
   void initState() {
@@ -55,10 +57,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (!mounted) return;
       final finance = context.read<FinanceProvider>();
       final literacyCards = context.read<LiteracyCardsProvider>();
+      final wishlist = context.read<WishlistProvider>();
       _financeForAchievements = finance;
       _literacyCardsForAchievements = literacyCards;
+      _wishlistForAchievements = wishlist;
       finance.addListener(_onAchievementInputsChanged);
       literacyCards.addListener(_onAchievementInputsChanged);
+      wishlist.addListener(_onAchievementInputsChanged);
       // Covers state that already existed before this feature shipped (e.g.
       // five budget categories set up in an earlier session) — otherwise
       // those badges would stay locked until the next unrelated mutation.
@@ -70,6 +75,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void dispose() {
     _financeForAchievements?.removeListener(_onAchievementInputsChanged);
     _literacyCardsForAchievements?.removeListener(_onAchievementInputsChanged);
+    _wishlistForAchievements?.removeListener(_onAchievementInputsChanged);
     super.dispose();
   }
 
@@ -77,12 +83,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (!mounted) return;
     final finance = _financeForAchievements;
     final literacyCards = _literacyCardsForAchievements;
-    if (finance == null || literacyCards == null) return;
+    final wishlist = _wishlistForAchievements;
+    if (finance == null || literacyCards == null || wishlist == null) return;
 
     final achievements = context.read<AchievementsProvider>();
     achievements.recompute(
       finance: finance,
       readLiteracyCardCount: literacyCards.readCardIds.length,
+      wishlistItems: wishlist.items,
     );
 
     final newly = achievements.consumeNewlyUnlocked();

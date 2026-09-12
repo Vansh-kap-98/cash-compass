@@ -19,6 +19,7 @@ import '../../state/theme_provider.dart';
 import '../../state/workspace_provider.dart';
 import '../achievements_screen.dart';
 import '../financial_tips_screen.dart';
+import '../wishlist_screen.dart';
 
 /// Settings tab. Port of `SettingsStudio.tsx`.
 ///
@@ -162,6 +163,24 @@ class SettingsTab extends StatelessWidget {
                 icon: Icons.emoji_events_outlined,
                 label: l10n.settingsAchievements,
                 onPressed: () => AchievementsScreen.open(context),
+              ),
+            ],
+          ),
+        ),
+        _Section(
+          title: l10n.settingsWishlist,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.settingsWishlistSubtitle,
+                style: theme.textTheme.bodySmall,
+              ),
+              const SizedBox(height: 10),
+              AppButton.secondary(
+                icon: Icons.bookmark_border,
+                label: l10n.settingsWishlist,
+                onPressed: () => WishlistScreen.open(context),
               ),
             ],
           ),

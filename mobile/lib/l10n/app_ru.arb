@@ -918,4 +918,31 @@
       "title": { "type": "String" }
     }
   }
+  ,"settingsWishlist": "Список желаний"
+  ,"settingsWishlistSubtitle": "Отслеживайте вещи, которые вы обдумываете купить"
+  ,"wishlistScreenTitle": "Список желаний"
+  ,"wishlistEmpty": "Пока в списке желаний ничего нет. Добавьте то, что вы обдумываете купить."
+  ,"wishlistAddItem": "Добавить"
+  ,"wishlistFieldName": "Название"
+  ,"wishlistInvalid": "Введите название и корректную сумму."
+  ,"wishlistMarkPurchased": "Отметить купленным"
+  ,"wishlistMarkSkipped": "Пропустить"
+  ,"wishlistStatusPurchased": "Куплено"
+  ,"wishlistStatusSkipped": "Пропущено"
+  ,"badgeIronShieldTitle": "Железный щит"
+  ,"badgeIronShieldDescription": "Провели целый месяц, не снимая деньги с цели накопления."
+  ,"badgeZeroImpulseTitle": "Ноль импульса"
+  ,"badgeZeroImpulseDescription": "Добавили вещь в список желаний, подождали 48 часов и отказались от покупки."
+  ,"goalWithdrawAmount": "Снять {amount}"
+  ,"@goalWithdrawAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  }
+  ,"wishlistFieldAmount": "Сумма ({code})"
+  ,"@wishlistFieldAmount": {
+    "placeholders": {
+      "code": { "type": "String" }
+    }
+  }
 }

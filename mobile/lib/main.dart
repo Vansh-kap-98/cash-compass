@@ -21,6 +21,7 @@ import 'state/locale_provider.dart';
 import 'state/planner_provider.dart';
 import 'state/student_planner_provider.dart';
 import 'state/theme_provider.dart';
+import 'state/wishlist_provider.dart';
 import 'state/workspace_provider.dart';
 
 Future<void> main() async {
@@ -45,6 +46,7 @@ Future<void> main() async {
   final auth = AuthProvider(prefs);
   final literacyCards = LiteracyCardsProvider(prefs);
   final achievements = AchievementsProvider(prefs);
+  final wishlist = WishlistProvider(prefs);
 
   await Future.wait([
     theme.load(),
@@ -59,6 +61,7 @@ Future<void> main() async {
     auth.load(),
     literacyCards.load(),
     achievements.load(),
+    wishlist.load(),
   ]);
 
   // Currency is not awaited: it may hit the network for fresh rates, and the
@@ -78,6 +81,7 @@ Future<void> main() async {
       auth: auth,
       literacyCards: literacyCards,
       achievements: achievements,
+      wishlist: wishlist,
     ),
   );
 }
@@ -102,6 +106,7 @@ class CashCompassApp extends StatefulWidget {
     required this.auth,
     required this.literacyCards,
     required this.achievements,
+    required this.wishlist,
   });
 
   final ThemeProvider theme;
@@ -115,6 +120,7 @@ class CashCompassApp extends StatefulWidget {
   final AuthProvider auth;
   final LiteracyCardsProvider literacyCards;
   final AchievementsProvider achievements;
+  final WishlistProvider wishlist;
 
   @override
   State<CashCompassApp> createState() => _CashCompassAppState();
@@ -150,6 +156,7 @@ class _CashCompassAppState extends State<CashCompassApp>
       widget.students.flush();
       widget.literacyCards.flush();
       widget.achievements.flush();
+      widget.wishlist.flush();
       FrameReport.report();
     }
   }
@@ -169,6 +176,7 @@ class _CashCompassAppState extends State<CashCompassApp>
         ChangeNotifierProvider.value(value: widget.auth),
         ChangeNotifierProvider.value(value: widget.literacyCards),
         ChangeNotifierProvider.value(value: widget.achievements),
+        ChangeNotifierProvider.value(value: widget.wishlist),
       ],
       // Watching both here means a theme, font, or language change rebuilds
       // MaterialApp — with new ThemeData, or a new locale — which is how the

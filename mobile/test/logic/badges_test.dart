@@ -2,6 +2,7 @@ import 'package:cash_compass/logic/badges.dart';
 import 'package:cash_compass/models/budget_category.dart';
 import 'package:cash_compass/models/savings_goal.dart';
 import 'package:cash_compass/models/transaction.dart';
+import 'package:cash_compass/models/wishlist_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 AchievementInputs _inputs({
@@ -12,6 +13,8 @@ AchievementInputs _inputs({
   List<String> activityDates = const [],
   List<String> savingsActivityDates = const [],
   Set<String> canceledSubscriptionSignatures = const {},
+  String? lastWithdrawalDate,
+  List<WishlistItem> wishlistItems = const [],
   DateTime? now,
 }) =>
     AchievementInputs(
@@ -22,6 +25,8 @@ AchievementInputs _inputs({
       activityDates: activityDates,
       savingsActivityDates: savingsActivityDates,
       canceledSubscriptionSignatures: canceledSubscriptionSignatures,
+      lastWithdrawalDate: lastWithdrawalDate,
+      wishlistItems: wishlistItems,
       now: now,
     );
 
@@ -111,6 +116,73 @@ void main() {
         ],
       );
       expect(evaluateUnlockedBadges(wellAhead), contains('speed-demon'));
+    });
+
+    test('Iron Shield needs an old-enough goal and no recent withdrawal', () {
+      final now = DateTime(2026, 6, 1);
+
+      final tooNew = _inputs(
+        now: now,
+        goals: [
+          SavingsGoal(
+            id: 'g1',
+            name: 'Trip',
+            current: 100,
+            target: 1000,
+            icon: '✈️',
+            createdAt: now.subtract(const Duration(days: 10)).toIso8601String(),
+          ),
+        ],
+      );
+      expect(evaluateUnlockedBadges(tooNew), isNot(contains('iron-shield')));
+
+      final oldEnough = _inputs(
+        now: now,
+        goals: [
+          SavingsGoal(
+            id: 'g1',
+            name: 'Trip',
+            current: 100,
+            target: 1000,
+            icon: '✈️',
+            createdAt: now.subtract(const Duration(days: 40)).toIso8601String(),
+          ),
+        ],
+      );
+      expect(evaluateUnlockedBadges(oldEnough), contains('iron-shield'));
+
+      final recentWithdrawal = _inputs(
+        now: now,
+        goals: [
+          SavingsGoal(
+            id: 'g1',
+            name: 'Trip',
+            current: 100,
+            target: 1000,
+            icon: '✈️',
+            createdAt: now.subtract(const Duration(days: 40)).toIso8601String(),
+          ),
+        ],
+        lastWithdrawalDate:
+            now.subtract(const Duration(days: 5)).toIso8601String(),
+      );
+      expect(
+        evaluateUnlockedBadges(recentWithdrawal),
+        isNot(contains('iron-shield')),
+        reason: 'a withdrawal inside the trailing 30 days disqualifies it',
+      );
+
+      final goalWithNoCreatedAt = _inputs(
+        now: now,
+        goals: const [
+          SavingsGoal(id: 'g1', name: 'Trip', current: 100, target: 1000, icon: '✈️'),
+        ],
+      );
+      expect(
+        evaluateUnlockedBadges(goalWithNoCreatedAt),
+        isNot(contains('iron-shield')),
+        reason: 'a goal from before this field existed cannot qualify',
+      );
     });
   });
 
@@ -203,6 +275,58 @@ void main() {
       );
       expect(evaluateUnlockedBadges(overBudget), isNot(contains('master-balancer')));
       expect(evaluateUnlockedBadges(overBudget), isNot(contains('under-budget')));
+    });
+
+    test('Zero Impulse needs a skip at least 48 hours after adding', () {
+      final skippedTooSoon = _inputs(wishlistItems: const [
+        WishlistItem(
+          id: 'w1',
+          name: 'Shoes',
+          amount: 60,
+          addedAt: '2026-01-01T10:00:00.000',
+          status: WishlistStatus.skipped,
+          resolvedAt: '2026-01-02T10:00:00.000', // 24h later
+        ),
+      ]);
+      expect(evaluateUnlockedBadges(skippedTooSoon), isNot(contains('zero-impulse')));
+
+      final skippedInTime = _inputs(wishlistItems: const [
+        WishlistItem(
+          id: 'w1',
+          name: 'Shoes',
+          amount: 60,
+          addedAt: '2026-01-01T10:00:00.000',
+          status: WishlistStatus.skipped,
+          resolvedAt: '2026-01-03T11:00:00.000', // 49h later
+        ),
+      ]);
+      expect(evaluateUnlockedBadges(skippedInTime), contains('zero-impulse'));
+
+      final purchasedNotSkipped = _inputs(wishlistItems: const [
+        WishlistItem(
+          id: 'w1',
+          name: 'Shoes',
+          amount: 60,
+          addedAt: '2026-01-01T10:00:00.000',
+          status: WishlistStatus.purchased,
+          resolvedAt: '2026-01-05T10:00:00.000',
+        ),
+      ]);
+      expect(
+        evaluateUnlockedBadges(purchasedNotSkipped),
+        isNot(contains('zero-impulse')),
+        reason: 'buying it is the opposite of the badge',
+      );
+
+      final stillPending = _inputs(wishlistItems: const [
+        WishlistItem(
+          id: 'w1',
+          name: 'Shoes',
+          amount: 60,
+          addedAt: '2026-01-01T10:00:00.000',
+        ),
+      ]);
+      expect(evaluateUnlockedBadges(stillPending), isNot(contains('zero-impulse')));
     });
   });
 
