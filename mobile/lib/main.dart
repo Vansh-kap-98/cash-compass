@@ -10,11 +10,13 @@ import 'screens/auth_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'services/prefs.dart';
 import 'services/supabase_service.dart';
+import 'state/achievements_provider.dart';
 import 'state/auth_provider.dart';
 import 'state/budget_plan_provider.dart';
 import 'state/currency_provider.dart';
 import 'l10n/l10n.dart';
 import 'state/finance_provider.dart';
+import 'state/literacy_cards_provider.dart';
 import 'state/locale_provider.dart';
 import 'state/planner_provider.dart';
 import 'state/student_planner_provider.dart';
@@ -41,6 +43,8 @@ Future<void> main() async {
   final budgets = BudgetPlanProvider(prefs);
   final students = StudentPlannerProvider(prefs);
   final auth = AuthProvider(prefs);
+  final literacyCards = LiteracyCardsProvider(prefs);
+  final achievements = AchievementsProvider(prefs);
 
   await Future.wait([
     theme.load(),
@@ -53,6 +57,8 @@ Future<void> main() async {
     budgets.load(),
     students.load(),
     auth.load(),
+    literacyCards.load(),
+    achievements.load(),
   ]);
 
   // Currency is not awaited: it may hit the network for fresh rates, and the
@@ -70,6 +76,8 @@ Future<void> main() async {
       budgets: budgets,
       students: students,
       auth: auth,
+      literacyCards: literacyCards,
+      achievements: achievements,
     ),
   );
 }
@@ -92,6 +100,8 @@ class CashCompassApp extends StatefulWidget {
     required this.budgets,
     required this.students,
     required this.auth,
+    required this.literacyCards,
+    required this.achievements,
   });
 
   final ThemeProvider theme;
@@ -103,6 +113,8 @@ class CashCompassApp extends StatefulWidget {
   final BudgetPlanProvider budgets;
   final StudentPlannerProvider students;
   final AuthProvider auth;
+  final LiteracyCardsProvider literacyCards;
+  final AchievementsProvider achievements;
 
   @override
   State<CashCompassApp> createState() => _CashCompassAppState();
@@ -136,6 +148,8 @@ class _CashCompassAppState extends State<CashCompassApp>
       widget.workspace.flush();
       widget.budgets.flush();
       widget.students.flush();
+      widget.literacyCards.flush();
+      widget.achievements.flush();
       FrameReport.report();
     }
   }
@@ -153,6 +167,8 @@ class _CashCompassAppState extends State<CashCompassApp>
         ChangeNotifierProvider.value(value: widget.budgets),
         ChangeNotifierProvider.value(value: widget.students),
         ChangeNotifierProvider.value(value: widget.auth),
+        ChangeNotifierProvider.value(value: widget.literacyCards),
+        ChangeNotifierProvider.value(value: widget.achievements),
       ],
       // Watching both here means a theme, font, or language change rebuilds
       // MaterialApp — with new ThemeData, or a new locale — which is how the

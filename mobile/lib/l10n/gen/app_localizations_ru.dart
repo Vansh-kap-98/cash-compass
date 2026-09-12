@@ -1611,4 +1611,258 @@ class AppLocalizationsRu extends AppLocalizations {
   String relativeDaysAgo(int count) {
     return '$count дн назад';
   }
+
+  @override
+  String get widgetLiteracyTip => 'Финансовый совет';
+
+  @override
+  String get settingsFinancialTips => 'Финансовые советы';
+
+  @override
+  String get settingsFinancialTipsSubtitle => 'Советы по управлению деньгами';
+
+  @override
+  String get settingsAchievements => 'Достижения';
+
+  @override
+  String get settingsAchievementsSubtitle => 'Ваши значки и прогресс';
+
+  @override
+  String get financialTipsScreenTitle => 'Финансовые советы';
+
+  @override
+  String get achievementsScreenTitle => 'Достижения';
+
+  @override
+  String get achievementLocked => 'Заблокировано';
+
+  @override
+  String get achievementUnlockedLabel => 'Получено';
+
+  @override
+  String get subscriptionMarkCanceled => 'Отметить как отменённую';
+
+  @override
+  String get literacyCategoryFoodDelivery => 'Еда и доставка';
+
+  @override
+  String get literacyCategorySubscriptionsTech => 'Подписки и техника';
+
+  @override
+  String get literacyCategorySmartShopping => 'Разумные покупки и образ жизни';
+
+  @override
+  String get literacyCategorySavingsPlanning => 'Накопления и планирование будущего';
+
+  @override
+  String get literacyCategoryMindsetBudgeting => 'Мышление и бюджет';
+
+  @override
+  String get achievementCategorySavings => 'Накопления';
+
+  @override
+  String get achievementCategoryBudgetControl => 'Контроль бюджета';
+
+  @override
+  String get achievementCategoryHabitStreak => 'Привычки и серии';
+
+  @override
+  String get achievementCategorySpecial => 'Вехи';
+
+  @override
+  String get literacyDailyDripTitle => 'Ежедневная капля';
+
+  @override
+  String get literacyDailyDripBody => 'Кофе за 200 ₽ каждый будний день выливается примерно в 4 400 ₽ в месяц. Заваривая кофе дома, вы окупите проезд по кампусу на два месяца вперёд!';
+
+  @override
+  String get literacyLateNightCravingTitle => 'Ночной перекус';
+
+  @override
+  String get literacyLateNightCravingBody => 'Комиссии и сборы за доставку еды могут доходить до 3 000 ₽ в месяц. Объединяя заказы с соседями по комнате, эти сборы можно свести к нулю.';
+
+  @override
+  String get literacyMealPrepPowerTitle => 'Сила заготовок';
+
+  @override
+  String get literacyMealPrepPowerBody => 'Готовя ужин 3 раза в неделю, вы экономите около 12 000 ₽ в месяц по сравнению с заказом еды на вынос.';
+
+  @override
+  String get literacyHungryShopperTitle => 'Голодный покупатель';
+
+  @override
+  String get literacyHungryShopperBody => 'Поход за продуктами на голодный желудок увеличивает импульсивные покупки до 64%. Сначала перекусите!';
+
+  @override
+  String get literacyGhostSubscriptionsTitle => 'Призрачные подписки';
+
+  @override
+  String get literacyGhostSubscriptionsBody => 'В среднем студент тратит впустую более 1 500 ₽ в месяц на неиспользуемые стриминговые сервисы или забытые пробные подписки.';
+
+  @override
+  String get literacyStudentDiscountsTitle => 'Студенческие скидки';
+
+  @override
+  String get literacyStudentDiscountsBody => 'Большинство технологических платформ предлагают скидку 50% для студентов. Использование студенческих тарифов экономит около 6 000 ₽ в год.';
+
+  @override
+  String get literacyUpgradeCycleTitle => 'Цикл обновлений';
+
+  @override
+  String get literacyUpgradeCycleBody => 'Если пользоваться текущим телефоном на год дольше, в среднем вы экономите 40 000 ₽ — этого хватит на целый семестр развлечений.';
+
+  @override
+  String get literacyThe24HourRuleTitle => 'Правило 24 часов';
+
+  @override
+  String get literacyThe24HourRuleBody => 'Если подождать 24 часа перед покупкой не самого нужного, это исключает до 70% импульсивных покупок.';
+
+  @override
+  String get literacyOffSeasonStealsTitle => 'Внесезонные находки';
+
+  @override
+  String get literacyOffSeasonStealsBody => 'Покупка зимних курток весной или летней одежды осенью экономит от 30% до 50% на одежде.';
+
+  @override
+  String get literacyTextbookHackTitle => 'Лайфхак с учебниками';
+
+  @override
+  String get literacyTextbookHackBody => 'Покупка подержанных учебников или цифровых версий экономит студентам в среднем 8 000 ₽ за семестр.';
+
+  @override
+  String get literacyMicroSavingsTitle => 'Микронакопления';
+
+  @override
+  String get literacyMicroSavingsBody => 'Откладывая всего 100 ₽ в день, за год вы накопите 36 500 ₽ — этого хватит на хорошую поездку на выходные или обновление техники.';
+
+  @override
+  String get literacyEmergencyCushionTitle => 'Подушка безопасности';
+
+  @override
+  String get literacyEmergencyCushionBody => 'Наличие всего 10 000 ₽ в резервном фонде предотвращает 80% неожиданных студенческих долговых ловушек.';
+
+  @override
+  String get literacyCompoundInterestTitle => 'Сложный процент';
+
+  @override
+  String get literacyCompoundInterestBody => 'Инвестируя всего 1 000 ₽ в месяц в 20 лет, к пенсии вы можете получить в 4 раза больше, чем если начать в 30.';
+
+  @override
+  String get literacyThe503020GuideTitle => 'Правило 50/30/20';
+
+  @override
+  String get literacyThe503020GuideBody => 'Выделять 50% денег на нужды, 30% на желания и 20% на накопления — самая простая и спокойная модель бюджета.';
+
+  @override
+  String get literacyInvisibleLeaksTitle => 'Невидимые утечки';
+
+  @override
+  String get literacyInvisibleLeaksBody => 'Мелкие наличные покупки до 300 ₽ составляют почти 30% ежемесячного перерасхода бюджета.';
+
+  @override
+  String get literacyTheHourValueTitle => 'Цена часа';
+
+  @override
+  String get literacyTheHourValueBody => 'Прежде чем купить рубашку за 3 000 ₽, спросите себя: стоит ли она 6 часов вашей подработки?';
+
+  @override
+  String get literacyCreditTrapTitle => 'Кредитная ловушка';
+
+  @override
+  String get literacyCreditTrapBody => 'Держать баланс на картах с высокой процентной ставкой может в итоге обойтись вдвое дороже первоначальной покупки.';
+
+  @override
+  String get literacyWishlistTrickTitle => 'Хитрость со списком желаний';
+
+  @override
+  String get literacyWishlistTrickBody => 'Если держать вещь в «списке желаний» 30 дней перед покупкой, лишние траты сокращаются вдвое.';
+
+  @override
+  String get badgeFirstSeedTitle => 'Первый росток';
+
+  @override
+  String get badgeFirstSeedDescription => 'Накопили первые \$500 в своих целях.';
+
+  @override
+  String get badgeGoalCrusherTitle => 'Покоритель целей';
+
+  @override
+  String get badgeGoalCrusherDescription => 'Достигли 100% личной цели накопления.';
+
+  @override
+  String get badgeFortressTitle => 'Крепость';
+
+  @override
+  String get badgeFortressDescription => 'Накопили \$15 000 в одной цели.';
+
+  @override
+  String get badgeSpeedDemonTitle => 'Гонщик';
+
+  @override
+  String get badgeSpeedDemonDescription => 'Достигли цели минимум на 5 дней раньше срока.';
+
+  @override
+  String get badgeTrackingNinjaTitle => 'Ниндзя учёта';
+
+  @override
+  String get badgeTrackingNinjaDescription => 'Категоризировали расходы вместо «Other» на протяжении как минимум 14 дней активности.';
+
+  @override
+  String get badgeMasterBalancerTitle => 'Мастер баланса';
+
+  @override
+  String get badgeMasterBalancerDescription => 'Уложились во все категории бюджета целый календарный месяц.';
+
+  @override
+  String get badgeUnderBudgetTitle => 'Ниже бюджета';
+
+  @override
+  String get badgeUnderBudgetDescription => 'Закончили месяц, потратив как минимум на 10% меньше общего лимита бюджета.';
+
+  @override
+  String get badgeCategoryBossTitle => 'Босс категорий';
+
+  @override
+  String get badgeCategoryBossDescription => 'Настроили реалистичные лимиты для 5 разных категорий бюджета.';
+
+  @override
+  String get badgeDailyDriverTitle => 'Ежедневный водитель';
+
+  @override
+  String get badgeDailyDriverDescription => 'Использовали приложение 14 дней подряд.';
+
+  @override
+  String get badgeThirtyDayLegendTitle => 'Легенда 30 дней';
+
+  @override
+  String get badgeThirtyDayLegendDescription => 'Использовали приложение 30 дней подряд.';
+
+  @override
+  String get badgePaydayFirstTitle => 'Сначала зарплата';
+
+  @override
+  String get badgePaydayFirstDescription => 'Отложили деньги в цель накопления в тот же день, когда получили доход.';
+
+  @override
+  String get badgeUnsubscriberTitle => 'Отписчик';
+
+  @override
+  String get badgeUnsubscriberDescription => 'Отметили хотя бы одну повторяющуюся подписку как отменённую.';
+
+  @override
+  String get badgeNightOwlTrackerTitle => 'Ночной учётчик';
+
+  @override
+  String get badgeNightOwlTrackerDescription => 'Записали расход поздно ночью, а не забыли о нём до утра.';
+
+  @override
+  String get badgeFinancialMasterTitle => 'Финансовый мастер';
+
+  @override
+  String get badgeFinancialMasterDescription => 'Прочитали 15 карточек финансовой грамотности.';
+
+  @override
+  String achievementUnlockedSnackbar(String title) {
+    return 'Значок получен: $title';
+  }
 }

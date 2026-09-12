@@ -12,12 +12,14 @@ import '../../app/widgets/goal_icon.dart';
 import '../../l10n/l10n.dart';
 import '../../l10n/presenters.dart';
 import '../../logic/budget_math.dart';
+import '../../logic/literacy_cards.dart';
 import '../../models/transaction.dart';
 import '../../models/workspace_widget.dart';
 import '../../services/image_store.dart';
 import '../../state/budget_plan_provider.dart';
 import '../../state/currency_provider.dart';
 import '../../state/finance_provider.dart';
+import '../../state/literacy_cards_provider.dart';
 import '../../state/planner_provider.dart';
 import '../../state/workspace_provider.dart';
 
@@ -42,6 +44,7 @@ Widget buildWidgetBody(BuildContext context, WorkspaceWidget widget) {
     WorkspaceWidgetType.asciiFortune => const _AsciiFortune(),
     WorkspaceWidgetType.chibiMascot => const _ChibiMascot(),
     WorkspaceWidgetType.growthGem => const _GrowthGem(),
+    WorkspaceWidgetType.literacyTip => const _LiteracyTip(),
   };
 }
 
@@ -853,6 +856,70 @@ class _AsciiFortune extends StatelessWidget {
         fortune,
         textAlign: TextAlign.center,
         style: theme.textTheme.bodyMedium?.copyWith(fontFamily: 'monospace'),
+      ),
+    );
+  }
+}
+
+/// Rotates through a financial-tip card. Tapping opens the full text and
+/// marks it read, feeding the Financial Master badge.
+class _LiteracyTip extends StatelessWidget {
+  const _LiteracyTip();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    // Same day-of-year rotation as `_AsciiFortune`, so every card gets equal
+    // airtime across the year rather than always showing the first unread one.
+    final now = DateTime.now();
+    final dayOfYear = now.difference(DateTime(now.year, 1, 1)).inDays;
+    final card = literacyCards[dayOfYear % literacyCards.length];
+
+    return GestureDetector(
+      onTap: () => _openCard(context, card),
+      // A scrolling body rather than a plain Column: a long translation at a
+      // large text scale on the small card size must not overflow — see the
+      // class doc on `_ScrollingBody`.
+      child: _ScrollingBody(
+        children: [
+          Text(
+            literacyCategoryLabel(l10n, card.category),
+            style: theme.textTheme.labelSmall
+                ?.copyWith(color: theme.colorScheme.primary),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            literacyCardTitle(l10n, card.id),
+            style: theme.textTheme.titleMedium,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            literacyCardBody(l10n, card.id),
+            style: theme.textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openCard(BuildContext context, LiteracyCard card) async {
+    final l10n = context.l10n;
+    context.read<LiteracyCardsProvider>().markRead(card.id);
+    if (!context.mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(literacyCardTitle(l10n, card.id)),
+        content: SingleChildScrollView(
+          child: Text(literacyCardBody(l10n, card.id)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n.actionDone),
+          ),
+        ],
       ),
     );
   }

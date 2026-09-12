@@ -17,6 +17,8 @@ import '../../state/planner_provider.dart';
 import '../../state/student_planner_provider.dart';
 import '../../state/theme_provider.dart';
 import '../../state/workspace_provider.dart';
+import '../achievements_screen.dart';
+import '../financial_tips_screen.dart';
 
 /// Settings tab. Port of `SettingsStudio.tsx`.
 ///
@@ -124,6 +126,42 @@ class SettingsTab extends StatelessWidget {
                 divisions: 7,
                 label: '${themeState.fontScalePercent.round()}%',
                 onChanged: (v) => themeState.setFontScale(v),
+              ),
+            ],
+          ),
+        ),
+        _Section(
+          title: l10n.settingsFinancialTips,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.settingsFinancialTipsSubtitle,
+                style: theme.textTheme.bodySmall,
+              ),
+              const SizedBox(height: 10),
+              AppButton.secondary(
+                icon: Icons.menu_book_outlined,
+                label: l10n.settingsFinancialTips,
+                onPressed: () => FinancialTipsScreen.open(context),
+              ),
+            ],
+          ),
+        ),
+        _Section(
+          title: l10n.settingsAchievements,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.settingsAchievementsSubtitle,
+                style: theme.textTheme.bodySmall,
+              ),
+              const SizedBox(height: 10),
+              AppButton.secondary(
+                icon: Icons.emoji_events_outlined,
+                label: l10n.settingsAchievements,
+                onPressed: () => AchievementsScreen.open(context),
               ),
             ],
           ),
