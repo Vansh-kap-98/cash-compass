@@ -7,7 +7,9 @@ import '../l10n/presenters.dart';
 import '../logic/budget_math.dart';
 import '../logic/events.dart';
 import '../logic/insights.dart';
+import '../logic/subscriptions.dart';
 import '../services/prefs.dart';
+import '../state/achievements_provider.dart';
 import '../state/currency_provider.dart';
 import '../state/finance_provider.dart';
 import '../state/planner_provider.dart';
@@ -192,7 +194,13 @@ class SubscriptionsCard extends StatelessWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final currency = context.watch<CurrencyProvider>();
-    final subs = context.watch<FinanceProvider>().subscriptions;
+    final canceled =
+        context.watch<AchievementsProvider>().canceledSubscriptionSignatures;
+    final subs = context
+        .watch<FinanceProvider>()
+        .subscriptions
+        .where((s) => !canceled.contains(merchantSignature(s.name)))
+        .toList();
 
     return AppCard(
       child: Column(
@@ -242,6 +250,16 @@ class SubscriptionsCard extends StatelessWidget {
                           style: theme.textTheme.bodySmall,
                         ),
                       ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.check_circle_outline, size: 20),
+                      tooltip: l10n.subscriptionMarkCanceled,
+                      visualDensity: VisualDensity.compact,
+                      constraints: const BoxConstraints(),
+                      padding: const EdgeInsets.only(left: 8),
+                      onPressed: () => context
+                          .read<AchievementsProvider>()
+                          .cancelSubscription(merchantSignature(s.name)),
                     ),
                   ],
                 ),

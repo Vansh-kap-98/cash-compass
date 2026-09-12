@@ -5,10 +5,12 @@ import 'package:cash_compass/models/budget_plan.dart';
 import 'package:cash_compass/models/savings_goal.dart';
 import 'package:cash_compass/models/transaction.dart';
 import 'package:cash_compass/services/prefs.dart';
+import 'package:cash_compass/state/achievements_provider.dart';
 import 'package:cash_compass/state/auth_provider.dart';
 import 'package:cash_compass/state/budget_plan_provider.dart';
 import 'package:cash_compass/state/currency_provider.dart';
 import 'package:cash_compass/state/finance_provider.dart';
+import 'package:cash_compass/state/literacy_cards_provider.dart';
 import 'package:cash_compass/state/locale_provider.dart';
 import 'package:cash_compass/state/planner_provider.dart';
 import 'package:cash_compass/state/student_planner_provider.dart';
@@ -74,6 +76,8 @@ class TestStores {
     required this.theme,
     required this.locale,
     required this.auth,
+    required this.literacyCards,
+    required this.achievements,
   });
 
   final FinanceProvider finance;
@@ -85,6 +89,8 @@ class TestStores {
   final ThemeProvider theme;
   final LocaleProvider locale;
   final AuthProvider auth;
+  final LiteracyCardsProvider literacyCards;
+  final AchievementsProvider achievements;
 
   /// Stores with nothing in them — where null and divide-by-zero faults live.
   factory TestStores.empty() {
@@ -99,6 +105,8 @@ class TestStores {
       theme: ThemeProvider(prefs),
       locale: LocaleProvider(prefs),
       auth: AuthProvider(prefs),
+      literacyCards: LiteracyCardsProvider(prefs),
+      achievements: AchievementsProvider(prefs),
     );
   }
 
@@ -217,6 +225,8 @@ Widget wrapScaffold({required TestStores stores, required Widget child}) {
       ChangeNotifierProvider.value(value: stores.theme),
       ChangeNotifierProvider.value(value: stores.locale),
       ChangeNotifierProvider.value(value: stores.auth),
+      ChangeNotifierProvider.value(value: stores.literacyCards),
+      ChangeNotifierProvider.value(value: stores.achievements),
     ],
     child: child,
   );
