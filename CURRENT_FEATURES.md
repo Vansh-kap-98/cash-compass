@@ -86,7 +86,8 @@ Pure Dart, no Flutter imports, unit-tested independently of the UI.
 
 ## Workspace widgets
 
-All 15 types render, resize (S/M/L), reorder, and persist.
+15 of the 16 types render, resize (S/M/L), reorder, and persist — the 16th,
+Financial Tip, is new and not yet verified; see below.
 
 | Widget | Status | Notes |
 | --- | --- | --- |
@@ -96,11 +97,50 @@ All 15 types render, resize (S/M/L), reorder, and persist.
 | Roommate Sync | ✅ | Reads real multi-person budget plans |
 | Manga Status, ASCII Fortune, Chibi Mascot, Growth Gem | ✅ | |
 | Image (`media`) | ✅ | Stored in app-private storage |
+| Financial Tip | 🟡 | New. See [Financial Literacy Cards](#financial-literacy-cards) |
 
 `PARITY_SPEC.md` §10 listed six dead controls in the original. All are resolved
 — the chibi mascot click now cycles faces, and the waste-auditor `✕` and the
 event calendar's cosmetic "Apply safety margin" toggle were removed rather than
 faked.
+
+---
+
+## Financial Literacy Cards
+
+**🟡 Built, not yet verified on a machine with the Flutter SDK.** 18 static
+tips across 5 categories (`lib/logic/literacy_cards.dart`), bilingual
+(en/ru), browsable from a new Settings row and from the `literacyTip`
+workspace widget above. `LiteracyCardsProvider` tracks which cards have been
+opened, persisted the same way `FinanceProvider` persists.
+
+**To finish verifying:** this was written without a local Flutter/Dart
+toolchain available, so `flutter analyze` and `flutter test` have not
+actually been run against it — do that before trusting this row.
+
+## Rewards & Badges
+
+**🟡 Built, not yet verified on a machine with the Flutter SDK.** 14 badges
+across Savings / Budget Control / Habit & Streak / Milestones
+(`lib/logic/badges.dart`, `AchievementsProvider`), browsable from a new
+Settings row, with a snackbar on unlock. Unlock rules are pure and unit
+tested in `test/logic/badges_test.dart`.
+
+11 badges from the original 25-badge request were dropped rather than
+force-fit: four need social features that don't exist (shared goals, friend
+leaderboards, gift goals, multi-device sync), and two more (Iron Shield,
+Zero Impulse) need a withdrawal action and a wishlist feature respectively,
+neither of which exist. Two others were reinterpreted rather than dropped —
+see the doc comment on `achievementBadges` for the full reasoning.
+
+Two small model additions ride along with this: `SavingsGoal.targetDate`
+(for Speed Demon) and `SavingsGoal.completedAt` (stamped by
+`FinanceProvider.contributeToGoal`), both nullable and backward-compatible
+with goals saved before this shipped.
+
+**To finish verifying:** same as Financial Literacy Cards above — no local
+Flutter/Dart toolchain was available while writing this, so run `flutter
+analyze` and `flutter test` before trusting this row.
 
 ---
 

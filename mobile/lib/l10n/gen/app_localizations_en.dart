@@ -1587,4 +1587,258 @@ class AppLocalizationsEn extends AppLocalizations {
   String relativeDaysAgo(int count) {
     return '${count}d ago';
   }
+
+  @override
+  String get widgetLiteracyTip => 'Financial Tip';
+
+  @override
+  String get settingsFinancialTips => 'Financial Tips';
+
+  @override
+  String get settingsFinancialTipsSubtitle => 'Browse money-management tips';
+
+  @override
+  String get settingsAchievements => 'Achievements';
+
+  @override
+  String get settingsAchievementsSubtitle => 'See your badges and progress';
+
+  @override
+  String get financialTipsScreenTitle => 'Financial Tips';
+
+  @override
+  String get achievementsScreenTitle => 'Achievements';
+
+  @override
+  String get achievementLocked => 'Locked';
+
+  @override
+  String get achievementUnlockedLabel => 'Unlocked';
+
+  @override
+  String get subscriptionMarkCanceled => 'Mark as canceled';
+
+  @override
+  String get literacyCategoryFoodDelivery => 'Food & Delivery';
+
+  @override
+  String get literacyCategorySubscriptionsTech => 'Subscriptions & Tech';
+
+  @override
+  String get literacyCategorySmartShopping => 'Smart Shopping & Lifestyle';
+
+  @override
+  String get literacyCategorySavingsPlanning => 'Savings & Future Planning';
+
+  @override
+  String get literacyCategoryMindsetBudgeting => 'Mindset & Budgeting';
+
+  @override
+  String get achievementCategorySavings => 'Savings';
+
+  @override
+  String get achievementCategoryBudgetControl => 'Budget Control';
+
+  @override
+  String get achievementCategoryHabitStreak => 'Habit & Streak';
+
+  @override
+  String get achievementCategorySpecial => 'Milestones';
+
+  @override
+  String get literacyDailyDripTitle => 'The Daily Drip';
+
+  @override
+  String get literacyDailyDripBody => 'Buying a 200 ₽ coffee every weekday costs you around 4,400 ₽ a month. Brewing at home covers your campus transport for two months!';
+
+  @override
+  String get literacyLateNightCravingTitle => 'Late-Night Craving';
+
+  @override
+  String get literacyLateNightCravingBody => 'Food delivery fees and service charges can add up to 3,000 ₽ a month. Grouping orders with roommates cuts those fees to zero.';
+
+  @override
+  String get literacyMealPrepPowerTitle => 'Meal Prep Power';
+
+  @override
+  String get literacyMealPrepPowerBody => 'Cooking dinner 3 times a week saves roughly 12,000 ₽ a month compared to ordering takeaway.';
+
+  @override
+  String get literacyHungryShopperTitle => 'Hungry Shopper';
+
+  @override
+  String get literacyHungryShopperBody => 'Grocery shopping on an empty stomach increases impulse purchases by up to 64%. Eat a snack first!';
+
+  @override
+  String get literacyGhostSubscriptionsTitle => 'Ghost Subscriptions';
+
+  @override
+  String get literacyGhostSubscriptionsBody => 'The average student wastes over 1,500 ₽ a month on unused streaming services or forgotten free trials.';
+
+  @override
+  String get literacyStudentDiscountsTitle => 'Student Discounts';
+
+  @override
+  String get literacyStudentDiscountsBody => 'Most tech platforms offer 50% off for students. Using student plans can save you around 6,000 ₽ a year.';
+
+  @override
+  String get literacyUpgradeCycleTitle => 'Upgrade Cycle';
+
+  @override
+  String get literacyUpgradeCycleBody => 'Keeping your current phone for one extra year saves you an average of 40,000 ₽ — enough to fund a semester\'s worth of fun.';
+
+  @override
+  String get literacyThe24HourRuleTitle => 'The 24-Hour Rule';
+
+  @override
+  String get literacyThe24HourRuleBody => 'Waiting 24 hours before buying non-essential items eliminates up to 70% of impulse purchases.';
+
+  @override
+  String get literacyOffSeasonStealsTitle => 'Off-Season Steals';
+
+  @override
+  String get literacyOffSeasonStealsBody => 'Buying winter coats in spring or summer clothes in autumn can save you 30% to 50% on clothing costs.';
+
+  @override
+  String get literacyTextbookHackTitle => 'Textbook Hack';
+
+  @override
+  String get literacyTextbookHackBody => 'Buying second-hand textbooks or digital versions saves students an average of 8,000 ₽ every semester.';
+
+  @override
+  String get literacyMicroSavingsTitle => 'Micro-Savings';
+
+  @override
+  String get literacyMicroSavingsBody => 'Saving just 100 ₽ a day adds up to 36,500 ₽ a year — enough for a solid weekend trip or a tech upgrade.';
+
+  @override
+  String get literacyEmergencyCushionTitle => 'Emergency Cushion';
+
+  @override
+  String get literacyEmergencyCushionBody => 'Keeping just 10,000 ₽ in an emergency pool prevents 80% of unexpected student debt traps.';
+
+  @override
+  String get literacyCompoundInterestTitle => 'Compound Interest';
+
+  @override
+  String get literacyCompoundInterestBody => 'Investing just 1,000 ₽ a month in your 20s can yield up to 4x more by retirement than starting in your 30s.';
+
+  @override
+  String get literacyThe503020GuideTitle => 'The 50/30/20 Guide';
+
+  @override
+  String get literacyThe503020GuideBody => 'Allocating 50% of your money to Needs, 30% to Wants, and 20% to Savings is the simplest stress-free budget model.';
+
+  @override
+  String get literacyInvisibleLeaksTitle => 'Invisible Leaks';
+
+  @override
+  String get literacyInvisibleLeaksBody => 'Small cash purchases under 300 ₽ account for nearly 30% of monthly budget overruns.';
+
+  @override
+  String get literacyTheHourValueTitle => 'The Hour Value';
+
+  @override
+  String get literacyTheHourValueBody => 'Before buying a 3,000 ₽ shirt, ask yourself: is this worth 6 hours of my part-time work?';
+
+  @override
+  String get literacyCreditTrapTitle => 'Credit Trap';
+
+  @override
+  String get literacyCreditTrapBody => 'Carrying a balance on high-interest cards can end up costing you double the original purchase price.';
+
+  @override
+  String get literacyWishlistTrickTitle => 'Wishlist Trick';
+
+  @override
+  String get literacyWishlistTrickBody => 'Keeping a "Want List" for 30 days before buying cuts unnecessary spending by half.';
+
+  @override
+  String get badgeFirstSeedTitle => 'First Seed';
+
+  @override
+  String get badgeFirstSeedDescription => 'Saved your first \$500 across your savings goals.';
+
+  @override
+  String get badgeGoalCrusherTitle => 'Goal Crusher';
+
+  @override
+  String get badgeGoalCrusherDescription => 'Reached 100% of a personal savings goal.';
+
+  @override
+  String get badgeFortressTitle => 'Fortress';
+
+  @override
+  String get badgeFortressDescription => 'Built a single savings goal of at least \$15,000.';
+
+  @override
+  String get badgeSpeedDemonTitle => 'Speed Demon';
+
+  @override
+  String get badgeSpeedDemonDescription => 'Hit a savings goal at least 5 days ahead of schedule.';
+
+  @override
+  String get badgeTrackingNinjaTitle => 'Tracking Ninja';
+
+  @override
+  String get badgeTrackingNinjaDescription => 'Categorized your expenses instead of leaving them as "Other", across at least 14 days of activity.';
+
+  @override
+  String get badgeMasterBalancerTitle => 'Master Balancer';
+
+  @override
+  String get badgeMasterBalancerDescription => 'Stayed within every budget category for a full calendar month.';
+
+  @override
+  String get badgeUnderBudgetTitle => 'Under Budget';
+
+  @override
+  String get badgeUnderBudgetDescription => 'Finished a month spending at least 10% less than your total budget limit.';
+
+  @override
+  String get badgeCategoryBossTitle => 'Category Boss';
+
+  @override
+  String get badgeCategoryBossDescription => 'Set up realistic budget limits for 5 different categories.';
+
+  @override
+  String get badgeDailyDriverTitle => 'Daily Driver';
+
+  @override
+  String get badgeDailyDriverDescription => 'Used the app 14 days in a row.';
+
+  @override
+  String get badgeThirtyDayLegendTitle => '30-Day Legend';
+
+  @override
+  String get badgeThirtyDayLegendDescription => 'Used the app 30 days in a row.';
+
+  @override
+  String get badgePaydayFirstTitle => 'Payday First';
+
+  @override
+  String get badgePaydayFirstDescription => 'Allocated money to your savings goal on the same day you logged income.';
+
+  @override
+  String get badgeUnsubscriberTitle => 'Unsubscriber';
+
+  @override
+  String get badgeUnsubscriberDescription => 'Marked at least one recurring subscription as canceled.';
+
+  @override
+  String get badgeNightOwlTrackerTitle => 'Night Owl Tracker';
+
+  @override
+  String get badgeNightOwlTrackerDescription => 'Logged an expense late at night instead of forgetting it until morning.';
+
+  @override
+  String get badgeFinancialMasterTitle => 'Financial Master';
+
+  @override
+  String get badgeFinancialMasterDescription => 'Read 15 Financial Literacy Cards.';
+
+  @override
+  String achievementUnlockedSnackbar(String title) {
+    return 'Badge unlocked: $title';
+  }
 }

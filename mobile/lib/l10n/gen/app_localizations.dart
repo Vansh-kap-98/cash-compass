@@ -2726,6 +2726,510 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count}d ago'**
   String relativeDaysAgo(int count);
+
+  /// No description provided for @widgetLiteracyTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Tip'**
+  String get widgetLiteracyTip;
+
+  /// No description provided for @settingsFinancialTips.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Tips'**
+  String get settingsFinancialTips;
+
+  /// No description provided for @settingsFinancialTipsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse money-management tips'**
+  String get settingsFinancialTipsSubtitle;
+
+  /// No description provided for @settingsAchievements.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get settingsAchievements;
+
+  /// No description provided for @settingsAchievementsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See your badges and progress'**
+  String get settingsAchievementsSubtitle;
+
+  /// No description provided for @financialTipsScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Tips'**
+  String get financialTipsScreenTitle;
+
+  /// No description provided for @achievementsScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get achievementsScreenTitle;
+
+  /// No description provided for @achievementLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get achievementLocked;
+
+  /// No description provided for @achievementUnlockedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked'**
+  String get achievementUnlockedLabel;
+
+  /// No description provided for @subscriptionMarkCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as canceled'**
+  String get subscriptionMarkCanceled;
+
+  /// No description provided for @literacyCategoryFoodDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Food & Delivery'**
+  String get literacyCategoryFoodDelivery;
+
+  /// No description provided for @literacyCategorySubscriptionsTech.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions & Tech'**
+  String get literacyCategorySubscriptionsTech;
+
+  /// No description provided for @literacyCategorySmartShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Shopping & Lifestyle'**
+  String get literacyCategorySmartShopping;
+
+  /// No description provided for @literacyCategorySavingsPlanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings & Future Planning'**
+  String get literacyCategorySavingsPlanning;
+
+  /// No description provided for @literacyCategoryMindsetBudgeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Mindset & Budgeting'**
+  String get literacyCategoryMindsetBudgeting;
+
+  /// No description provided for @achievementCategorySavings.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings'**
+  String get achievementCategorySavings;
+
+  /// No description provided for @achievementCategoryBudgetControl.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget Control'**
+  String get achievementCategoryBudgetControl;
+
+  /// No description provided for @achievementCategoryHabitStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Habit & Streak'**
+  String get achievementCategoryHabitStreak;
+
+  /// No description provided for @achievementCategorySpecial.
+  ///
+  /// In en, this message translates to:
+  /// **'Milestones'**
+  String get achievementCategorySpecial;
+
+  /// No description provided for @literacyDailyDripTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Daily Drip'**
+  String get literacyDailyDripTitle;
+
+  /// No description provided for @literacyDailyDripBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Buying a 200 ₽ coffee every weekday costs you around 4,400 ₽ a month. Brewing at home covers your campus transport for two months!'**
+  String get literacyDailyDripBody;
+
+  /// No description provided for @literacyLateNightCravingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Late-Night Craving'**
+  String get literacyLateNightCravingTitle;
+
+  /// No description provided for @literacyLateNightCravingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Food delivery fees and service charges can add up to 3,000 ₽ a month. Grouping orders with roommates cuts those fees to zero.'**
+  String get literacyLateNightCravingBody;
+
+  /// No description provided for @literacyMealPrepPowerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal Prep Power'**
+  String get literacyMealPrepPowerTitle;
+
+  /// No description provided for @literacyMealPrepPowerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooking dinner 3 times a week saves roughly 12,000 ₽ a month compared to ordering takeaway.'**
+  String get literacyMealPrepPowerBody;
+
+  /// No description provided for @literacyHungryShopperTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hungry Shopper'**
+  String get literacyHungryShopperTitle;
+
+  /// No description provided for @literacyHungryShopperBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Grocery shopping on an empty stomach increases impulse purchases by up to 64%. Eat a snack first!'**
+  String get literacyHungryShopperBody;
+
+  /// No description provided for @literacyGhostSubscriptionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ghost Subscriptions'**
+  String get literacyGhostSubscriptionsTitle;
+
+  /// No description provided for @literacyGhostSubscriptionsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The average student wastes over 1,500 ₽ a month on unused streaming services or forgotten free trials.'**
+  String get literacyGhostSubscriptionsBody;
+
+  /// No description provided for @literacyStudentDiscountsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Student Discounts'**
+  String get literacyStudentDiscountsTitle;
+
+  /// No description provided for @literacyStudentDiscountsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Most tech platforms offer 50% off for students. Using student plans can save you around 6,000 ₽ a year.'**
+  String get literacyStudentDiscountsBody;
+
+  /// No description provided for @literacyUpgradeCycleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade Cycle'**
+  String get literacyUpgradeCycleTitle;
+
+  /// No description provided for @literacyUpgradeCycleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeping your current phone for one extra year saves you an average of 40,000 ₽ — enough to fund a semester\'s worth of fun.'**
+  String get literacyUpgradeCycleBody;
+
+  /// No description provided for @literacyThe24HourRuleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The 24-Hour Rule'**
+  String get literacyThe24HourRuleTitle;
+
+  /// No description provided for @literacyThe24HourRuleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting 24 hours before buying non-essential items eliminates up to 70% of impulse purchases.'**
+  String get literacyThe24HourRuleBody;
+
+  /// No description provided for @literacyOffSeasonStealsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Off-Season Steals'**
+  String get literacyOffSeasonStealsTitle;
+
+  /// No description provided for @literacyOffSeasonStealsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Buying winter coats in spring or summer clothes in autumn can save you 30% to 50% on clothing costs.'**
+  String get literacyOffSeasonStealsBody;
+
+  /// No description provided for @literacyTextbookHackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Textbook Hack'**
+  String get literacyTextbookHackTitle;
+
+  /// No description provided for @literacyTextbookHackBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Buying second-hand textbooks or digital versions saves students an average of 8,000 ₽ every semester.'**
+  String get literacyTextbookHackBody;
+
+  /// No description provided for @literacyMicroSavingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Micro-Savings'**
+  String get literacyMicroSavingsTitle;
+
+  /// No description provided for @literacyMicroSavingsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving just 100 ₽ a day adds up to 36,500 ₽ a year — enough for a solid weekend trip or a tech upgrade.'**
+  String get literacyMicroSavingsBody;
+
+  /// No description provided for @literacyEmergencyCushionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Cushion'**
+  String get literacyEmergencyCushionTitle;
+
+  /// No description provided for @literacyEmergencyCushionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeping just 10,000 ₽ in an emergency pool prevents 80% of unexpected student debt traps.'**
+  String get literacyEmergencyCushionBody;
+
+  /// No description provided for @literacyCompoundInterestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compound Interest'**
+  String get literacyCompoundInterestTitle;
+
+  /// No description provided for @literacyCompoundInterestBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Investing just 1,000 ₽ a month in your 20s can yield up to 4x more by retirement than starting in your 30s.'**
+  String get literacyCompoundInterestBody;
+
+  /// No description provided for @literacyThe503020GuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The 50/30/20 Guide'**
+  String get literacyThe503020GuideTitle;
+
+  /// No description provided for @literacyThe503020GuideBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Allocating 50% of your money to Needs, 30% to Wants, and 20% to Savings is the simplest stress-free budget model.'**
+  String get literacyThe503020GuideBody;
+
+  /// No description provided for @literacyInvisibleLeaksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invisible Leaks'**
+  String get literacyInvisibleLeaksTitle;
+
+  /// No description provided for @literacyInvisibleLeaksBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Small cash purchases under 300 ₽ account for nearly 30% of monthly budget overruns.'**
+  String get literacyInvisibleLeaksBody;
+
+  /// No description provided for @literacyTheHourValueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Hour Value'**
+  String get literacyTheHourValueTitle;
+
+  /// No description provided for @literacyTheHourValueBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Before buying a 3,000 ₽ shirt, ask yourself: is this worth 6 hours of my part-time work?'**
+  String get literacyTheHourValueBody;
+
+  /// No description provided for @literacyCreditTrapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Trap'**
+  String get literacyCreditTrapTitle;
+
+  /// No description provided for @literacyCreditTrapBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Carrying a balance on high-interest cards can end up costing you double the original purchase price.'**
+  String get literacyCreditTrapBody;
+
+  /// No description provided for @literacyWishlistTrickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishlist Trick'**
+  String get literacyWishlistTrickTitle;
+
+  /// No description provided for @literacyWishlistTrickBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeping a "Want List" for 30 days before buying cuts unnecessary spending by half.'**
+  String get literacyWishlistTrickBody;
+
+  /// No description provided for @badgeFirstSeedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'First Seed'**
+  String get badgeFirstSeedTitle;
+
+  /// No description provided for @badgeFirstSeedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved your first $500 across your savings goals.'**
+  String get badgeFirstSeedDescription;
+
+  /// No description provided for @badgeGoalCrusherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal Crusher'**
+  String get badgeGoalCrusherTitle;
+
+  /// No description provided for @badgeGoalCrusherDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reached 100% of a personal savings goal.'**
+  String get badgeGoalCrusherDescription;
+
+  /// No description provided for @badgeFortressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fortress'**
+  String get badgeFortressTitle;
+
+  /// No description provided for @badgeFortressDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Built a single savings goal of at least $15,000.'**
+  String get badgeFortressDescription;
+
+  /// No description provided for @badgeSpeedDemonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed Demon'**
+  String get badgeSpeedDemonTitle;
+
+  /// No description provided for @badgeSpeedDemonDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Hit a savings goal at least 5 days ahead of schedule.'**
+  String get badgeSpeedDemonDescription;
+
+  /// No description provided for @badgeTrackingNinjaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking Ninja'**
+  String get badgeTrackingNinjaTitle;
+
+  /// No description provided for @badgeTrackingNinjaDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Categorized your expenses instead of leaving them as "Other", across at least 14 days of activity.'**
+  String get badgeTrackingNinjaDescription;
+
+  /// No description provided for @badgeMasterBalancerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Master Balancer'**
+  String get badgeMasterBalancerTitle;
+
+  /// No description provided for @badgeMasterBalancerDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Stayed within every budget category for a full calendar month.'**
+  String get badgeMasterBalancerDescription;
+
+  /// No description provided for @badgeUnderBudgetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Under Budget'**
+  String get badgeUnderBudgetTitle;
+
+  /// No description provided for @badgeUnderBudgetDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished a month spending at least 10% less than your total budget limit.'**
+  String get badgeUnderBudgetDescription;
+
+  /// No description provided for @badgeCategoryBossTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category Boss'**
+  String get badgeCategoryBossTitle;
+
+  /// No description provided for @badgeCategoryBossDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up realistic budget limits for 5 different categories.'**
+  String get badgeCategoryBossDescription;
+
+  /// No description provided for @badgeDailyDriverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Driver'**
+  String get badgeDailyDriverTitle;
+
+  /// No description provided for @badgeDailyDriverDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Used the app 14 days in a row.'**
+  String get badgeDailyDriverDescription;
+
+  /// No description provided for @badgeThirtyDayLegendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'30-Day Legend'**
+  String get badgeThirtyDayLegendTitle;
+
+  /// No description provided for @badgeThirtyDayLegendDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Used the app 30 days in a row.'**
+  String get badgeThirtyDayLegendDescription;
+
+  /// No description provided for @badgePaydayFirstTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payday First'**
+  String get badgePaydayFirstTitle;
+
+  /// No description provided for @badgePaydayFirstDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Allocated money to your savings goal on the same day you logged income.'**
+  String get badgePaydayFirstDescription;
+
+  /// No description provided for @badgeUnsubscriberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsubscriber'**
+  String get badgeUnsubscriberTitle;
+
+  /// No description provided for @badgeUnsubscriberDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked at least one recurring subscription as canceled.'**
+  String get badgeUnsubscriberDescription;
+
+  /// No description provided for @badgeNightOwlTrackerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Night Owl Tracker'**
+  String get badgeNightOwlTrackerTitle;
+
+  /// No description provided for @badgeNightOwlTrackerDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged an expense late at night instead of forgetting it until morning.'**
+  String get badgeNightOwlTrackerDescription;
+
+  /// No description provided for @badgeFinancialMasterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Master'**
+  String get badgeFinancialMasterTitle;
+
+  /// No description provided for @badgeFinancialMasterDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Read 15 Financial Literacy Cards.'**
+  String get badgeFinancialMasterDescription;
+
+  /// No description provided for @achievementUnlockedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge unlocked: {title}'**
+  String achievementUnlockedSnackbar(String title);
 }
 
 class _AppLocalizationsDelegate

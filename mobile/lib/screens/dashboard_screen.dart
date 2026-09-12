@@ -4,10 +4,14 @@ import 'package:provider/provider.dart';
 import '../app/widgets/app_backdrop.dart';
 import '../app/widgets/app_bottom_nav.dart';
 import '../l10n/l10n.dart';
+import '../l10n/presenters.dart';
+import '../logic/badges.dart';
 import '../logic/receipt_batch_queue.dart';
 import '../models/transaction.dart';
 import '../services/receipt_scanner.dart';
+import '../state/achievements_provider.dart';
 import '../state/finance_provider.dart';
+import '../state/literacy_cards_provider.dart';
 import '../widgets/add_entry_sheet.dart';
 import '../widgets/set_goal_sheet.dart';
 import 'budget_plan_screen.dart';
@@ -35,6 +39,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   /// Index of the Settings tab, where a FAB would be meaningless.
   static const _settingsIndex = 4;
+
+  FinanceProvider? _financeForAchievements;
+  LiteracyCardsProvider? _literacyCardsForAchievements;
+
+  @override
+  void initState() {
+    super.initState();
+    // Deferred a frame so this runs after the first build, once every
+    // provider in the tree is guaranteed attached — `DashboardScreen` is the
+    // single long-lived place badges get re-evaluated from, mirroring how
+    // `didChangeAppLifecycleState` below is the single place stores get
+    // flushed from.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final finance = context.read<FinanceProvider>();
+      final literacyCards = context.read<LiteracyCardsProvider>();
+      _financeForAchievements = finance;
+      _literacyCardsForAchievements = literacyCards;
+      finance.addListener(_onAchievementInputsChanged);
+      literacyCards.addListener(_onAchievementInputsChanged);
+      // Covers state that already existed before this feature shipped (e.g.
+      // five budget categories set up in an earlier session) — otherwise
+      // those badges would stay locked until the next unrelated mutation.
+      _onAchievementInputsChanged();
+    });
+  }
+
+  @override
+  void dispose() {
+    _financeForAchievements?.removeListener(_onAchievementInputsChanged);
+    _literacyCardsForAchievements?.removeListener(_onAchievementInputsChanged);
+    super.dispose();
+  }
+
+  void _onAchievementInputsChanged() {
+    if (!mounted) return;
+    final finance = _financeForAchievements;
+    final literacyCards = _literacyCardsForAchievements;
+    if (finance == null || literacyCards == null) return;
+
+    final achievements = context.read<AchievementsProvider>();
+    achievements.recompute(
+      finance: finance,
+      readLiteracyCardCount: literacyCards.readCardIds.length,
+    );
+
+    final newly = achievements.consumeNewlyUnlocked();
+    if (newly.isEmpty || !mounted) return;
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    for (final id in newly) {
+      final badge = achievementBadges.firstWhere((b) => b.id == id);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n.achievementUnlockedSnackbar(achievementBadgeTitle(l10n, badge)),
+          ),
+        ),
+      );
+    }
+  }
 
   Future<void> _openQuickActions(BuildContext context) async {
     final action = await showModalBottomSheet<String>(
