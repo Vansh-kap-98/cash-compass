@@ -97,11 +97,19 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
     }
 
     final currency = context.read<CurrencyProvider>();
+    final targetDate = DateTime.now().add(Duration(days: _days));
     context.read<FinanceProvider>().addGoal(
           name: name,
           target: currency.convertToUsd(target),
           initialAmount: currency.convertToUsd(saved),
           icon: _iconKey,
+          // Reuses the timeframe already chosen above — the only place this
+          // is read is the Speed Demon badge (`lib/logic/badges.dart`), which
+          // compares it against when the goal actually completes.
+          targetDate:
+              '${targetDate.year.toString().padLeft(4, '0')}-'
+              '${targetDate.month.toString().padLeft(2, '0')}-'
+              '${targetDate.day.toString().padLeft(2, '0')}',
         );
 
     Navigator.of(context).pop();
