@@ -489,6 +489,16 @@
   "goalMinimumDays": "минимум 7",
   "goalInvalid": "Укажите название цели и сумму.",
   "goalCreated": "Цель создана.",
+  "goalFieldIsGift": "Копите на подарок другу или близкому?",
+  "goalFieldGiftFor": "Кому или повод",
+  "goalFieldGiftForHint": "например, День рождения мамы",
+  "goalGiftFor": "Подарок для {recipient}",
+  "@goalGiftFor": {
+    "placeholders": {
+      "recipient": { "type": "String" }
+    }
+  },
+  "goalGiftDefault": "Подарок",
   "goalReachIn": "{count, plural, one{Чтобы достичь цели за {count} день:} few{Чтобы достичь цели за {count} дня:} many{Чтобы достичь цели за {count} дней:} other{Чтобы достичь цели за {count} дня:}}",
   "@goalReachIn": {
     "placeholders": {
@@ -892,6 +902,8 @@
   ,"badgeFortressDescription": "Накопили $15 000 в одной цели."
   ,"badgeSpeedDemonTitle": "Гонщик"
   ,"badgeSpeedDemonDescription": "Достигли цели минимум на 5 дней раньше срока."
+  ,"badgeGenerousHeartTitle": "Щедрое сердце"
+  ,"badgeGenerousHeartDescription": "Успешно накопили на подарок другу или члену семьи."
   ,"badgeTrackingNinjaTitle": "Ниндзя учёта"
   ,"badgeTrackingNinjaDescription": "Категоризировали расходы вместо «Other» на протяжении как минимум 14 дней активности."
   ,"badgeMasterBalancerTitle": "Мастер баланса"

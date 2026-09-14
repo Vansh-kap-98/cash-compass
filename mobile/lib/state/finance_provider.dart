@@ -348,12 +348,14 @@ class FinanceProvider extends ChangeNotifier {
     double initialAmount = 0,
     String icon = defaultGoalIconKey,
     String? targetDate,
+    String? giftFor,
   }) {
     if (!target.isFinite) return;
     final resolvedTarget = target < 1 ? 1.0 : target;
     final resolvedCurrent =
         initialAmount.isFinite ? initialAmount.clamp(0.0, resolvedTarget) : 0.0;
     final trimmedName = name.trim();
+    final trimmedGiftFor = giftFor?.trim();
 
     goals.insert(
       0,
@@ -364,6 +366,9 @@ class FinanceProvider extends ChangeNotifier {
         target: resolvedTarget,
         icon: icon,
         targetDate: targetDate,
+        giftFor: (trimmedGiftFor != null && trimmedGiftFor.isNotEmpty)
+            ? trimmedGiftFor
+            : null,
       ),
     );
     _persist();

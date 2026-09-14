@@ -58,9 +58,11 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
   final _targetController = TextEditingController();
   final _savedController = TextEditingController();
   final _customDaysController = TextEditingController(text: '90');
+  final _giftForController = TextEditingController();
 
   GoalPeriod _period = GoalPeriod.sixMonths;
   String _iconKey = defaultGoalIconKey;
+  bool _isGift = false;
   String? _error;
 
   int get _days {
@@ -76,6 +78,7 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
     _targetController.dispose();
     _savedController.dispose();
     _customDaysController.dispose();
+    _giftForController.dispose();
     super.dispose();
   }
 
@@ -98,6 +101,12 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
 
     final currency = context.read<CurrencyProvider>();
     final targetDate = DateTime.now().add(Duration(days: _days));
+    final giftFor = _isGift
+        ? (_giftForController.text.trim().isNotEmpty
+            ? _giftForController.text.trim()
+            : l10n.goalGiftDefault)
+        : null;
+
     context.read<FinanceProvider>().addGoal(
           name: name,
           target: currency.convertToUsd(target),
@@ -110,6 +119,7 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
               '${targetDate.year.toString().padLeft(4, '0')}-'
               '${targetDate.month.toString().padLeft(2, '0')}-'
               '${targetDate.day.toString().padLeft(2, '0')}',
+          giftFor: giftFor,
         );
 
     Navigator.of(context).pop();
@@ -146,6 +156,32 @@ class _SetGoalSheetState extends State<SetGoalSheet> {
             hintText: l10n.goalFieldNameHint,
           ),
         ),
+        const SizedBox(height: 12),
+        SwitchListTile.adaptive(
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.goalFieldIsGift, style: theme.textTheme.bodyMedium),
+          value: _isGift,
+          onChanged: (val) {
+            setState(() {
+              _isGift = val;
+              if (val && _iconKey == defaultGoalIconKey) {
+                _iconKey = '🎁';
+              }
+            });
+          },
+        ),
+        if (_isGift) ...[
+          const SizedBox(height: 8),
+          TextField(
+            controller: _giftForController,
+            textCapitalization: TextCapitalization.words,
+            decoration: InputDecoration(
+              labelText: l10n.goalFieldGiftFor,
+              hintText: l10n.goalFieldGiftForHint,
+              prefixIcon: const Icon(Icons.card_giftcard_outlined),
+            ),
+          ),
+        ],
         const SizedBox(height: 16),
         Text(l10n.goalFieldIcon, style: theme.textTheme.labelLarge),
         const SizedBox(height: 8),
