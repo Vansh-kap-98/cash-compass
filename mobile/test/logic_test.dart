@@ -302,4 +302,60 @@ void main() {
       expect(f.projected, closeTo(232, 0.01));
     });
   });
+
+  group('savings goal model', () {
+    test('roundtrips gift goal through json', () {
+      const goal = SavingsGoal(
+        id: 'g-gift',
+        name: 'Wedding Gift',
+        current: 150,
+        target: 300,
+        icon: '🎁',
+        giftFor: 'Sarah & Tom',
+      );
+
+      expect(goal.isGift, isTrue);
+
+      final json = goal.toJson();
+      expect(json['giftFor'], 'Sarah & Tom');
+
+      final deserialized = SavingsGoal.fromJson(json);
+      expect(deserialized.id, 'g-gift');
+      expect(deserialized.name, 'Wedding Gift');
+      expect(deserialized.current, 150);
+      expect(deserialized.target, 300);
+      expect(deserialized.giftFor, 'Sarah & Tom');
+      expect(deserialized.isGift, isTrue);
+    });
+
+    test('non-gift goal omits giftFor in json and isGift is false', () {
+      const regularGoal = SavingsGoal(
+        id: 'g-normal',
+        name: 'Buffer',
+        current: 100,
+        target: 500,
+        icon: '🎯',
+      );
+
+      expect(regularGoal.isGift, isFalse);
+      expect(regularGoal.toJson().containsKey('giftFor'), isFalse);
+
+      final deserialized = SavingsGoal.fromJson(regularGoal.toJson());
+      expect(deserialized.giftFor, isNull);
+      expect(deserialized.isGift, isFalse);
+    });
+
+    test('copyWith updates giftFor', () {
+      const goal = SavingsGoal(
+        id: 'g1',
+        name: 'Holiday',
+        current: 100,
+        target: 200,
+        icon: '🎯',
+      );
+      final updated = goal.copyWith(giftFor: 'Dad');
+      expect(updated.giftFor, 'Dad');
+      expect(updated.isGift, isTrue);
+    });
+  });
 }

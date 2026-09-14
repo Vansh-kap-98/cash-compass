@@ -49,6 +49,10 @@ const List<AchievementBadge> achievementBadges = [
   AchievementBadge(id: 'fortress', category: AchievementCategory.savings),
   AchievementBadge(id: 'speed-demon', category: AchievementCategory.savings),
   AchievementBadge(
+    id: 'generous-heart',
+    category: AchievementCategory.savings,
+  ),
+  AchievementBadge(
     id: 'tracking-ninja',
     category: AchievementCategory.budgetControl,
   ),
@@ -168,6 +172,10 @@ Set<String> evaluateUnlockedBadges(AchievementInputs inputs) {
   }
 
   if (_hasSpeedDemonGoal(inputs.goals)) unlocked.add('speed-demon');
+
+  if (inputs.goals.any((g) => g.isComplete && g.isGift)) {
+    unlocked.add('generous-heart');
+  }
 
   if (_isTrackingNinja(inputs.transactions)) unlocked.add('tracking-ninja');
 

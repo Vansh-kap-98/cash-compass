@@ -975,6 +975,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goalCreated => 'Goal created.';
 
   @override
+  String get goalFieldIsGift => 'Saving for a friend or family member?';
+
+  @override
+  String get goalFieldGiftFor => 'Recipient or occasion';
+
+  @override
+  String get goalFieldGiftForHint => 'e.g. Mom\'s birthday, Sarah\'s wedding';
+
+  @override
+  String goalGiftFor(String recipient) {
+    return 'Gift for $recipient';
+  }
+
+  @override
+  String get goalGiftDefault => 'Gift goal';
+
+  @override
   String goalReachIn(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1776,6 +1793,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get badgeSpeedDemonDescription => 'Hit a savings goal at least 5 days ahead of schedule.';
+
+  @override
+  String get badgeGenerousHeartTitle => 'Generous Heart';
+
+  @override
+  String get badgeGenerousHeartDescription =>
+      'Successfully saved up for a friend\'s or family member\'s gift goal.';
 
   @override
   String get badgeTrackingNinjaTitle => 'Tracking Ninja';

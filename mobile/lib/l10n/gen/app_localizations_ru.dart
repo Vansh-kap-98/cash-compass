@@ -991,6 +991,23 @@ class AppLocalizationsRu extends AppLocalizations {
   String get goalCreated => 'Цель создана.';
 
   @override
+  String get goalFieldIsGift => 'Копите на подарок другу или близкому?';
+
+  @override
+  String get goalFieldGiftFor => 'Кому или повод';
+
+  @override
+  String get goalFieldGiftForHint => 'например, День рождения мамы';
+
+  @override
+  String goalGiftFor(String recipient) {
+    return 'Подарок для $recipient';
+  }
+
+  @override
+  String get goalGiftDefault => 'Подарок';
+
+  @override
   String goalReachIn(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1800,6 +1817,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get badgeSpeedDemonDescription => 'Достигли цели минимум на 5 дней раньше срока.';
+
+  @override
+  String get badgeGenerousHeartTitle => 'Щедрое сердце';
+
+  @override
+  String get badgeGenerousHeartDescription =>
+      'Успешно накопили на подарок другу или члену семьи.';
 
   @override
   String get badgeTrackingNinjaTitle => 'Ниндзя учёта';

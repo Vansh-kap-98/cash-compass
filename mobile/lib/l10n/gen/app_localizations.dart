@@ -1736,6 +1736,36 @@ abstract class AppLocalizations {
   /// **'Goal created.'**
   String get goalCreated;
 
+  /// No description provided for @goalFieldIsGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving for a friend or family member?'**
+  String get goalFieldIsGift;
+
+  /// No description provided for @goalFieldGiftFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient or occasion'**
+  String get goalFieldGiftFor;
+
+  /// No description provided for @goalFieldGiftForHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Mom\'s birthday, Friend\'s wedding'**
+  String get goalFieldGiftForHint;
+
+  /// No description provided for @goalGiftFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift for {recipient}'**
+  String goalGiftFor(String recipient);
+
+  /// No description provided for @goalGiftDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift goal'**
+  String get goalGiftDefault;
+
   /// No description provided for @goalReachIn.
   ///
   /// In en, this message translates to:
@@ -3104,6 +3134,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hit a savings goal at least 5 days ahead of schedule.'**
   String get badgeSpeedDemonDescription;
+
+  /// No description provided for @badgeGenerousHeartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Generous Heart'**
+  String get badgeGenerousHeartTitle;
+
+  /// No description provided for @badgeGenerousHeartDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Successfully saved up for a friend\'s or family member\'s gift goal.'**
+  String get badgeGenerousHeartDescription;
 
   /// No description provided for @badgeTrackingNinjaTitle.
   ///
