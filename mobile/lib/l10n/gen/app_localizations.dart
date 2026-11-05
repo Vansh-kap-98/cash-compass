@@ -1751,7 +1751,7 @@ abstract class AppLocalizations {
   /// No description provided for @goalFieldGiftForHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. Mom\'s birthday, Friend\'s wedding'**
+  /// **'e.g. Mom\'s birthday, Sister\'s wedding'**
   String get goalFieldGiftForHint;
 
   /// No description provided for @goalGiftFor.

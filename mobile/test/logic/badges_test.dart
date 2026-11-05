@@ -220,7 +220,7 @@ void main() {
     });
 
     test('Master Balancer and Under Budget read last month against today\'s limits', () {
-      final budgets = const [
+      const budgets = [
         BudgetCategory(id: 'b1', name: 'Food', monthlyLimit: 100),
       ];
       final now = DateTime(2026, 3, 15);

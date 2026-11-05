@@ -31,7 +31,7 @@ export const AuthShell = ({ eyebrow, title, subtitle, children }: AuthShellProps
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {[
                 { icon: Wallet, label: "Spend visibility", value: "Live balance and budget signals" },
-                { icon: Sparkles, label: "Fast entry", value: "Clean auth flow with demo access" },
+                { icon: Sparkles, label: "Fast entry", value: "Add a transaction in a couple of taps" },
                 { icon: GraduationCap, label: "Universal access", value: "Designed for high-velocity daily use" },
               ].map((item) => (
                 <div key={item.label} className="rounded-[1.6rem] border border-border bg-background/75 p-4 shadow-card backdrop-blur-md">

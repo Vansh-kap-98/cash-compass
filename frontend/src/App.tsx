@@ -18,15 +18,20 @@ import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
+// AuthProvider sits ABOVE FinanceProvider deliberately. Finance data is now
+// per-account rather than per-device, so FinanceProvider has to read the
+// session to know whose rows to load -- which it cannot do from outside the
+// auth context. It does not need router context, so hoisting it out of
+// BrowserRouter costs nothing.
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <CurrencyProvider>
-      <FinanceProvider>
-        <TooltipProvider>
+    <AuthProvider>
+      <CurrencyProvider>
+        <FinanceProvider>
+          <TooltipProvider>
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <AuthProvider>
                 <Routes>
                   <Route path="/" element={<RootRedirect />} />
                   {/* #kintanjain */}
@@ -43,23 +48,23 @@ const App = () => (
                   />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-              </AuthProvider>
             </BrowserRouter>
           </TooltipProvider>
-      </FinanceProvider>
-    </CurrencyProvider>
+        </FinanceProvider>
+      </CurrencyProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
 const RootRedirect = () => {
   // #propertyofindia
-  const { user, isDemoMode, loading } = useAuth();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return <div className="min-h-screen bg-background" />;
   }
 
-  return <Navigate to={user || isDemoMode ? "/dashboard" : "/login"} replace />;
+  return <Navigate to={user ? "/dashboard" : "/login"} replace />;
 };
 
 export default App;

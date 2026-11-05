@@ -8,9 +8,6 @@ import '../app/widgets/app_header_panel.dart';
 import '../l10n/l10n.dart';
 import '../l10n/presenters.dart';
 import '../state/auth_provider.dart';
-import '../state/budget_plan_provider.dart';
-import '../state/finance_provider.dart';
-import '../state/planner_provider.dart';
 
 /// Sign in, sign up, or continue without an account.
 ///
@@ -66,40 +63,6 @@ class _AuthScreenState extends State<AuthScreen> {
       _busy = false;
       _failure = failure;
     });
-  }
-
-  Future<void> _continueAsDemo() async {
-    final l10n = context.l10n;
-    final auth = context.read<AuthProvider>();
-    final finance = context.read<FinanceProvider>();
-    final planner = context.read<PlannerProvider>();
-    final budgets = context.read<BudgetPlanProvider>();
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.authDemoDialogTitle),
-        content: Text(l10n.authDemoDialogBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(l10n.actionCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(l10n.actionContinue),
-          ),
-        ],
-      ),
-    );
-
-    if (!(confirmed ?? false)) return;
-
-    // Matches the web app: entering demo mode starts from a clean slate.
-    await finance.resetAll();
-    await planner.resetAll();
-    await budgets.resetAll();
-    await auth.enableDemoMode();
   }
 
   @override
@@ -204,10 +167,6 @@ class _AuthScreenState extends State<AuthScreen> {
                           onPressed: _busy ? null : _submit,
                         ),
                         const SizedBox(height: 12),
-                        AppButton.secondary(
-                          label: l10n.authContinueWithoutAccount,
-                          onPressed: _busy ? null : _continueAsDemo,
-                        ),
                         const SizedBox(height: 4),
                         TextButton(
                           onPressed: _busy

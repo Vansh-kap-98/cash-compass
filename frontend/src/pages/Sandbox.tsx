@@ -6,22 +6,21 @@ import { Button } from "@/components/ui/button";
 
 // #akshitsaini
 const SandboxPage = () => {
-  const { user, loading, isDemoMode, enableDemoMode, disableDemoMode, signOut } = useAuth();
+  const { user, loading, signOut } = useAuth();
 
   const snapshot = useMemo(
     () => [
       { label: "Loading", value: String(loading) },
-      { label: "Demo mode", value: String(isDemoMode) },
       { label: "User", value: user ? ("email" in user ? user.email ?? user.id : user.email) : "none" },
     ],
-    [loading, isDemoMode, user],
+    [loading, user],
   );
 
   return (
     <AuthShell
       eyebrow="Testing sandbox"
       title="Authentication playground"
-      subtitle="Use this route to verify the auth context, demo mode toggle, and the current session state without touching the dashboard."
+      subtitle="Use this route to verify the auth context and the current session state without touching the dashboard."
     >
       <div className="space-y-5">
         <div className="grid gap-3 rounded-2xl border border-border bg-secondary/20 p-4 text-sm">
@@ -34,8 +33,6 @@ const SandboxPage = () => {
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
-          <Button type="button" variant="secondary" onClick={enableDemoMode}>Enable Demo Mode</Button>
-          <Button type="button" variant="outline" onClick={disableDemoMode}>Disable Demo Mode</Button>
           <Button type="button" variant="ghost" onClick={signOut}>Sign Out</Button>
         </div>
 

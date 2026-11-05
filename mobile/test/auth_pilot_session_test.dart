@@ -46,11 +46,22 @@ class _FakePrefs implements Prefs {
   }
 }
 
-/// The built-in presentation account.
+/// The built-in presentation account, and the flag that keeps it out of
+/// ordinary builds.
 ///
-/// Exists so the sign-in screen can be demonstrated during the team defense:
-/// with no Supabase project configured, every real credential returns
-/// `noBackend`, so without this the form could only ever fail on stage.
+/// It existed because with no Supabase project configured the sign-in form
+/// could only ever fail. Real auth works now, so a hard-coded credential is a
+/// fake auth path — it is compiled in only under
+/// `--dart-define=ALLOW_DEMO_LOGIN=true`.
+///
+/// **These tests run with the flag off**, which is the shipping default, so
+/// they assert the credentials are *rejected*. To check the enabled path:
+///
+///     flutter test --dart-define=ALLOW_DEMO_LOGIN=true \
+///       test/auth_pilot_session_test.dart
+///
+/// which flips the expectation in the first test below — that is the point of
+/// it, not a failure.
 void main() {
   late _FakePrefs prefs;
   late AuthProvider auth;
@@ -61,68 +72,61 @@ void main() {
     await auth.load();
   });
 
-  test('the presentation credentials sign in with no backend configured', () async {
+  test('the flag decides whether the demo credentials are accepted', () async {
     final failure = await auth.signIn('pennypilots@gmail.com', '12345');
 
-    expect(failure, isNull, reason: 'these credentials must bypass Supabase');
-    expect(auth.isSignedIn, isTrue);
-    expect(auth.isPilotSession, isTrue);
-    expect(auth.user?.email, 'pennypilots@gmail.com');
-    expect(auth.user?.isDemo, isFalse,
-        reason: 'this is a signed-in account, not demo mode');
+    if (kAllowDemoLogin) {
+      expect(failure, isNull);
+      expect(auth.isPilotSession, isTrue);
+      expect(auth.user?.email, 'pennypilots@gmail.com');
+    } else {
+      expect(failure, isA<AuthErrorFailure>(),
+          reason: 'with the flag off these are just a wrong password');
+      expect((failure! as AuthErrorFailure).error, AuthError.noBackend);
+      expect(auth.isPilotSession, isFalse);
+      expect(auth.isSignedIn, isFalse);
+    }
   });
 
-  test('the email is matched case-insensitively and trimmed', () async {
-    final failure = await auth.signIn('  PennyPilots@Gmail.com  ', '12345');
-    expect(failure, isNull);
-    expect(auth.isPilotSession, isTrue);
-  });
+  test(
+    'the default build does not ship the bypass',
+    () {
+      expect(kAllowDemoLogin, isFalse,
+          reason: 'a release built without the flag must reject the '
+              'hard-coded credentials; if this fails, the default was changed');
+    },
+    // This one asserts the *default*, so a run that deliberately passes
+    // --dart-define=ALLOW_DEMO_LOGIN=true skips it rather than reporting a
+    // failure for doing exactly what it was asked.
+    skip: kAllowDemoLogin
+        ? 'ALLOW_DEMO_LOGIN was set for this run; nothing to assert'
+        : null,
+  );
 
-  test('a wrong password does not sign in', () async {
+  test('a wrong password is rejected either way', () async {
     final failure = await auth.signIn('pennypilots@gmail.com', 'wrong');
 
     expect(failure, isA<AuthErrorFailure>());
-    expect((failure! as AuthErrorFailure).error, AuthError.noBackend,
-        reason: 'it should fall through to the normal path, not be accepted');
+    expect((failure! as AuthErrorFailure).error, AuthError.noBackend);
     expect(auth.isPilotSession, isFalse);
   });
 
-  test('an empty form still reports missing credentials', () async {
+  test('an empty form reports missing credentials, not a backend error',
+      () async {
     final failure = await auth.signIn('', '');
     expect((failure! as AuthErrorFailure).error, AuthError.missingCredentials);
   });
 
-  test('the session survives a restart', () async {
-    await auth.signIn('pennypilots@gmail.com', '12345');
-    expect(prefs.store[PrefsKeys.pilotSession], isTrue);
-
-    final restarted = AuthProvider(prefs);
-    await restarted.load();
-
-    expect(restarted.isSignedIn, isTrue,
-        reason: 'backgrounding the app mid-demo must not sign the user out');
-    expect(restarted.user?.email, 'pennypilots@gmail.com');
-  });
-
-  test('signing out clears it, on this run and the next', () async {
-    await auth.signIn('pennypilots@gmail.com', '12345');
+  test('signing out clears the session, on this run and the next', () async {
+    // Nothing to sign out of without a backend, but the stored flag must not
+    // survive: a stale pilotSession key would sign the next launch straight in.
     await auth.signOut();
 
     expect(auth.isSignedIn, isFalse);
-    expect(auth.isPilotSession, isFalse);
+    expect(prefs.store[PrefsKeys.pilotSession], isFalse);
 
     final restarted = AuthProvider(prefs);
     await restarted.load();
     expect(restarted.isSignedIn, isFalse);
-  });
-
-  test('entering demo mode replaces the presentation session', () async {
-    await auth.signIn('pennypilots@gmail.com', '12345');
-    await auth.enableDemoMode();
-
-    expect(auth.isDemoMode, isTrue);
-    expect(auth.isPilotSession, isFalse,
-        reason: 'the two must never both be live, or `user` is ambiguous');
-    expect(auth.user?.isDemo, isTrue);
   });
 }

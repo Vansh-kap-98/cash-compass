@@ -6,6 +6,8 @@ import { SettingsStudio } from "@/components/SettingsStudio";
 import { StudentPlannerHub } from "@/components/StudentPlannerHub";
 import { EventCalendar } from "@/components/widgets/EventCalendar";
 import { SubscriptionTracker } from "@/components/widgets/SubscriptionTracker";
+import { CloudTransactions } from "@/components/CloudTransactions";
+import { isSupabaseConfigured } from "@/lib/supabaseClient";
 import { SocialBenchmarks } from "@/components/widgets/SocialBenchmarks";
 import { SmartCards } from "@/components/insights/SmartCards";
 import { SpendingPatternInsight } from "@/components/forms/ReasonTags";
@@ -309,6 +311,10 @@ export const SoftBloomLayout = () => {
         <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
           <EventCalendar />
           <SubscriptionTracker />
+          {/* Additive: the Supabase-backed list. The cards around it remain
+              local-first and are untouched. Only rendered when credentials
+              are present, so an unconfigured clone still boots. */}
+          {isSupabaseConfigured && <CloudTransactions />}
         </section>
         <SmartCards dailyLimit={dailyBudgetUSD} />
         <SpendingPatternInsight />

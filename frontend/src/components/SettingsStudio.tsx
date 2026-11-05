@@ -145,17 +145,14 @@ export const SettingsStudio = () => {
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-lg">
               {initials(auth.user)
                 ? initials(auth.user)
-                : auth.isDemoMode ? "DM" : "?"}
+                : "?"}
             </div>
             <div>
-              <p className="text-sm font-medium">{displayName(auth.user) || (auth.isDemoMode ? "Demo Mode" : "Not signed in")}</p>
-              <p className="text-xs text-muted-foreground">{auth.user?.email || (auth.isDemoMode ? "Running in local demo mode" : "")}</p>
-              {auth.isDemoMode && (
-                <Badge variant="secondary" className="mt-1 text-[10px]">Demo — data is device-local</Badge>
-              )}
+              <p className="text-sm font-medium">{displayName(auth.user) || "Not signed in"}</p>
+              <p className="text-xs text-muted-foreground">{auth.user?.email || ""}</p>
             </div>
           </div>
-          {(auth.isDemoMode || auth.user) && (
+          {auth.user && (
             <Button
               type="button"
               variant="outline"
@@ -163,7 +160,7 @@ export const SettingsStudio = () => {
               onClick={() => auth.signOut()}
             >
               <LogOut className="mr-2 h-3.5 w-3.5" />
-              {auth.isDemoMode ? "Leave demo mode" : "Sign out"}
+              {"Sign out"}
             </Button>
           )}
         </CardContent>

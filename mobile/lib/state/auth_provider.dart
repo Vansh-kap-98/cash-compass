@@ -13,23 +13,14 @@ class AppUser {
     required this.id,
     required this.email,
     this.name,
-    this.isDemo = false,
   });
 
   final String id;
   final String email;
   final String? name;
-  final bool isDemo;
 
   String get displayName => name?.trim().isNotEmpty == true ? name! : email;
 }
-
-const _demoUser = AppUser(
-  id: 'demo-user',
-  email: 'demo@cashcompass.app',
-  name: 'Demo',
-  isDemo: true,
-);
 
 /// The built-in presentation account.
 ///
@@ -38,10 +29,21 @@ const _demoUser = AppUser(
 /// Supabase project configured, the real path can only ever return
 /// [AuthError.noBackend].
 ///
-/// **These credentials are in the shipped binary and are not a secret.**
-/// Anyone who unpacks the APK can read them, and they grant access to nothing
-/// but this device's own local data — there is no server and no account behind
-/// them. Do not reuse this pattern once a real backend exists.
+/// **Off by default.** Now that real Supabase auth works, a hard-coded
+/// credential is a fake auth path, so it is behind a build flag rather than
+/// compiled into every binary:
+///
+///     flutter build apk --dart-define=ALLOW_DEMO_LOGIN=true
+///
+/// Builds without that flag reject these credentials like any other wrong
+/// password. Use it for the team defense build; never for a real release.
+///
+/// **These credentials are not a secret.** In a build that enables them,
+/// anyone who unpacks the APK can read them — which is the other reason they
+/// stay off unless deliberately switched on.
+const kAllowDemoLogin =
+    bool.fromEnvironment('ALLOW_DEMO_LOGIN');
+
 const _pilotEmail = 'pennypilots@gmail.com';
 const _pilotPassword = '12345';
 
@@ -89,39 +91,32 @@ class AuthServerFailure extends AuthFailure {
   final String message;
 }
 
-/// Session state: real Supabase auth plus a local demo bypass.
+/// Session state, backed by Supabase auth.
 ///
-/// Port of `AuthContext.tsx`. Demo mode exists so the app is fully usable with
-/// no backend configured — important both for development and because none of
-/// the finance data is server-side anyway.
+/// Demo mode was removed once real auth worked: it let the app be used with no
+/// backend configured, which is exactly the fake data path that hides a broken
+/// sign-in.
 class AuthProvider extends ChangeNotifier {
   AuthProvider(this._prefs);
 
   final Prefs _prefs;
 
   AppUser? _authUser;
-  bool _isDemoMode = false;
   bool _isPilotSession = false;
   bool loading = true;
 
   StreamSubscription<sb.AuthState>? _authSub;
 
-  /// The effective user: demo, the built-in presentation account, or real.
-  AppUser? get user {
-    if (_isDemoMode) return _demoUser;
-    if (_isPilotSession) return _pilotUser;
-    return _authUser;
-  }
+  /// The effective user: the built-in presentation account, or the real one.
+  AppUser? get user => _isPilotSession ? _pilotUser : _authUser;
 
   /// True while the built-in presentation account is signed in.
   bool get isPilotSession => _isPilotSession;
 
-  bool get isDemoMode => _isDemoMode;
   bool get isSignedIn => user != null;
   bool get canUseSupabase => SupabaseService.isReady;
 
   Future<void> load() async {
-    _isDemoMode = (await _prefs.getBool(PrefsKeys.demoMode)) ?? false;
     _isPilotSession = (await _prefs.getBool(PrefsKeys.pilotSession)) ?? false;
 
     if (SupabaseService.isReady) {
@@ -155,16 +150,16 @@ class AuthProvider extends ChangeNotifier {
       return const AuthErrorFailure(AuthError.missingCredentials);
     }
 
-    // Checked before the backend test, not after: with no Supabase project
+    // Checked before the backend test, not after: when Supabase is not
     // configured the branch below returns `noBackend` unconditionally, so a
     // check placed after it would never run.
-    if (email.trim().toLowerCase() == _pilotEmail && password == _pilotPassword) {
+    if (kAllowDemoLogin &&
+        email.trim().toLowerCase() == _pilotEmail &&
+        password == _pilotPassword) {
       _isPilotSession = true;
-      _isDemoMode = false;
       loading = false;
       notifyListeners();
       await _prefs.setBool(PrefsKeys.pilotSession, true);
-      await _prefs.setBool(PrefsKeys.demoMode, false);
       return null;
     }
 
@@ -211,20 +206,15 @@ class AuthProvider extends ChangeNotifier {
         data: {'full_name': name.trim(), 'display_name': name.trim()},
       );
 
-      final created = response.user;
-      if (created != null) {
-        // Best-effort profile row, matching the web app. Nothing reads this
-        // table yet, so a failure here must not block sign-up.
-        try {
-          await SupabaseService.client.from('profiles').upsert({
-            'id': created.id,
-            'name': name.trim(),
-            'email': email.trim(),
-          }, onConflict: 'id');
-        } catch (error) {
-          logError('Profile upsert (non-fatal)', error);
-        }
-      }
+      // The display name is saved on the auth user by the call above, through
+      // `data: {'full_name': ...}`, which is where the UI reads it from.
+      //
+      // A best-effort `profiles` upsert used to sit here. There is no
+      // `public.profiles` table in this project, so it failed on every
+      // sign-up -- harmlessly, because it was logged rather than returned,
+      // but it still cost a round trip and wrote a misleading error to the
+      // log. The web app had the same upsert *unguarded*, where it broke
+      // sign-up outright. Nothing reads the table, so both are gone.
 
       if (response.session == null) {
         return const AuthErrorFailure(AuthError.confirmEmail);
@@ -259,27 +249,7 @@ class AuthProvider extends ChangeNotifier {
   static final RegExp emailPattern =
       RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]{2,}$', caseSensitive: false);
 
-  /// Enters demo mode.
-  ///
-  /// The caller is responsible for clearing finance data — this store has no
-  /// business reaching into the others.
-  Future<void> enableDemoMode() async {
-    _isDemoMode = true;
-    _isPilotSession = false;
-    loading = false;
-    notifyListeners();
-    await _prefs.setBool(PrefsKeys.demoMode, true);
-    await _prefs.setBool(PrefsKeys.pilotSession, false);
-  }
-
-  Future<void> disableDemoMode() async {
-    _isDemoMode = false;
-    notifyListeners();
-    await _prefs.setBool(PrefsKeys.demoMode, false);
-  }
-
   Future<void> signOut() async {
-    await disableDemoMode();
     _isPilotSession = false;
     await _prefs.setBool(PrefsKeys.pilotSession, false);
     if (SupabaseService.isReady) {

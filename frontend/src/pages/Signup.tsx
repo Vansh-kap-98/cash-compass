@@ -14,7 +14,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 
 const SignupPage = () => {
   const navigate = useNavigate();
-  const { user, isDemoMode } = useAuth();
+  const { user } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,10 +26,10 @@ const SignupPage = () => {
   const signupButton = usePressScale<HTMLButtonElement>();
 
   useEffect(() => {
-    if (user || isDemoMode) {
+    if (user) {
       navigate("/dashboard", { replace: true });
     }
-  }, [user, isDemoMode, navigate]);
+  }, [user, navigate]);
 
   const handleSignup = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -79,23 +79,16 @@ const SignupPage = () => {
         return;
       }
 
-      if (data.user) {
-        const { error: profileError } = await supabase.from("profiles").upsert(
-          ([
-            {
-              id: data.user.id,
-              name: name.trim(),
-              email: data.user.email ?? email.trim(),
-            },
-          ] as any),
-          { onConflict: "id" },
-        );
-
-        if (profileError) {
-          setError(profileError.message);
-          return;
-        }
-      }
+      // The display name is already saved on the auth user by the call above,
+      // through `options.data.full_name` -- which is exactly where
+      // `displayName()` in AuthContext reads it from.
+      //
+      // An upsert into `public.profiles` used to sit here. That table does not
+      // exist in this project, so every sign-up failed with "Could not find
+      // the table 'public.profiles' in the schema cache" *after* the account
+      // had already been created -- the user saw an error for an account that
+      // existed, and retrying then failed as a duplicate. Nothing read the
+      // table, so it is gone rather than created.
 
       if (data.session) {
         navigate("/dashboard", { replace: true });

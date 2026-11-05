@@ -37,23 +37,13 @@ abstract final class PrefsKeys {
   static const geoProfile = 'cash-compass-geo-profile-v1';
   static const literacyCards = 'cash-compass-literacy-cards-v1';
   static const achievements = 'cash-compass-achievements-v1';
-  static const demoMode = 'cash-compass-demo-mode-v1';
 
-  /// Set when the built-in presentation account is signed in, so a demo
+  /// Set when the built-in presentation account is signed in, so that session
   /// survives the app being backgrounded mid-defense.
   static const pilotSession = 'cash-compass-pilot-session-v1';
   static const completedTour = 'cash-compass-has-completed-tour-v1';
   static const theme = 'dashboard-theme';
   static const currency = 'dashboard-currency';
-
-  /// Keys cleared when entering demo mode, matching `enableDemoMode` in
-  /// `AuthContext.tsx`. Note the web app deliberately leaves the tour flag,
-  /// region, and UI settings alone — those are device preferences, not data.
-  static const clearedOnDemoMode = <String>[
-    finance,
-    dateRange,
-    dayPlans,
-  ];
 }
 
 /// Thin wrapper over [SharedPreferencesAsync] for reading and writing JSON.

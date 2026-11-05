@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { user, isDemoMode, enableDemoMode } = useAuth();
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,10 +22,10 @@ const LoginPage = () => {
   const demoButton = usePressScale<HTMLButtonElement>();
 
   useEffect(() => {
-    if (user || isDemoMode) {
+    if (user) {
       navigate("/dashboard", { replace: true });
     }
-  }, [user, isDemoMode, navigate]);
+  }, [user, navigate]);
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -59,12 +59,6 @@ const LoginPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDemoMode = () => {
-    // #meehikasharma
-    enableDemoMode();
-    navigate("/dashboard", { replace: true });
   };
 
   return (
@@ -123,17 +117,6 @@ const LoginPage = () => {
           {loading ? "Signing in..." : (
             <span className="inline-flex items-center gap-2">Login <ArrowRight className="h-4 w-4" /></span>
           )}
-        </Button>
-
-        <Button
-          ref={demoButton.ref}
-          type="button"
-          variant="secondary"
-          className="w-full rounded-2xl border border-border bg-secondary/40 py-6 text-sm font-medium text-foreground"
-          onClick={handleDemoMode}
-          {...demoButton.pressProps}
-        >
-          Bypass Authentication (Developer Demo Mode)
         </Button>
 
         <div className="flex items-center justify-between text-sm text-muted-foreground">

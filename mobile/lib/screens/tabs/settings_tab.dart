@@ -19,6 +19,8 @@ import '../../state/theme_provider.dart';
 import '../../state/workspace_provider.dart';
 import '../achievements_screen.dart';
 import '../financial_tips_screen.dart';
+import '../cloud_transactions_screen.dart';
+import '../../services/supabase_service.dart';
 
 /// Settings tab. Port of `SettingsStudio.tsx`.
 ///
@@ -174,6 +176,27 @@ class SettingsTab extends StatelessWidget {
             ],
           ),
         ),
+        // Entry point for the Supabase-backed list. Deliberately additive:
+        // the Dashboard remains the offline-first product and is untouched.
+        if (SupabaseService.isReady)
+          _Section(
+            title: 'Synced transactions',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Shared with the web app through your account.',
+                  style: theme.textTheme.bodySmall,
+                ),
+                const SizedBox(height: 10),
+                AppButton.secondary(
+                  icon: Icons.cloud_sync_outlined,
+                  label: 'Open synced transactions',
+                  onPressed: () => CloudTransactionsScreen.open(context),
+                ),
+              ],
+            ),
+          ),
         _Section(
           title: l10n.settingsAccount,
           child: Builder(
@@ -186,13 +209,11 @@ class SettingsTab extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      AppAvatar(name: auth.isDemoMode ? 'Demo' : name),
+                      AppAvatar(name: name),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          auth.isDemoMode
-                              ? l10n.settingsDemoMode
-                              : l10n.settingsSignedInAs(name),
+                          l10n.settingsSignedInAs(name),
                           style: theme.textTheme.bodySmall,
                         ),
                       ),
@@ -201,9 +222,7 @@ class SettingsTab extends StatelessWidget {
                   const SizedBox(height: 14),
                   AppButton.secondary(
                     icon: Icons.logout,
-                    label: auth.isDemoMode
-                        ? l10n.settingsLeaveDemo
-                        : l10n.settingsSignOut,
+                    label: l10n.settingsSignOut,
                     onPressed: () => context.read<AuthProvider>().signOut(),
                   ),
                 ],

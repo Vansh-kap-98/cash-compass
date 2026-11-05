@@ -981,7 +981,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goalFieldGiftFor => 'Recipient or occasion';
 
   @override
-  String get goalFieldGiftForHint => 'e.g. Mom\'s birthday, Sarah\'s wedding';
+  String get goalFieldGiftForHint => 'e.g. Mom\'s birthday, Sister\'s wedding';
 
   @override
   String goalGiftFor(String recipient) {
