@@ -29,9 +29,18 @@ enum AppCurrency {
   }
 }
 
-/// Rates used when the network is unavailable and nothing is cached.
-/// Same values as the web app's fallback.
-const Map<String, double> _fallbackRates = {'USD': 1, 'INR': 83.5, 'RUB': 92};
+/// Rates used only when the network is unavailable and nothing is cached.
+///
+/// Refreshed 2026-10-31. These are a cold-start floor, not a source of truth:
+/// a constant in the binary goes stale the day it ships, and the previous
+/// values (INR 83.5, RUB 92) had drifted roughly 12% and 14% from the real
+/// rates before anyone noticed — because RUB in particular is never overwritten
+/// by the primary feed. See [RatesApi] for why.
+const Map<String, double> kFallbackRates = {
+  'USD': 1,
+  'INR': 95.07,
+  'RUB': 80.41,
+};
 
 /// How long a cached rate set stays valid.
 const Duration _cacheTtl = Duration(hours: 1);
@@ -47,7 +56,7 @@ class CurrencyProvider extends ChangeNotifier {
   final RatesApi _api;
 
   AppCurrency currency = AppCurrency.usd;
-  Map<String, double> rates = Map.of(_fallbackRates);
+  Map<String, double> rates = Map.of(kFallbackRates);
 
   bool ratesLoading = false;
   String? ratesError;
@@ -85,7 +94,7 @@ class CurrencyProvider extends ChangeNotifier {
   }
 
   Map<String, double> _coerceRates(Map<dynamic, dynamic> raw) {
-    final result = Map<String, double>.of(_fallbackRates);
+    final result = Map<String, double>.of(kFallbackRates);
     raw.forEach((key, value) {
       if (key is String) {
         final parsed = asNullableDouble(value);
@@ -109,7 +118,7 @@ class CurrencyProvider extends ChangeNotifier {
       // ECB reference rates, and the ECB no longer publishes RUB — so a
       // successful response can legitimately omit a currency we still support.
       // Replacing wholesale would drop RUB and silently convert it at 1:1.
-      rates = {..._fallbackRates, ...fresh};
+      rates = {...kFallbackRates, ...fresh};
       lastUpdated = DateTime.now();
       await _prefs.setJson(PrefsKeys.exchangeRates, {
         'rates': rates,

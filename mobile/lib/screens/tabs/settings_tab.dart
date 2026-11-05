@@ -77,6 +77,14 @@ class SettingsTab extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SegmentedButton<AppCurrency>(
+                // No check mark on the selected segment.
+                //
+                // Material reserves room for it inside the segment, which left
+                // "RUB" too little width and wrapped it to two lines. The tick
+                // is redundant here anyway: selection in this design is carried
+                // by inverting the segment to solid ink, which is unambiguous
+                // and costs no horizontal space.
+                showSelectedIcon: false,
                 segments: [
                   for (final c in AppCurrency.values)
                     ButtonSegment(value: c, label: Text(c.code)),

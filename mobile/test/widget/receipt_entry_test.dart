@@ -64,7 +64,7 @@ void main() {
       (tester) async {
     useTallViewport(tester);
     final stores = TestStores.empty();
-    // Fallback rate is 83.5 INR to the dollar.
+    // The app is on INR, so a bare '450' on the receipt is 450 INR.
     await stores.currency.setCurrency(AppCurrency.inr);
 
     await tester.pumpWidget(wrapForTest(host(confident), stores: stores));
@@ -78,9 +78,9 @@ void main() {
     final saved = stores.finance.transactions.first;
     expect(
       saved.amount,
-      closeTo(450 / 83.5, 0.01),
+      closeTo(450 / kFallbackRates['INR']!, 0.01),
       reason: 'a receipt read as 450 with the app on INR is 450 INR, not '
-          '450 USD — storing it unconverted would inflate it 83-fold',
+          '450 USD — storing it unconverted would inflate it ~95-fold',
     );
     expect(saved.category, 'Groceries');
     expect(

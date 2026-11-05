@@ -3054,7 +3054,7 @@ abstract class AppLocalizations {
   /// No description provided for @literacyWishlistTrickBody.
   ///
   /// In en, this message translates to:
-  /// **'Keeping a "Want List" for 30 days before buying cuts unnecessary spending by half.'**
+  /// **'Keeping a \"Want List\" for 30 days before buying cuts unnecessary spending by half.'**
   String get literacyWishlistTrickBody;
 
   /// No description provided for @badgeFirstSeedTitle.
@@ -3066,7 +3066,7 @@ abstract class AppLocalizations {
   /// No description provided for @badgeFirstSeedDescription.
   ///
   /// In en, this message translates to:
-  /// **'Saved your first $500 across your savings goals.'**
+  /// **'Saved your first \$500 across your savings goals.'**
   String get badgeFirstSeedDescription;
 
   /// No description provided for @badgeGoalCrusherTitle.
@@ -3090,7 +3090,7 @@ abstract class AppLocalizations {
   /// No description provided for @badgeFortressDescription.
   ///
   /// In en, this message translates to:
-  /// **'Built a single savings goal of at least $15,000.'**
+  /// **'Built a single savings goal of at least \$15,000.'**
   String get badgeFortressDescription;
 
   /// No description provided for @badgeSpeedDemonTitle.
@@ -3114,7 +3114,7 @@ abstract class AppLocalizations {
   /// No description provided for @badgeTrackingNinjaDescription.
   ///
   /// In en, this message translates to:
-  /// **'Categorized your expenses instead of leaving them as "Other", across at least 14 days of activity.'**
+  /// **'Categorized your expenses instead of leaving them as \"Other\", across at least 14 days of activity.'**
   String get badgeTrackingNinjaDescription;
 
   /// No description provided for @badgeMasterBalancerTitle.

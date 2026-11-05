@@ -31,6 +31,26 @@ const _demoUser = AppUser(
   isDemo: true,
 );
 
+/// The built-in presentation account.
+///
+/// Signing in with these credentials enters the app without a backend, so the
+/// sign-in screen can be shown and used during the team defense — with no
+/// Supabase project configured, the real path can only ever return
+/// [AuthError.noBackend].
+///
+/// **These credentials are in the shipped binary and are not a secret.**
+/// Anyone who unpacks the APK can read them, and they grant access to nothing
+/// but this device's own local data — there is no server and no account behind
+/// them. Do not reuse this pattern once a real backend exists.
+const _pilotEmail = 'pennypilots@gmail.com';
+const _pilotPassword = '12345';
+
+const _pilotUser = AppUser(
+  id: 'penny-pilots',
+  email: _pilotEmail,
+  name: 'Penny Pilots',
+);
+
 /// Why a sign-in or sign-up attempt failed.
 ///
 /// Returned instead of a sentence so the form can render it in the active
@@ -81,12 +101,20 @@ class AuthProvider extends ChangeNotifier {
 
   AppUser? _authUser;
   bool _isDemoMode = false;
+  bool _isPilotSession = false;
   bool loading = true;
 
   StreamSubscription<sb.AuthState>? _authSub;
 
-  /// The effective user, demo or real.
-  AppUser? get user => _isDemoMode ? _demoUser : _authUser;
+  /// The effective user: demo, the built-in presentation account, or real.
+  AppUser? get user {
+    if (_isDemoMode) return _demoUser;
+    if (_isPilotSession) return _pilotUser;
+    return _authUser;
+  }
+
+  /// True while the built-in presentation account is signed in.
+  bool get isPilotSession => _isPilotSession;
 
   bool get isDemoMode => _isDemoMode;
   bool get isSignedIn => user != null;
@@ -94,6 +122,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> load() async {
     _isDemoMode = (await _prefs.getBool(PrefsKeys.demoMode)) ?? false;
+    _isPilotSession = (await _prefs.getBool(PrefsKeys.pilotSession)) ?? false;
 
     if (SupabaseService.isReady) {
       final session = SupabaseService.client.auth.currentSession;
@@ -122,11 +151,25 @@ class AuthProvider extends ChangeNotifier {
 
   /// Signs in. Returns the failure, or null on success.
   Future<AuthFailure?> signIn(String email, String password) async {
-    if (!SupabaseService.isReady) {
-      return const AuthErrorFailure(AuthError.noBackend);
-    }
     if (email.trim().isEmpty || password.isEmpty) {
       return const AuthErrorFailure(AuthError.missingCredentials);
+    }
+
+    // Checked before the backend test, not after: with no Supabase project
+    // configured the branch below returns `noBackend` unconditionally, so a
+    // check placed after it would never run.
+    if (email.trim().toLowerCase() == _pilotEmail && password == _pilotPassword) {
+      _isPilotSession = true;
+      _isDemoMode = false;
+      loading = false;
+      notifyListeners();
+      await _prefs.setBool(PrefsKeys.pilotSession, true);
+      await _prefs.setBool(PrefsKeys.demoMode, false);
+      return null;
+    }
+
+    if (!SupabaseService.isReady) {
+      return const AuthErrorFailure(AuthError.noBackend);
     }
     try {
       await SupabaseService.client.auth.signInWithPassword(
@@ -222,9 +265,11 @@ class AuthProvider extends ChangeNotifier {
   /// business reaching into the others.
   Future<void> enableDemoMode() async {
     _isDemoMode = true;
+    _isPilotSession = false;
     loading = false;
     notifyListeners();
     await _prefs.setBool(PrefsKeys.demoMode, true);
+    await _prefs.setBool(PrefsKeys.pilotSession, false);
   }
 
   Future<void> disableDemoMode() async {
@@ -235,6 +280,8 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> signOut() async {
     await disableDemoMode();
+    _isPilotSession = false;
+    await _prefs.setBool(PrefsKeys.pilotSession, false);
     if (SupabaseService.isReady) {
       try {
         await SupabaseService.client.auth.signOut();

@@ -254,8 +254,10 @@ void main() {
       );
       await tester.pump(const Duration(milliseconds: 600));
 
-      // Fallback rate is 83.5 INR to the dollar.
-      expect(find.widgetWithText(TextField, '835.00'), findsOneWidget);
+      // A 10 USD receipt shown in INR: 10 at the fallback rate, not a literal
+      // so the assertion survives the next rate refresh.
+      final inInr = (10 * kFallbackRates['INR']!).toStringAsFixed(2);
+      expect(find.widgetWithText(TextField, inInr), findsOneWidget);
       expect(find.textContaining('10.00 USD converted'), findsOneWidget);
 
       await tester.pumpWidget(const SizedBox.shrink());

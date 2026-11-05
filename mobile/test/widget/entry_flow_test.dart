@@ -39,7 +39,7 @@ void main() {
   testWidgets('an amount typed in INR is stored as USD', (tester) async {
     useTallViewport(tester);
     final stores = TestStores.empty();
-    // Fallback rate is 83.5 INR to the dollar, so 835 in should be 10 out.
+    // Typed in INR at the fallback rate; stored USD must be the quotient.
     await stores.currency.setCurrency(AppCurrency.inr);
 
     await tester.pumpWidget(
@@ -63,8 +63,8 @@ void main() {
     expect(saved.name, 'Groceries');
     expect(
       saved.amount,
-      closeTo(10.0, 0.01),
-      reason: '835 INR at 83.5 to the dollar must persist as 10 USD',
+      closeTo(835 / kFallbackRates['INR']!, 0.01),
+      reason: '835 INR must persist as 835 divided by the INR rate',
     );
 
     await tester.pumpWidget(const SizedBox.shrink());
@@ -153,10 +153,11 @@ void main() {
     await stores.currency.setCurrency(AppCurrency.inr);
     await tester.pump();
 
+    final inInr = (100 * kFallbackRates['INR']!).toStringAsFixed(2);
     expect(
-      find.widgetWithText(TextField, '8350.00'),
+      find.widgetWithText(TextField, inInr),
       findsOneWidget,
-      reason: '100 USD shown in INR must read 8350, not 100',
+      reason: '100 USD shown in INR must be reconverted, not relabelled',
     );
 
     await tester.pumpWidget(const SizedBox.shrink());
@@ -189,8 +190,8 @@ void main() {
     expect(stores.finance.goals, hasLength(1));
     expect(
       stores.finance.goals.first.target,
-      closeTo(100.0, 0.01),
-      reason: '8350 INR at 83.5 to the dollar must persist as 100 USD',
+      closeTo(8350 / kFallbackRates['INR']!, 0.01),
+      reason: '8350 INR must persist as 8350 divided by the INR rate',
     );
 
     await tester.pumpWidget(const SizedBox.shrink());

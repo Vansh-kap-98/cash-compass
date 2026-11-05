@@ -38,6 +38,10 @@ abstract final class PrefsKeys {
   static const literacyCards = 'cash-compass-literacy-cards-v1';
   static const achievements = 'cash-compass-achievements-v1';
   static const demoMode = 'cash-compass-demo-mode-v1';
+
+  /// Set when the built-in presentation account is signed in, so a demo
+  /// survives the app being backgrounded mid-defense.
+  static const pilotSession = 'cash-compass-pilot-session-v1';
   static const completedTour = 'cash-compass-has-completed-tour-v1';
   static const theme = 'dashboard-theme';
   static const currency = 'dashboard-currency';

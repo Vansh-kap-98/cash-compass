@@ -11,6 +11,7 @@ import 'package:cash_compass/state/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:cash_compass/state/currency_provider.dart';
 
 import 'widget/harness.dart';
 
@@ -141,10 +142,10 @@ void main() {
       final body = suggestionBody(
         en,
         const WatchCategorySuggestion(category: 'Food', savingUsd: 12.5),
-        (usd) => '₹${(usd * 83.5).toStringAsFixed(2)}',
+        (usd) => '₹${(usd * kFallbackRates['INR']!).toStringAsFixed(2)}',
       );
 
-      expect(body, contains('₹1043.75'));
+      expect(body, contains('₹${(12.5 * kFallbackRates['INR']!).toStringAsFixed(2)}'));
       expect(
         body,
         isNot(contains('USD')),
