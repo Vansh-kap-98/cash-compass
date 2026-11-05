@@ -112,6 +112,61 @@ void main() {
       );
       expect(evaluateUnlockedBadges(wellAhead), contains('speed-demon'));
     });
+
+    test('Generous Heart unlocks when a gift goal reaches completion', () {
+      final nonGiftCompleted = _inputs(
+        goals: const [
+          SavingsGoal(
+            id: 'g1',
+            name: 'Laptop',
+            current: 1000,
+            target: 1000,
+            icon: '💻',
+          ),
+        ],
+      );
+      expect(
+        evaluateUnlockedBadges(nonGiftCompleted),
+        isNot(contains('generous-heart')),
+        reason: 'regular completed goals should not unlock generous-heart',
+      );
+
+      final giftIncomplete = _inputs(
+        goals: const [
+          SavingsGoal(
+            id: 'g2',
+            name: 'Birthday Gift',
+            current: 50,
+            target: 100,
+            icon: '🎁',
+            giftFor: 'Mom',
+          ),
+        ],
+      );
+      expect(
+        evaluateUnlockedBadges(giftIncomplete),
+        isNot(contains('generous-heart')),
+        reason: 'incomplete gift goal should not unlock generous-heart',
+      );
+
+      final giftCompleted = _inputs(
+        goals: const [
+          SavingsGoal(
+            id: 'g2',
+            name: 'Birthday Gift',
+            current: 100,
+            target: 100,
+            icon: '🎁',
+            giftFor: 'Mom',
+          ),
+        ],
+      );
+      expect(
+        evaluateUnlockedBadges(giftCompleted),
+        contains('generous-heart'),
+        reason: 'completed gift goal must unlock generous-heart',
+      );
+    });
   });
 
   group('budget control', () {

@@ -11,6 +11,7 @@ class SavingsGoal {
     required this.icon,
     this.targetDate,
     this.completedAt,
+    this.giftFor,
   });
 
   final String id;
@@ -31,13 +32,25 @@ class SavingsGoal {
   /// a later contribution (there is no withdrawal) cannot erase it.
   final String? completedAt;
 
+  /// Optional recipient or occasion for a gift goal (e.g. "Mom", "Family's Wedding").
+  /// Null for non-gift personal goals.
+  final String? giftFor;
+
+  /// True when this goal is designated as a gift for a friend or family member.
+  bool get isGift => giftFor != null && giftFor!.trim().isNotEmpty;
+
   /// Completion in the range 0..1. Guards against a zero or negative target.
   double get progress =>
       target <= 0 ? 0 : (current / target).clamp(0.0, 1.0).toDouble();
 
   bool get isComplete => current >= target;
 
-  SavingsGoal copyWith({double? current, String? completedAt}) => SavingsGoal(
+  SavingsGoal copyWith({
+    double? current,
+    String? completedAt,
+    String? giftFor,
+  }) =>
+      SavingsGoal(
         id: id,
         name: name,
         current: current ?? this.current,
@@ -45,6 +58,7 @@ class SavingsGoal {
         icon: icon,
         targetDate: targetDate,
         completedAt: completedAt ?? this.completedAt,
+        giftFor: giftFor ?? this.giftFor,
       );
 
   Map<String, dynamic> toJson() => {
@@ -55,6 +69,7 @@ class SavingsGoal {
         'icon': icon,
         if (targetDate != null) 'targetDate': targetDate,
         if (completedAt != null) 'completedAt': completedAt,
+        if (giftFor != null) 'giftFor': giftFor,
       };
 
   factory SavingsGoal.fromJson(Map<String, dynamic> j) => SavingsGoal(
@@ -67,5 +82,6 @@ class SavingsGoal {
         icon: j['icon'] as String? ?? defaultGoalIconKey,
         targetDate: j['targetDate'] as String?,
         completedAt: j['completedAt'] as String?,
+        giftFor: j['giftFor'] as String?,
       );
 }

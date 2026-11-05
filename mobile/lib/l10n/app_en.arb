@@ -497,6 +497,16 @@
   "goalMinimumDays": "minimum 7",
   "goalInvalid": "Add a goal name and target amount.",
   "goalCreated": "Goal created.",
+  "goalFieldIsGift": "Saving for a friend or family member?",
+  "goalFieldGiftFor": "Recipient or occasion",
+  "goalFieldGiftForHint": "e.g. Mom's birthday, Sister's wedding",
+  "goalGiftFor": "Gift for {recipient}",
+  "@goalGiftFor": {
+    "placeholders": {
+      "recipient": { "type": "String" }
+    }
+  },
+  "goalGiftDefault": "Gift goal",
   "goalReachIn": "{count, plural, one{To reach your goal in {count} day:} few{To reach your goal in {count} days:} many{To reach your goal in {count} days:} other{To reach your goal in {count} days:}}",
   "@goalReachIn": {
     "placeholders": {
@@ -903,6 +913,8 @@
   ,"badgeFortressDescription": "Built a single savings goal of at least $15,000."
   ,"badgeSpeedDemonTitle": "Speed Demon"
   ,"badgeSpeedDemonDescription": "Hit a savings goal at least 5 days ahead of schedule."
+  ,"badgeGenerousHeartTitle": "Generous Heart"
+  ,"badgeGenerousHeartDescription": "Successfully saved up for a friend's or family member's gift goal."
   ,"badgeTrackingNinjaTitle": "Tracking Ninja"
   ,"badgeTrackingNinjaDescription": "Categorized your expenses instead of leaving them as \"Other\", across at least 14 days of activity."
   ,"badgeMasterBalancerTitle": "Master Balancer"
